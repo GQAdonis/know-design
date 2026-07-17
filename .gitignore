@@ -102,3 +102,8 @@ deploy/agent-bins/
 
 # Looper harness attachments (bug screenshots etc.) — agent scratch, not repo content
 .looper-attachments/
+
+# Prometheus knowledge runtime — only the LLM wiki is versioned; events log
+# and raw staging are agent runtime data
+.prometheus/events.jsonl
+.prometheus/knowledge/raw/
