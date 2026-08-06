@@ -1,7 +1,7 @@
 import { execFile, spawn } from "node:child_process";
 import { access, chmod, cp, mkdir, open, readFile, readdir, readlink, rename, rm, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { basename, dirname, join } from "node:path";
+import { basename, dirname, join, posix } from "node:path";
 import { promisify } from "node:util";
 
 import {
@@ -238,6 +238,12 @@ export function buildDockerArgs(
   if (config.amrProfile != null) {
     dockerArgs.push("-e", `OPEN_DESIGN_AMR_PROFILE=${config.amrProfile}`);
   }
+  // The vela web origin is resolved on the host (from the build-time secret)
+  // but the packaged config is written inside the container, so the containerized
+  // build needs it forwarded or the workspace-team gate stays closed.
+  if (config.velaWebUrl != null) {
+    dockerArgs.push("-e", `OD_VELA_WEB_URL=${config.velaWebUrl}`);
+  }
   dockerArgs.push(
     "-w",
     "/project",
@@ -341,8 +347,8 @@ export function matchesAppImageProcess(
   // Direct AppRun launches do not know the installed .AppImage path. Our AppRun
   // fallback sets $APPIMAGE to the sibling AppRun before execing Electron.
   return (
-    basename(snapshot.executable) === PRODUCT_NAME &&
-    snapshot.env.APPIMAGE === join(dirname(snapshot.executable), "AppRun")
+    posix.basename(snapshot.executable) === PRODUCT_NAME &&
+    snapshot.env.APPIMAGE === posix.join(posix.dirname(snapshot.executable), "AppRun")
   );
 }
 
@@ -586,6 +592,7 @@ async function writeAssembledApp(
         ...(config.telemetryRelayUrl == null ? {} : { telemetryRelayUrl: config.telemetryRelayUrl }),
         ...(config.posthogKey == null ? {} : { posthogKey: config.posthogKey }),
         ...(config.posthogHost == null ? {} : { posthogHost: config.posthogHost }),
+        ...(config.velaWebUrl == null ? {} : { velaWebUrl: config.velaWebUrl }),
         ...(config.portable ? {} : { namespaceBaseRoot: config.roots.runtime.namespaceBaseRoot }),
       },
       null,

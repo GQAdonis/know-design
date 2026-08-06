@@ -60,6 +60,10 @@ export type TrackingAmrEntrySource =
   | 'inline_model_switcher_amr_row'
   | 'settings_amr_agent_card'
   | 'settings_amr_authorize'
+  // The 'use Open Design Cloud' callout on the execution tab. Same device-auth
+  // flow as settings_amr_authorize, kept distinct so the two entry points stay
+  // separable in funnel analysis.
+  | 'settings_cloud_callout'
   | 'settings_amr_console'
   | 'settings_amr_install'
   | 'avatar_amr_console'
@@ -79,16 +83,34 @@ export type TrackingAmrEntrySource =
   | 'generation_preview_switch_retry_card'
   | 'settings_amr_upgrade'
   | 'inline_amr_upgrade'
+  | 'deepseek_unpaid_modal'
+  | 'deepseek_workbench_badge'
+  | 'deepseek_model_switcher_upgrade'
   | 'avatar_amr_upgrade'
   | 'avatar_amr_agent_card'
   | 'artifact_success_upgrade'
   | 'home_artifact_upgrade';
+
+export type TrackingCampaignId = 'deepseek_v4_flash';
+export type TrackingCampaignUserState = 'paid' | 'unpaid';
+export type TrackingCampaignConversionSource =
+  | 'deepseek_unpaid_modal'
+  | 'deepseek_workbench_badge'
+  | 'deepseek_model_switcher_upgrade'
+  | 'landing_home_banner'
+  | 'landing_pricing_personal_plan'
+  | 'landing_pricing_team_plan';
 
 export interface AmrEntryAttribution {
   entryId: string;
   sourceProduct: 'open_design';
   sourceDetail: TrackingAmrEntrySource;
   occurredAt: string;
+  // Campaign joins keep the first entry source stable and record the final
+  // conversion touch separately. Both fields are forwarded to Vela so a
+  // Stripe payment result can be attributed without replacing first touch.
+  campaignId?: TrackingCampaignId;
+  conversionSource?: TrackingCampaignConversionSource;
   // Open Design install/device id forwarded only on consent-gated AMR handoffs.
   odDeviceId?: string;
   // Self-reported onboarding profile, forwarded to AMR (anchored to entryId) so
@@ -117,6 +139,16 @@ export type TrackingFidelity =
   | 'not_applicable';
 
 export type TrackingExecutionMode = 'local_cli' | 'byok';
+
+export type TrackingByokPreflightBlockReason =
+  | 'api_key_required'
+  | 'api_key_invalid'
+  | 'base_url_required'
+  | 'base_url_invalid'
+  | 'model_required'
+  | 'model_default'
+  | 'multiple'
+  | 'config_invalid';
 
 // v2 BYOK provider catalogue (CSV row 65). Replaces v1's
 // `anthropic|openai|azure|ollama|google`. `senseaudio` was added on
@@ -215,6 +247,11 @@ export type TrackingRunFailureDetail =
   | 'local_model_not_loaded'
   | 'cli_version_incompatible'
   | 'prompt_too_large'
+  | 'request_too_large'
+  | 'attachment_media_type_unsupported'
+  | 'tool_schema_invalid'
+  | 'prompt_tokenization_failed'
+  | 'provider_resource_not_found'
   | 'upstream_5xx'
   | 'upstream_client_error'
   | 'stream_disconnected'
@@ -241,6 +278,7 @@ export type TrackingRunFailureDetail =
   | 'qoder_stop_sequence'
   | 'signal_killed'
   | 'process_crashed'
+  | 'cpu_unsupported'
   | 'interrupted'
   | 'exit_code'
   | 'terminated_unknown'
@@ -258,6 +296,8 @@ export type TrackingRunFailureStage =
   | 'prompt_send'
   | 'first_token_wait'
   | 'tool_execution'
+  | 'tool_outstanding'
+  | 'post_tool_resume'
   | 'artifact_write'
   | 'child_close'
   | 'finalize';
@@ -305,7 +345,9 @@ export type TrackingRunFailureUserAction =
   | 'install_cli'
   | 'fix_config'
   | 'none';
-export type TrackingRunRetryStrategy = 'same_run_transient';
+export type TrackingRunRetryStrategy =
+  | 'same_run_transient'
+  | 'native_session_continue';
 export type TrackingRunRetryFinalResult =
   | 'not_attempted'
   | 'success'
@@ -346,6 +388,33 @@ export type TrackingRunCloseReason =
   | 'fatal_rpc_error'
   | 'empty_output'
   | 'unknown';
+export type TrackingAmrOpenCodeErrorPhase =
+  | 'timeout'
+  | 'event_stream_start'
+  | 'event_stream'
+  | 'prompt_async'
+  | 'other';
+export type TrackingAmrOpenCodeLastEventType =
+  | 'tool_call'
+  | 'tool_call_update'
+  | 'agent_message_chunk'
+  | 'agent_thought_chunk'
+  | 'done'
+  | 'other';
+export type TrackingAmrOpenCodeLastToolStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'completed'
+  | 'failed'
+  | 'other';
+export type TrackingAmrOpenCodeLastToolKind =
+  | 'read'
+  | 'write'
+  | 'edit'
+  | 'search'
+  | 'execute'
+  | 'fetch'
+  | 'other';
 export type TrackingLangfuseDeliveryStatus =
   | 'not_expected'
   | 'queued'
@@ -361,6 +430,12 @@ export type TrackingLangfuseDropReason =
   | 'relay_5xx'
   | 'langfuse_4xx'
   | 'langfuse_5xx'
+  | 'vela_400'
+  | 'vela_401'
+  | 'vela_403'
+  | 'vela_413'
+  | 'vela_429'
+  | 'vela_5xx'
   | 'network_error';
 export type TrackingLangfuseReportResult =
   | 'accepted'

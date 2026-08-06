@@ -91,6 +91,10 @@ import {
   resolveDefaultModelFromOptions,
   resolveModelForAgent,
 } from './runtimes/models.js';
+import {
+  BYOK_OPENCODE_PROVIDER_ID,
+  buildOpenCodeByokProviderConfig,
+} from './runtimes/byok-opencode.js';
 
 export { validateBaseUrl } from '@open-design/contracts/api/connectionTest';
 
@@ -950,6 +954,27 @@ function extractProviderErrorDetail(data: unknown, rawText: string): string {
   return rawText.trim().slice(0, 240);
 }
 
+/**
+ * Compose the `detail` for a transport failure so the real cause survives.
+ *
+ * undici reports DNS/TLS/connect failures as a `TypeError` whose message is the
+ * generic `fetch failed`, with the actual reason only on `cause.code`. Since
+ * `networkErrorToKind` maps just an allowlist to `invalid_base_url`, everything
+ * else — `DEPTH_ZERO_SELF_SIGNED_CERT`, `SELF_SIGNED_CERT_IN_CHAIN`,
+ * `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`, `EPROTO` — became `kind: unknown` with
+ * `detail: "fetch failed"`, i.e. a failure the user sees and we cannot name.
+ * That is the bulk of the 776 unattributed connection tests / 196 devices a day.
+ *
+ * The cause code is an OpenSSL/libuv constant, never user content, so appending
+ * it is safe; the message still goes through `redactSecrets`.
+ */
+function networkErrorDetail(err: unknown, secrets: (string | undefined)[]): string {
+  const message = redactSecrets(err instanceof Error ? err.message : String(err), secrets);
+  const code = (err as { cause?: { code?: unknown } } | null | undefined)?.cause?.code;
+  if (typeof code !== 'string' || !code) return message;
+  return message.includes(code) ? message : `${message} (${code})`;
+}
+
 function networkErrorToKind(err: unknown): ConnectionTestKind {
   if (err instanceof Error) {
     if (err.name === 'AbortError') return 'timeout';
@@ -1062,9 +1087,7 @@ async function validateSenseAudioNonChatModel(
       kind,
       latencyMs,
       model: input.model,
-      detail: redactSecrets(err instanceof Error ? err.message : String(err), [
-        input.apiKey,
-      ]),
+      detail: networkErrorDetail(err, [input.apiKey]),
     };
   }
 
@@ -1142,6 +1165,73 @@ interface ProviderCallShape {
   retryBodyOnUnsupportedMaxTokens?: unknown;
 }
 
+export function resolveOpenAIConnectionTestRunProviderPackage(
+  input: Pick<ProviderTestRequest, 'protocol' | 'baseUrl' | 'apiKey' | 'apiVersion' | 'model'>,
+): string | null {
+  if (input.protocol !== 'openai') return null;
+  const providerConfig = {
+    protocol: input.protocol,
+    baseUrl: input.baseUrl,
+    apiKey: input.apiKey,
+    ...(input.apiVersion !== undefined ? { apiVersion: input.apiVersion } : {}),
+  };
+  const byokConfig = buildOpenCodeByokProviderConfig(
+    providerConfig,
+    input.model,
+  );
+  const providerEntries = byokConfig?.config.provider;
+  if (!providerEntries || typeof providerEntries !== 'object') return null;
+  const provider = (providerEntries as Record<string, unknown>)[BYOK_OPENCODE_PROVIDER_ID];
+  if (!provider || typeof provider !== 'object') return null;
+  const npm = (provider as { npm?: unknown }).npm;
+  return typeof npm === 'string' ? npm : null;
+}
+
+function openAIChatCompletionsProviderCall(
+  baseUrl: string,
+  apiKey: string,
+  model: string,
+): ProviderCallShape {
+  return {
+    url: appendVersionedApiPath(baseUrl, '/chat/completions'),
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${apiKey}`,
+      ...(new URL(baseUrl).hostname === 'openrouter.ai' ? {
+        'HTTP-Referer': 'https://opendesign.dev',
+        'X-Title': 'Open Design',
+      } : {}),
+    },
+    body: {
+      model,
+      ...buildOpenAIChatTokenParam(model, PROVIDER_MAX_TOKENS),
+      messages: [{ role: 'user', content: SMOKE_PROMPT }],
+      stream: false,
+    },
+    extractText: extractOpenAIMessageText,
+  };
+}
+
+function openAIResponsesProviderCall(
+  baseUrl: string,
+  apiKey: string,
+  model: string,
+): ProviderCallShape {
+  return {
+    url: appendVersionedApiPath(baseUrl, '/responses'),
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${apiKey}`,
+    },
+    body: {
+      model,
+      input: SMOKE_PROMPT,
+      max_output_tokens: PROVIDER_MAX_TOKENS,
+    },
+    extractText: extractOpenAIResponsesText,
+  };
+}
+
 function buildProviderCall(input: ProviderTestRequest): ProviderCallShape {
   const baseUrl = String(input.baseUrl);
   const apiKey = String(input.apiKey);
@@ -1202,24 +1292,16 @@ function buildProviderCall(input: ProviderTestRequest): ProviderCallShape {
       // smoke test reuses the same call shape. We default the base URL
       // upstream-side in chat-routes; this layer assumes the caller passed
       // a concrete URL via the BYOK form.
-      return {
-        url: appendVersionedApiPath(baseUrl, '/chat/completions'),
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${apiKey}`,
-          ...(new URL(baseUrl).hostname === 'openrouter.ai' ? {
-            'HTTP-Referer': 'https://opendesign.dev',
-            'X-Title': 'Open Design',
-          } : {}),
-        },
-        body: {
-          model,
-          ...buildOpenAIChatTokenParam(model, PROVIDER_MAX_TOKENS),
-          messages: [{ role: 'user', content: SMOKE_PROMPT }],
-          stream: false,
-        },
-        extractText: extractOpenAIMessageText,
-      };
+      if (input.protocol === 'openai') {
+        const runProviderPackage = resolveOpenAIConnectionTestRunProviderPackage(input);
+        if (runProviderPackage === '@ai-sdk/openai') {
+          return openAIResponsesProviderCall(baseUrl, apiKey, model);
+        }
+        if (runProviderPackage === '@ai-sdk/openai-compatible') {
+          return openAIChatCompletionsProviderCall(baseUrl, apiKey, model);
+        }
+      }
+      return openAIChatCompletionsProviderCall(baseUrl, apiKey, model);
     case 'azure': {
       const url = new URL(baseUrl);
       const basePath = url.pathname.replace(/\/+$/, '');
@@ -1333,6 +1415,22 @@ function extractOpenAIMessageText(data: unknown): string {
   return '';
 }
 
+function extractOpenAIResponsesText(data: unknown): string {
+  const outputText = (data as { output_text?: unknown }).output_text;
+  if (typeof outputText === 'string') return outputText;
+  const output = (data as { output?: unknown }).output;
+  if (!Array.isArray(output)) return '';
+  for (const item of output) {
+    const content = (item as { content?: unknown } | undefined)?.content;
+    if (!Array.isArray(content)) continue;
+    for (const block of content) {
+      const text = (block as { text?: unknown } | undefined)?.text;
+      if (typeof text === 'string') return text;
+    }
+  }
+  return '';
+}
+
 export async function testProviderConnection(
   input: ProviderConnectionInput,
 ): Promise<ConnectionTestResponse> {
@@ -1375,9 +1473,7 @@ export async function testProviderConnection(
       kind: 'unknown',
       latencyMs: Date.now() - start,
       model,
-      detail: redactSecrets(err instanceof Error ? err.message : String(err), [
-        input.apiKey,
-      ]),
+      detail: networkErrorDetail(err, [input.apiKey]),
     };
   }
 
@@ -1604,7 +1700,7 @@ export async function testProviderConnection(
       kind,
       latencyMs,
       model,
-      detail: redactSecrets(message, [input.apiKey]),
+      detail: networkErrorDetail(err, [input.apiKey]),
     };
   } finally {
     clearTimeout(timer);
@@ -2086,6 +2182,31 @@ async function testAgentConnectionInternal(
   let timer: ReturnType<typeof setTimeout> | null = null;
   let abortHandler: (() => void) | null = null;
   const sink = createAgentSink();
+  let providerConnectivitySettled = false;
+  let resolveProviderConnectivity!: (value: {
+    kind: 'providerConnectivity';
+    detail: string;
+  }) => void;
+  const providerConnectivity = new Promise<{
+    kind: 'providerConnectivity';
+    detail: string;
+  }>((resolve) => {
+    resolveProviderConnectivity = resolve;
+  });
+  const sendAgentEvent = (event: string, payload: unknown) => {
+    sink.send(event, payload);
+    if (
+      providerConnectivitySettled ||
+      input.agentId !== 'opencode' ||
+      event !== 'stderr'
+    ) {
+      return;
+    }
+    const detail = openCodeProviderConnectivityDetail(sink.getStderrTail());
+    if (!detail) return;
+    providerConnectivitySettled = true;
+    resolveProviderConnectivity({ kind: 'providerConnectivity', detail });
+  };
 
   // Phase tracker for structured diagnostics (#2248). The order matches
   // the lifecycle: binary_resolution → spawn → connection_smoke_test →
@@ -2214,27 +2335,37 @@ async function testAgentConnectionInternal(
     };
   };
 
+  const resultFromProviderConnectivity = (
+    providerDetail: string,
+    exit?: { code: number | null; signal: NodeJS.Signals | null },
+  ): ConnectionTestResponse => {
+    const detail = redactSecrets(providerDetail);
+    console.warn(`[test:agent] ${def.name} → upstream_unavailable: ${detail}`);
+    return {
+      ok: false,
+      kind: 'upstream_unavailable',
+      latencyMs: Date.now() - start,
+      model,
+      agentName: def.name,
+      detail,
+      diagnostics: buildDiagnostics({
+        phase: 'connection_smoke_test',
+        ...(exit ? { exitCode: exit.code, signal: exit.signal } : {}),
+      }),
+    };
+  };
+
   const resultFromCancellation = (
     kind: 'timeout' | 'aborted',
   ): ConnectionTestResponse => {
-    const latencyMs = Date.now() - start;
     if (kind === 'timeout' && input.agentId === 'opencode') {
       const rawDetail = `${sink.getStderrTail()}\n${sink.getRawStdoutTail()}`;
       const providerDetail = openCodeProviderConnectivityDetail(rawDetail);
       if (providerDetail) {
-        const detail = redactSecrets(providerDetail);
-        console.warn(`[test:agent] ${def.name} → upstream_unavailable: ${detail}`);
-        return {
-          ok: false,
-          kind: 'upstream_unavailable',
-          latencyMs,
-          model,
-          agentName: def.name,
-          detail,
-          diagnostics: buildDiagnostics({ phase: 'connection_smoke_test' }),
-        };
+        return resultFromProviderConnectivity(providerDetail);
       }
     }
+    const latencyMs = Date.now() - start;
     console.warn(`[test:agent] ${def.name} → ${kind} in ${(latencyMs / 1000).toFixed(1)}s`);
     return {
       ok: false,
@@ -2257,7 +2388,11 @@ async function testAgentConnectionInternal(
         SMOKE_PROMPT,
         [],
         [],
-        { model: input.model ?? null, reasoning: input.reasoning ?? null },
+        {
+          model: input.model ?? null,
+          reasoning: input.reasoning ?? null,
+          serviceTier: input.serviceTier ?? null,
+        },
         {
           cwd: tempDir,
           ...(promptFile ? { promptFilePath: promptFile.path } : {}),
@@ -2386,7 +2521,7 @@ async function testAgentConnectionInternal(
       model,
       env,
       liveModelScope,
-      sink.send,
+      sendAgentEvent,
       sink.appendRawStdout,
     );
 
@@ -2425,6 +2560,17 @@ async function testAgentConnectionInternal(
       // close event before all stdout chunks have reached the parser.
       await delay(AGENT_STDOUT_DRAIN_MS);
       const latencyMs = Date.now() - start;
+      if (input.agentId === 'opencode') {
+        const providerDetail = openCodeProviderConnectivityDetail(
+          `${sink.getStderrTail()}\n${sink.getRawStdoutTail()}`,
+        );
+        if (providerDetail) {
+          return resultFromProviderConnectivity(providerDetail, {
+            code: winner.code,
+            signal: winner.signal,
+          });
+        }
+      }
       const buffered = sink.getText().trim();
       const claudeResult = input.agentId === 'claude'
         ? parseClaudeResultFrame(sink.getRawStdout())
@@ -2699,6 +2845,7 @@ async function testAgentConnectionInternal(
       sink.result,
       childExit,
       cancellationPromise,
+      providerConnectivity,
     ]);
 
     if (winner.kind === 'text') {
@@ -2706,9 +2853,13 @@ async function testAgentConnectionInternal(
         streamError,
         childExit,
         cancellationPromise,
+        providerConnectivity,
       ]);
       if (completion.kind === 'streamError') {
         return resultFromStreamError(completion.error);
+      }
+      if (completion.kind === 'providerConnectivity') {
+        return resultFromProviderConnectivity(completion.detail);
       }
       if (completion.kind === 'timeout' || completion.kind === 'aborted') {
         return resultFromCancellation(completion.kind);
@@ -2717,6 +2868,9 @@ async function testAgentConnectionInternal(
     }
     if (winner.kind === 'streamError') {
       return resultFromStreamError(winner.error);
+    }
+    if (winner.kind === 'providerConnectivity') {
+      return resultFromProviderConnectivity(winner.detail);
     }
     if (winner.kind === 'timeout' || winner.kind === 'aborted') {
       return resultFromCancellation(winner.kind);
