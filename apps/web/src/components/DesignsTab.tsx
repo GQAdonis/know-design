@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Dialog, DialogDescription, DialogFooter, DialogTitle } from "@open-design/components";
+import type { WorkspaceCollabContext } from "@open-design/contracts";
 import { projectKindFromMetadataToTracking } from "@open-design/contracts/analytics";
 import { useAnalytics } from "../analytics/provider";
 import {
@@ -10,7 +11,8 @@ import {
   trackProjectsMorePopoverClick,
 } from "../analytics/events";
 import { useT } from "../i18n";
-import { deleteLiveArtifact, fetchLiveArtifacts, fetchProjectFiles, liveArtifactPreviewUrl, projectFileUrl } from "../providers/registry";
+import { useWorkspaceContext } from "../collab/useWorkspaceContext";
+import { deleteLiveArtifact, fetchLiveArtifacts, fetchProjectFiles, liveArtifactPreviewUrl } from "../providers/registry";
 import type {
 	DesignSystemSummary,
 	LiveArtifactSummary,
@@ -28,6 +30,13 @@ import {
 } from "./design-system-project";
 import { LiveArtifactBadges } from "./LiveArtifactBadges";
 import { Toast } from "./Toast";
+import {
+	HtmlProjectCoverFrame,
+	coverFromProjectFile,
+	projectCoverUrl,
+	selectProjectFileCover,
+	type ProjectCoverOverride,
+} from "./project-cover";
 
 type SubTab = "recent" | "yours";
 type ViewMode = "grid" | "kanban";
@@ -100,6 +109,7 @@ export function DesignsTab({
 	const confirmTitleId = useId();
 	const t = useT();
 	const analytics = useAnalytics();
+	const { context: workspaceContext } = useWorkspaceContext();
 	// P0 page_view page_name=projects — fire once when the tab mounts so
 	// `/projects` landings register even before the user clicks anything.
 	// ref-keyed to survive re-renders that flip parent state without
@@ -116,7 +126,7 @@ export function DesignsTab({
 		Record<string, LiveArtifactSummary[]>
 	>({});
 	const [coverByProject, setCoverByProject] = useState<
-		Record<string, { kind: "html" | "image" | "video" | "logo"; name: string } | null>
+		Record<string, ProjectCoverOverride | null>
 	>({});
 	const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 	const [selectMode, setSelectMode] = useState(false);
@@ -152,7 +162,8 @@ export function DesignsTab({
 	});
 
 	useEffect(() => {
-		let cancelled = false;
+		if (!isActive) return;
+		const controller = new AbortController();
 		const projectIds = projects.map((project) => project.id);
 		if (projectIds.length === 0) {
 			setLiveArtifactsByProject({});
@@ -162,20 +173,25 @@ export function DesignsTab({
 		void Promise.all(
 			projectIds.map(
 				async (projectId) =>
-					[projectId, await fetchLiveArtifacts(projectId)] as const,
+					[
+						projectId,
+						await fetchLiveArtifacts(projectId, {
+							signal: controller.signal,
+							workspaceContext,
+						}),
+					] as const,
 			),
 		).then((entries) => {
-			if (cancelled) return;
+			if (controller.signal.aborted) return;
 			setLiveArtifactsByProject(Object.fromEntries(entries));
 		});
 
-		return () => {
-			cancelled = true;
-		};
-	}, [projects]);
+		return () => controller.abort();
+	}, [isActive, projects, workspaceContext]);
 
 	useEffect(() => {
-		let cancelled = false;
+		if (!isActive) return;
+		const controller = new AbortController();
 		if (projects.length === 0) {
 			setCoverByProject({});
 			return;
@@ -190,48 +206,29 @@ export function DesignsTab({
 				if (project.metadata?.entryFile && !designSystemProject) return [project.id, null] as const;
 				let files: Awaited<ReturnType<typeof fetchProjectFiles>>;
 				try {
-					files = await fetchProjectFiles(project.id);
+					files = await fetchProjectFiles(project.id, {
+						signal: controller.signal,
+						workspaceContext,
+					});
 				} catch {
 					return [project.id, null] as const;
 				}
+				if (controller.signal.aborted) return [project.id, null] as const;
 				if (designSystemProject) {
 					const logo = findDesignSystemLogoFile(files);
 					if (logo) {
-						return [
-							project.id,
-							{ kind: "logo" as const, name: logo.path ?? logo.name },
-						] as const;
+						return [project.id, coverFromProjectFile(logo, "logo")] as const;
 					}
 					return [project.id, null] as const;
 				}
-				const image = files
-					.filter((f) => f.kind === "image")
-					.sort((a, b) => b.mtime - a.mtime)[0];
-				if (image) {
-					return [
-						project.id,
-						{ kind: "image" as const, name: image.path ?? image.name },
-					] as const;
-				}
-				const video = files
-					.filter((f) => f.kind === "video")
-					.sort((a, b) => b.mtime - a.mtime)[0];
-				if (video) {
-					return [
-						project.id,
-						{ kind: "video" as const, name: video.path ?? video.name },
-					] as const;
-				}
-				return [project.id, null] as const;
+				return [project.id, selectProjectFileCover(files)] as const;
 			}),
 		).then((entries) => {
-			if (cancelled) return;
+			if (controller.signal.aborted) return;
 			setCoverByProject(Object.fromEntries(entries));
 		});
-		return () => {
-			cancelled = true;
-		};
-	}, [projects]);
+		return () => controller.abort();
+	}, [isActive, projects, workspaceContext]);
 
 	useEffect(() => {
 		if (!menuOpenId) return;
@@ -481,7 +478,7 @@ export function DesignsTab({
 			message: `${t("common.delete")} "${artifact.title}"?`,
 			confirmLabel: t("designs.menuDelete"),
 			onConfirm: async () => {
-				const ok = await deleteLiveArtifact(projectId, artifact.id);
+				const ok = await deleteLiveArtifact(projectId, artifact.id, workspaceContext);
 				if (!ok) return;
 				setLiveArtifactsByProject((current) => ({
 					...current,
@@ -555,7 +552,7 @@ export function DesignsTab({
 					) : null}
 					<div className="toolbar-search">
 						<span className="search-icon" aria-hidden>
-							<Icon name="search" size={13} />
+							<Icon name="search" size={14} />
 						</span>
 						<input
 							placeholder={t("designs.searchPlaceholder")}
@@ -592,7 +589,7 @@ export function DesignsTab({
 						>
 							<Icon
 								name={projectsRefreshing ? "spinner" : "refresh"}
-								size={13}
+								size={14}
 								className={projectsRefreshing ? "icon-spin" : undefined}
 							/>
 							<span>
@@ -636,7 +633,7 @@ export function DesignsTab({
 								setSelectMode(true);
 							}}
 						>
-							<Icon name="check" size={13} />
+							<Icon name="check" size={14} />
 							<span>{t("designs.selectMode")}</span>
 						</button>
 					) : null}
@@ -745,7 +742,7 @@ export function DesignsTab({
 											void handleDeleteLiveArtifact(p.id, artifact);
 										}}
 									>
-										<Icon name="close" size={12} />
+										<Icon name="close" size={14} />
 									</button>
 									<div
 										className="design-card-thumb live-artifact-thumb"
@@ -753,7 +750,12 @@ export function DesignsTab({
 									>
 										<iframe
 											className="thumb-iframe"
-											src={liveArtifactPreviewUrl(p.id, artifact.id)}
+											src={liveArtifactPreviewUrl(
+												p.id,
+												artifact.id,
+												"rendered",
+												workspaceContext,
+											)}
 											title=""
 											loading="lazy"
 											sandbox="allow-scripts"
@@ -788,7 +790,11 @@ export function DesignsTab({
 
 						const liveCount = liveArtifactsByProject[p.id]?.length ?? 0;
 						const status = p.status?.value ?? "not_started";
-						const cover = projectCover(p, coverByProject[p.id] ?? null);
+						const cover = projectCover(
+							p,
+							coverByProject[p.id] ?? null,
+							workspaceContext,
+						);
 						const isSelected = selected.has(p.id);
 						const designSystemProject = isDesignSystemProject(p);
 						const publishedDesignSystem = isPublishedDesignSystemProject(p, designSystems);
@@ -827,7 +833,7 @@ export function DesignsTab({
 										className={`design-card-checkbox${isSelected ? " checked" : ""}`}
 										aria-hidden
 									>
-										{isSelected ? <Icon name="check" size={12} /> : null}
+										{isSelected ? <Icon name="check" size={14} /> : null}
 									</span>
 								) : (
 									<div
@@ -882,7 +888,7 @@ export function DesignsTab({
 													handleRenameProject(p);
 												}}
 											>
-												<Icon name="pencil" size={12} />
+												<Icon name="pencil" size={14} />
 												<span>{t("designs.menuRename")}</span>
 											</button>
 											{onDuplicate ? (
@@ -923,7 +929,7 @@ export function DesignsTab({
 													handleDeleteProject(p);
 												}}
 											>
-												<Icon name="close" size={12} />
+												<Icon name="close" size={14} />
 												<span>{t("designs.menuDelete")}</span>
 											</button>
 										</div>
@@ -946,7 +952,13 @@ export function DesignsTab({
 									) : cover.kind === "video" && cover.src ? (
 										<video className="thumb-media" src={cover.src} muted preload="metadata" playsInline />
 									) : cover.kind === "html" ? (
-										<span className="project-thumb-glyph">{cover.initial}</span>
+										<HtmlProjectCoverFrame
+											src={cover.src}
+											initial={cover.initial}
+											iframeClassName="thumb-iframe"
+											glyphClassName="project-thumb-glyph"
+											diagnostic={`${p.id}:${cover.name ?? "unknown"}`}
+										/>
 									) : (
 										<span className="project-thumb-glyph">{cover.initial}</span>
 									)}
@@ -1044,7 +1056,7 @@ export function DesignsTab({
 															handleDeleteProject(p);
 														}}
 													>
-														<Icon name="close" size={12} />
+														<Icon name="close" size={14} />
 													</button>
 													<div
 														className="design-kanban-card-name"
@@ -1223,12 +1235,14 @@ function isOrbitProject(project: Project): boolean {
 
 function projectCover(
 	project: Project,
-	override: { kind: "html" | "image" | "video" | "logo"; name: string } | null,
+	override: ProjectCoverOverride | null,
+	workspaceContext?: WorkspaceCollabContext | null,
 ): {
 	kind: "image" | "video" | "html" | "logo" | "brand" | "fallback";
 	src?: string;
 	style: CSSProperties;
 	initial: string;
+	name?: string;
 	brandId?: string;
 	brandHost?: string;
 } {
@@ -1260,17 +1274,28 @@ function projectCover(
 	if (override) {
 		return {
 			kind: override.kind,
-			src: projectFileUrl(project.id, override.name),
+			src: projectCoverUrl(
+				project.id,
+				override.name,
+				override.mtime,
+				workspaceContext,
+			),
 			style,
 			initial,
+			name: override.name,
 		};
 	}
 	const entry = meta?.entryFile;
 	if (entry) {
-		const src = projectFileUrl(project.id, entry);
+		const src = projectCoverUrl(
+			project.id,
+			entry,
+			project.updatedAt,
+			workspaceContext,
+		);
 		if (meta?.kind === "image") return { kind: "image", src, style, initial };
 		if (meta?.kind === "video") return { kind: "video", src, style, initial };
-		if (/\.html?$/i.test(entry)) return { kind: "html", src, style, initial };
+		if (/\.html?$/i.test(entry)) return { kind: "html", src, style, initial, name: entry };
 	}
 	return { kind: "fallback", style, initial };
 }
@@ -1335,13 +1360,17 @@ function ProjectBrandCover({
 	);
 }
 
-type ProjectCategory = "prototype" | "live-artifact" | "slide" | "media" | "brand";
+type ProjectCategory = "prototype" | "live-artifact" | "web-clone" | "slide" | "media" | "brand";
 
 function projectCategory(project: Project): ProjectCategory {
 	const meta = project.metadata;
 	if (meta?.intent === "live-artifact" || project.skillId === "live-artifact") {
 		return "live-artifact";
 	}
+	// Website clone projects still store `kind: 'prototype'` (see
+	// home-hero/chips.ts's 'web-clone' chip); only `intent: 'web-clone'`
+	// marks the scenario, so it must be checked before the prototype fallback.
+	if (meta?.intent === "web-clone") return "web-clone";
 	if (meta?.kind === "deck") return "slide";
 	if (meta?.kind === "brand") return "brand";
 	if (meta?.kind === "image" || meta?.kind === "video" || meta?.kind === "audio") {
@@ -1355,13 +1384,15 @@ function ProjectTag({ category }: { category: ProjectCategory }) {
 	const label =
 		category === "live-artifact"
 			? t("designs.tagLiveArtifact")
-			: category === "slide"
-				? t("designs.tagSlide")
-				: category === "brand"
-					? "Brand"
-				: category === "media"
-					? t("designs.tagMedia")
-					: t("designs.tagPrototype");
+			: category === "web-clone"
+				? t("designs.tagWebClone")
+				: category === "slide"
+					? t("designs.tagSlide")
+					: category === "brand"
+						? "Brand"
+					: category === "media"
+						? t("designs.tagMedia")
+						: t("designs.tagPrototype");
 	return (
 		<span className={`design-card-tag tag-${category}`}>{label}</span>
 	);

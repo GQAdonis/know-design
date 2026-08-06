@@ -1,10 +1,8 @@
 import { expect, test } from '@/playwright/suite';
-import { ensureRailOpen } from '@/playwright/rail';
 import { routeAgents } from '@/playwright/mock-factory';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 const STORAGE_KEY = 'open-design:config';
-const OPEN_SETTINGS_LABEL = /Open settings|打开设置|開啟設定/i;
 const AUTOMATIONS_TITLE = /Automations|自动化/i;
 
 test.describe.configure({ timeout: 30_000 });
@@ -77,6 +75,13 @@ async function waitForLoadingToClear(page: Page) {
   await expect(page.getByText('Loading Open Design…')).toHaveCount(0, { timeout: 15_000 });
 }
 
+async function openSchedulePopover(modal: Locator, name: RegExp | string) {
+  await modal.getByRole('button', { name }).click();
+  const popover = modal.locator('.automation-popover--schedule');
+  await expect(popover).toBeVisible();
+  return popover;
+}
+
 async function gotoEntryHome(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await waitForLoadingToClear(page);
@@ -84,20 +89,23 @@ async function gotoEntryHome(page: Page) {
   if (await privacyDialog.isVisible().catch(() => false)) {
     await privacyDialog.getByRole('button', { name: /I get it|not now|got it|don't share/i }).click();
   }
-  await expect(page.getByRole('button', { name: OPEN_SETTINGS_LABEL })).toBeVisible();
+  // #5517 moved the settings entry into the collapsed-by-default nav rail, so it
+  // is not in the accessibility tree on load; the hero is the ready signal now.
+  await expect(page.getByTestId('home-hero')).toBeVisible();
 }
 
 async function gotoAutomations(page: Page) {
   await gotoEntryHome(page);
-  await ensureRailOpen(page);
-  await page.getByTestId('entry-nav-tasks').click();
+  // #5517's rail dropped the Automations destination; /automations is still the
+  // route the view lives on.
+  await page.goto('/automations', { waitUntil: 'domcontentloaded' });
   const view = page.getByTestId('tasks-view');
   await expect(view.getByRole('heading', { level: 1, name: AUTOMATIONS_TITLE })).toBeVisible();
   return view;
 }
 
 test.describe('Automations page', () => {
-  test('[P0] renders the page hero, summary metrics, filters, and saved rows', async ({ page }) => {
+  test('[P1] renders the page hero, summary metrics, filters, and saved rows', async ({ page }) => {
     await seedAutomationsBase(page);
 
     let routines: Array<Record<string, unknown>> = [
@@ -185,7 +193,7 @@ test.describe('Automations page', () => {
     await expect(view.getByRole('status')).toContainText('No templates in this category yet.');
   });
 
-  test('[P0] @critical creates an automation from the page and runs it into a project conversation', async ({ page }) => {
+  test('[P1] creates an automation from the page and runs it into a project conversation', async ({ page }) => {
     await seedAutomationsBase(page);
 
     const projects = [
@@ -292,8 +300,8 @@ test.describe('Automations page', () => {
 
     await view.getByRole('button', { name: 'New automation' }).click();
     const modal = page.getByTestId('automation-modal');
-    await modal.getByLabel('Automation title').fill('Weekly digest');
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Weekly digest');
+    await modal.getByTestId('automation-modal-title').fill('Weekly digest');
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Weekly digest');
     await modal.getByTestId('automation-modal-prompt').fill('Summarize GitHub and design activity.');
     await expect(modal.getByTestId('automation-modal-prompt')).toHaveValue('Summarize GitHub and design activity.');
     await modal.getByRole('button', { name: 'Create' }).click();
@@ -424,7 +432,7 @@ test.describe('Automations page', () => {
 
     await view.getByRole('button', { name: 'New automation' }).click();
     const modal = page.getByTestId('automation-modal');
-    await modal.getByLabel('Automation title').fill('Newest digest');
+    await modal.getByTestId('automation-modal-title').fill('Newest digest');
     await modal.getByTestId('automation-modal-prompt').fill('Summarize the newest activity.');
     await modal.getByRole('button', { name: 'Create' }).click();
 
@@ -512,14 +520,14 @@ test.describe('Automations page', () => {
 
     await view.getByRole('button', { name: 'New automation' }).click();
     const modal = page.getByTestId('automation-modal');
-    await modal.getByLabel('Automation title').fill('Friday launch digest');
+    await modal.getByTestId('automation-modal-title').fill('Friday launch digest');
     await modal.getByTestId('automation-modal-prompt').fill('Summarize launch readiness every Friday.');
-    await modal.getByRole('button', { name: /Daily/i }).click();
-    await page.getByRole('tab', { name: 'Weekly' }).click();
-    await page.locator('.automation-popover__weekdays').getByRole('button', { name: 'Fri' }).click();
-    await page.locator('.automation-popover--schedule input[type="time"]').fill('16:45');
-    await page.locator('.automation-popover--schedule select').selectOption('UTC');
-    await page.getByRole('button', { name: 'Done' }).click();
+    const schedulePopover = await openSchedulePopover(modal, /Daily/i);
+    await schedulePopover.getByRole('tab', { name: 'Weekly' }).click();
+    await schedulePopover.locator('.automation-popover__weekdays').getByRole('button', { name: 'Fri' }).click();
+    await schedulePopover.locator('input[type="time"]').fill('16:45');
+    await schedulePopover.locator('select').selectOption('UTC');
+    await schedulePopover.getByRole('button', { name: 'Done' }).click();
     await expect(modal.getByRole('button', { name: /Friday.*4:45 PM.*UTC/i })).toBeVisible();
 
     await modal.getByRole('button', { name: 'Create' }).click();
@@ -709,24 +717,24 @@ test.describe('Automations page', () => {
     await row.getByRole('button', { name: 'Edit' }).click();
 
     const modal = page.getByTestId('automation-modal');
-    await expect(modal).toHaveAttribute('aria-label', 'Edit automation');
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Daily digest');
+    await expect(modal).toHaveAttribute('aria-label', 'Edit');
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Daily digest');
     await expect(modal.getByTestId('automation-modal-prompt')).toHaveValue('Summarize GitHub and design activity.');
 
     await modal.getByRole('button', { name: /New project each run/i }).click();
     await modal.getByRole('button', { name: 'Launch Room' }).click();
     await expect(modal.getByRole('button', { name: /Launch Room/i })).toBeVisible();
 
-    await modal.getByRole('button', { name: /Daily/i }).click();
-    await page.getByRole('tab', { name: 'Weekdays' }).click();
-    await page.locator('.automation-popover--schedule input[type="time"]').fill('10:30');
-    await page.locator('.automation-popover--schedule select').selectOption('UTC');
-    await page.getByRole('button', { name: 'Done' }).click();
-    await expect(modal.getByRole('button', { name: /Weekdays.*10:30 AM.*UTC/i })).toBeVisible();
+    const schedulePopover = await openSchedulePopover(modal, /Daily/i);
+    await schedulePopover.getByRole('tab', { name: 'Weekdays' }).click();
+    await schedulePopover.locator('input[type="time"]').fill('10:30');
+    await schedulePopover.locator('select').selectOption('UTC');
+    await schedulePopover.getByRole('button', { name: 'Done' }).click();
+    await expect(modal.getByRole('button', { name: /Runs Mon.*Fri.*10:30 AM.*UTC/i })).toBeVisible();
 
-    await modal.getByLabel('Automation title').fill('Launch digest');
+    await modal.getByTestId('automation-modal-title').fill('Launch digest');
     await modal.getByTestId('automation-modal-prompt').fill('Summarize launch readiness and open blockers.');
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Launch digest');
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Launch digest');
     await expect(modal.getByTestId('automation-modal-prompt')).toHaveValue('Summarize launch readiness and open blockers.');
 
     await modal.getByRole('button', { name: 'Save' }).click();
@@ -746,7 +754,7 @@ test.describe('Automations page', () => {
     });
 
     await expect(row).toContainText('Launch digest');
-    await expect(row).toContainText('Weekdays at 10:30 AM');
+    await expect(row).toContainText('Runs Mon–Fri at 10:30 AM');
     await expect(row).toContainText('Launch Room');
     await expect(row).toContainText('Summarize launch readiness and open blockers.');
   });
@@ -857,7 +865,7 @@ test.describe('Automations page', () => {
     const view = await gotoAutomations(page);
     await view.getByRole('button', { name: 'New automation' }).click();
     const modal = page.getByTestId('automation-modal');
-    await modal.getByLabel('Automation title').fill('Reuse launch project');
+    await modal.getByTestId('automation-modal-title').fill('Reuse launch project');
     await modal.getByTestId('automation-modal-prompt').fill('Append launch readiness notes.');
 
     await modal.getByRole('button', { name: /New project each run/i }).click();
@@ -973,7 +981,7 @@ test.describe('Automations page', () => {
     ]);
   });
 
-  test('[P0] keeps the automation modal open with the typed values when creation fails', async ({ page }) => {
+  test('[P1] keeps the automation modal open with the typed values when creation fails', async ({ page }) => {
     await seedAutomationsBase(page);
 
     await page.route('**/api/projects', async (route) => {
@@ -1033,17 +1041,17 @@ test.describe('Automations page', () => {
 
     await view.getByRole('button', { name: 'New automation' }).click();
     const modal = page.getByTestId('automation-modal');
-    await modal.getByLabel('Automation title').fill('Weekly digest');
+    await modal.getByTestId('automation-modal-title').fill('Weekly digest');
     await modal.getByTestId('automation-modal-prompt').fill('Summarize GitHub and design activity.');
     await modal.getByRole('button', { name: 'Create' }).click();
 
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Weekly digest');
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Weekly digest');
     await expect(modal.getByTestId('automation-modal-prompt')).toHaveValue('Summarize GitHub and design activity.');
     await expect(modal.getByText('provider unavailable')).toBeVisible();
     await expect(view.getByText('No automations yet')).toBeVisible();
   });
 
-  test('[P0] shows a page error and keeps the row usable when Run fails', async ({ page }) => {
+  test('[P1] shows a page error and keeps the row usable when Run fails', async ({ page }) => {
     await seedAutomationsBase(page);
 
     const routines = [
@@ -1119,7 +1127,7 @@ test.describe('Automations page', () => {
     await expect(row.getByRole('button', { name: 'Pause' })).toBeVisible();
   });
 
-  test('[P0] pauses, expands history, and deletes an automation from the saved list', async ({ page }) => {
+  test('[P1] pauses, expands history, and deletes an automation from the saved list', async ({ page }) => {
     await seedAutomationsBase(page);
 
     let routines: Array<Record<string, unknown>> = [
@@ -1700,8 +1708,8 @@ test.describe('Automations page', () => {
 
     await row.getByRole('button', { name: 'Edit' }).click();
     const modal = page.getByTestId('automation-modal');
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Daily digest');
-    await modal.getByLabel('Automation title').fill('Daily digest edited');
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Daily digest');
+    await modal.getByTestId('automation-modal-title').fill('Daily digest edited');
     await modal.getByRole('button', { name: /^Save/i }).click();
 
     await expect(view.getByText('Daily digest edited')).toBeVisible();
@@ -1796,13 +1804,13 @@ test.describe('Automations page', () => {
 
     await row.getByRole('button', { name: 'Edit' }).click();
     const modal = page.getByTestId('automation-modal');
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Daily launch digest');
-    await modal.getByRole('button', { name: /Daily/i }).click();
-    await page.getByRole('tab', { name: 'Weekly' }).click();
-    await page.locator('.automation-popover__weekdays').getByRole('button', { name: 'Tue' }).click();
-    await page.locator('.automation-popover--schedule input[type="time"]').fill('08:15');
-    await page.locator('.automation-popover--schedule select').selectOption('UTC');
-    await page.getByRole('button', { name: 'Done' }).click();
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Daily launch digest');
+    const schedulePopover = await openSchedulePopover(modal, /Daily/i);
+    await schedulePopover.getByRole('tab', { name: 'Weekly' }).click();
+    await schedulePopover.locator('.automation-popover__weekdays').getByRole('button', { name: 'Tue' }).click();
+    await schedulePopover.locator('input[type="time"]').fill('08:15');
+    await schedulePopover.locator('select').selectOption('UTC');
+    await schedulePopover.getByRole('button', { name: 'Done' }).click();
     await modal.getByRole('button', { name: /^Save/i }).click();
 
     await expect.poll(() => patchBodies.length).toBe(1);
@@ -1878,7 +1886,7 @@ test.describe('Automations page', () => {
     await expect(view.getByRole('status')).toHaveCount(0);
   });
 
-  test('[P0] @critical creates an automation from a catalog template with derived prompt context', async ({ page }) => {
+  test('[P1] creates an automation from a catalog template with derived prompt context', async ({ page }) => {
     await seedAutomationsBase(page);
 
     const createBodies: Array<Record<string, unknown>> = [];
@@ -1976,7 +1984,7 @@ test.describe('Automations page', () => {
 
     await view.getByRole('button', { name: /Memory refresh template/i }).click();
     const modal = page.getByTestId('automation-modal');
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Memory refresh template');
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Memory refresh template');
     await expect(modal.getByTestId('automation-modal-prompt')).toHaveValue(/Use Automation template "memory-refresh-template"/);
     await expect(modal.getByTestId('automation-modal-prompt')).toHaveValue(/Pipeline: Collect source packets -> Compact durable context -> Update memory/);
 
@@ -2094,15 +2102,15 @@ test.describe('Automations page', () => {
 
     await view.getByRole('button', { name: /Design system watch template/i }).click();
     const modal = page.getByTestId('automation-modal');
-    await expect(modal.getByLabel('Automation title')).toHaveValue('Design system watch template');
+    await expect(modal.getByTestId('automation-modal-title')).toHaveValue('Design system watch template');
     await modal.getByRole('button', { name: /New project each run/i }).click();
     await page.getByRole('button', { name: 'Template Target Project' }).click();
-    await modal.getByRole('button', { name: /Daily/i }).click();
-    await page.getByRole('tab', { name: 'Weekly' }).click();
-    await page.locator('.automation-popover__weekdays').getByRole('button', { name: 'Thu' }).click();
-    await page.locator('.automation-popover--schedule input[type="time"]').fill('13:30');
-    await page.locator('.automation-popover--schedule select').selectOption('UTC');
-    await page.getByRole('button', { name: 'Done' }).click();
+    const schedulePopover = await openSchedulePopover(modal, /Daily/i);
+    await schedulePopover.getByRole('tab', { name: 'Weekly' }).click();
+    await schedulePopover.locator('.automation-popover__weekdays').getByRole('button', { name: 'Thu' }).click();
+    await schedulePopover.locator('input[type="time"]').fill('13:30');
+    await schedulePopover.locator('select').selectOption('UTC');
+    await schedulePopover.getByRole('button', { name: 'Done' }).click();
 
     await modal.getByRole('button', { name: 'Create' }).click();
     await expect.poll(() => createBodies.length).toBe(1);

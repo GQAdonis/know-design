@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 dist/
 out/
 .next/
@@ -107,3 +107,14 @@ deploy/agent-bins/
 # and raw staging are agent runtime data
 .prometheus/events.jsonl
 .prometheus/knowledge/raw/
+
+# Deepwork local progress (git-local; OpenCode-readable via .ignore)
+.slim/deepwork/
+
+# Local agent worktrees (must stay git-ignored so pnpm guard does not scan them)
+.slim/worktrees/
+.slim/worktrees.json
+
+# Python bytecode from workflow helper self-checks / local compile.
+__pycache__/
+*.py[cod]
