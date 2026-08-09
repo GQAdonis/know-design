@@ -12,6 +12,10 @@ export const ELECTRON_BUILDER_FILE_PATTERNS = [
   "**/*",
   "!**/node_modules/.bin",
   "!**/node_modules/electron{,/**/*}",
+  // Build-time collector markers (see assembled-app-package-manager.ts). They
+  // steer electron-builder's node_modules collection and must not ship.
+  "!pnpm-workspace.yaml",
+  "!package-lock.json",
   "!**/*.map",
   "!**/*.tsbuildinfo",
   "!**/.next/cache",

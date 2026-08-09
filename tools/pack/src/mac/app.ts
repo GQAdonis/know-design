@@ -4,6 +4,7 @@ import { dirname, join, relative } from "node:path";
 
 import { rebuild, type RebuildOptions } from "@electron/rebuild";
 
+import { pinAssembledAppToNpmCollector } from "../assembled-app-package-manager.js";
 import type { ToolPackConfig } from "../config.js";
 import {
   MAC_DAEMON_PREBUNDLE_ESM_REQUIRE_BANNER,
@@ -373,6 +374,7 @@ export async function writeAssembledApp(
     }),
     "utf8",
   );
+  await pinAssembledAppToNpmCollector(paths.assembledAppRoot);
   await runNpmInstall(paths.assembledAppRoot);
   if (usePrebundledStandaloneWeb) {
     await copyMacPrebundleRuntimeDependencies(config, paths.assembledAppRoot);

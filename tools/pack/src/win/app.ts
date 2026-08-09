@@ -6,6 +6,10 @@ import { promisify } from "node:util";
 import { rebuild } from "@electron/rebuild";
 import { createCommandInvocation, createPackageManagerInvocation } from "@open-design/platform";
 
+import {
+  ASSEMBLED_APP_NPM_INSTALL_ARGS,
+  pinAssembledAppToNpmCollector,
+} from "../assembled-app-package-manager.js";
 import { hashJson, hashPath, ToolPackCache } from "../cache.js";
 import type { ToolPackConfig } from "../config.js";
 import {
@@ -64,7 +68,7 @@ async function runPnpm(config: ToolPackConfig, args: string[], extraEnv: NodeJS.
 
 async function runNpmInstall(appRoot: string): Promise<void> {
   const invocation = createCommandInvocation({
-    args: ["install", "--omit=dev", "--no-package-lock"],
+    args: [...ASSEMBLED_APP_NPM_INSTALL_ARGS],
     command: process.platform === "win32" ? "npm.cmd" : "npm",
   });
   await execFileAsync(invocation.command, invocation.args, {
@@ -465,6 +469,7 @@ export async function prepareWinPackagedApp(
       if (usePrebundle) {
         await buildPrebundledStandaloneRuntime(config, appPaths);
       }
+      await pinAssembledAppToNpmCollector(appRoot);
       await runNpmInstall(appRoot);
       await prepareNodePtyRuntime({
         appRoot,

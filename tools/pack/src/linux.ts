@@ -26,6 +26,10 @@ import {
   stopProcesses,
 } from "@open-design/platform";
 
+import {
+  ASSEMBLED_APP_NPM_INSTALL_ARGS,
+  pinAssembledAppToNpmCollector,
+} from "./assembled-app-package-manager.js";
 import type { ToolPackConfig } from "./config.js";
 import { domToPptxBundleResource } from "./dom-to-pptx-resource.js";
 import { copyBundledResourceTrees, linuxResources } from "./resources.js";
@@ -445,10 +449,11 @@ export function resolveProductionInstallCommand(env: NodeJS.ProcessEnv): Product
       args: ["install", "--prod", "--no-lockfile", "--config.node-linker=hoisted"],
     };
   }
-  return { command: "npm", args: ["install", "--omit=dev", "--no-package-lock"] };
+  return { command: "npm", args: [...ASSEMBLED_APP_NPM_INSTALL_ARGS] };
 }
 
 async function runProductionInstall(appRoot: string): Promise<void> {
+  await pinAssembledAppToNpmCollector(appRoot);
   const { command, args } = resolveProductionInstallCommand(process.env);
   await execFileAsync(command, args, {
     cwd: appRoot,
@@ -658,7 +663,15 @@ async function writeLinuxBuilderConfig(config: ToolPackConfig, paths: LinuxPaths
             },
           ],
         }),
-    files: ["**/*", "!**/node_modules/.bin", "!**/node_modules/electron{,/**/*}"],
+    // pnpm-workspace.yaml / package-lock.json are build-time collector markers
+    // (see assembled-app-package-manager.ts) and must not ship.
+    files: [
+      "**/*",
+      "!**/node_modules/.bin",
+      "!**/node_modules/electron{,/**/*}",
+      "!pnpm-workspace.yaml",
+      "!package-lock.json",
+    ],
     icon: linuxResources.icon,
     linux: {
       target,

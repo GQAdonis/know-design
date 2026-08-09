@@ -615,18 +615,27 @@ describe("stopPackedLinuxApp", () => {
 });
 
 describe("resolveProductionInstallCommand", () => {
-  it("defaults to npm install --omit=dev --no-package-lock when OD_TOOLS_PACK_PNPM_BIN is unset", () => {
+  // The assembled app must keep its package-lock.json: it is the marker that
+  // makes electron-builder's detectPackageManagerByFile resolve the app to npm.
+  // Without it, detection falls through to the environment, which reports pnpm
+  // (tools-pack runs under `pnpm tools-pack`), and the pnpm collector silently
+  // drops the app's native modules. See assembled-app-package-manager.ts.
+  it("defaults to npm install --omit=dev when OD_TOOLS_PACK_PNPM_BIN is unset, keeping the lockfile", () => {
     expect(resolveProductionInstallCommand({})).toEqual({
       command: "npm",
-      args: ["install", "--omit=dev", "--no-package-lock"],
+      args: ["install", "--omit=dev"],
     });
   });
 
   it("treats an empty OD_TOOLS_PACK_PNPM_BIN as unset and keeps the npm host default", () => {
     expect(resolveProductionInstallCommand({ OD_TOOLS_PACK_PNPM_BIN: "" })).toEqual({
       command: "npm",
-      args: ["install", "--omit=dev", "--no-package-lock"],
+      args: ["install", "--omit=dev"],
     });
+  });
+
+  it("never suppresses the assembled app's package-lock.json on the npm host path", () => {
+    expect(resolveProductionInstallCommand({}).args).not.toContain("--no-package-lock");
   });
 
   it("uses OD_TOOLS_PACK_PNPM_BIN with hoisted-layout pnpm flags when set", () => {
