@@ -1,40 +1,30 @@
+/**
+ * DeepSeek V4 unlimited-access campaign — identity, window, and pure helpers.
+ *
+ * Now covers TWO models. The free week that ran 8/6–8/13 offered V4 Flash
+ * alone; the two-week window that starts the instant that one ends offers V4
+ * Pro alongside it, on one shared window that opens and closes for both models
+ * at once. The module keeps its `…V4Flash` names so this stays a content change
+ * rather than a rename across 28 i18n keys × 19 locales; the names are due for
+ * a cleanup pass once the campaign is off.
+ *
+ * User-visible copy lives in i18n (`campaign.deepseekV4Flash.*`). Keep this
+ * module free of locale strings so workbench surfaces follow the active UI
+ * language (19 locales under apps/web/src/i18n/locales).
+ */
 export const DEEPSEEK_V4_FLASH_CAMPAIGN = {
-  id: 'deepseek-v4-flash-unlimited-2026',
-  modelId: 'deepseek-v4-flash',
+  id: 'deepseek-v4-dual-unlimited-2026',
+  /**
+   * The model a paid user is switched to when they accept the campaign. Pro is
+   * the headline benefit, so it is the one 「立即使用」 lands on.
+   */
+  modelId: 'deepseek-v4-pro',
+  /** Both campaign models, in the order product presents them: Pro then Flash. */
+  modelIds: ['deepseek-v4-pro', 'deepseek-v4-flash'],
   window: {
-    startAt: '2026-08-06T00:00:00+08:00',
-    endAtExclusive: '2026-08-13T20:00:00+08:00',
-    label: '8 月 6 日—8 月 13 日',
+    startAt: '2026-08-13T20:00:00+08:00',
+    endAtExclusive: '2026-08-27T20:00:00+08:00',
   },
-  headline: '这次，别省着用。DeepSeek V4 Flash 无限用。',
-  description: '落地页、网站、幻灯片、图片，无限做，做到满意',
-  badge: '无限使用',
-  benefit: 'DeepSeek V4 Flash 无限使用',
-  timing: '8 月 6 日至 8 月 13 日，活动期间免费使用',
-  ruleSummary: '8 月 6 日至 8 月 13 日，付费用户可在产品内免费使用；大规模盗刷等违规行为将暂停活动权益。',
-  audienceDefinition: {
-    paid: '付费用户：当前存在有效个人或团队订阅的用户。',
-    unpaid: '未付费用户：当前没有有效订阅的用户；曾经充值但没有订阅的用户仍归为未付费用户。',
-  },
-  paid: {
-    eyebrow: '7 天免费开放',
-    status: '已解锁 · 8 月 6 日—8 月 13 日',
-    cta: '立即使用',
-    modelBadge: '无限使用',
-  },
-  unpaid: {
-    eyebrow: '付费用户免费开放',
-    status: '升级后可用 · 截止 8 月 13 日',
-    cta: '升级套餐，立即使用',
-    modelBadge: '升级可用',
-    tooltip: '活动窗口内订阅付费套餐后可用，统一于 8 月 13 日结束。',
-  },
-  // Reserved for the backend usage-limit signal; no trigger wired yet.
-  restricted: {
-    modelBadge: '已暂停',
-    tooltip: '检测到异常的大规模使用，本活动权益已暂停；如有疑问请联系支持。',
-  },
-  boundary: '套餐内的无限制模型额度与免费生成次数，仅可通过Open Design使用；无法在MCP/CLI/API及其他场景使用。解释权归官方所有。',
 } as const;
 
 export type DeepSeekV4FlashCampaignAudience = 'paid' | 'unpaid' | 'unknown';
@@ -64,24 +54,46 @@ export function deepSeekV4FlashCampaignNextBoundary(now: number): number | null 
   return null;
 }
 
-function formatCampaignRemaining(remainingMs: number): string {
+function formatHms(remainingMs: number): { days: number; hms: string } {
   const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
   const days = Math.floor(totalSeconds / 86_400);
   const hours = Math.floor((totalSeconds % 86_400) / 3_600);
   const minutes = Math.floor((totalSeconds % 3_600) / 60);
   const seconds = totalSeconds % 60;
-  return `${days}天 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  const hms = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  return { days, hms };
 }
 
-export function formatDeepSeekV4FlashCampaignCountdown(now: number): string {
+/**
+ * Format countdown using the active UI locale. Callers pass `t` from `useT()`
+ * so day unit / "ended" copy stay localized.
+ *
+ * `t` is intentionally contravariant-friendly (`string` key accepted via cast
+ * at the call site through DictKey-typed useT): only the two countdown keys
+ * below are ever requested.
+ */
+export function formatDeepSeekV4FlashCampaignCountdown(
+  now: number,
+  t: (
+    key:
+      | 'campaign.deepseekV4Flash.countdownRemaining'
+      | 'campaign.deepseekV4Flash.countdownEnded',
+    vars?: Record<string, string | number>,
+  ) => string,
+): string {
   const startAt = Date.parse(DEEPSEEK_V4_FLASH_CAMPAIGN.window.startAt);
   const endAtExclusive = Date.parse(DEEPSEEK_V4_FLASH_CAMPAIGN.window.endAtExclusive);
-  // The surrounding UI already labels this value as “活动倒计时”. Keep the
-  // value itself neutral so a pre-launch render never exposes a confusing
-  // state such as “距开始 X 天”.
-  if (now < startAt) return formatCampaignRemaining(startAt - now);
-  if (now < endAtExclusive) return formatCampaignRemaining(endAtExclusive - now);
-  return '活动已结束';
+  // The surrounding UI already labels this value as the campaign countdown.
+  // Keep the value itself free of "until start" prose.
+  if (now < startAt) {
+    const { days, hms } = formatHms(startAt - now);
+    return t('campaign.deepseekV4Flash.countdownRemaining', { days, hms });
+  }
+  if (now < endAtExclusive) {
+    const { days, hms } = formatHms(endAtExclusive - now);
+    return t('campaign.deepseekV4Flash.countdownRemaining', { days, hms });
+  }
+  return t('campaign.deepseekV4Flash.countdownEnded');
 }
 
 export function resolveDeepSeekV4FlashCampaignAudience(input: {
@@ -105,5 +117,7 @@ export function resolveDeepSeekV4FlashCampaignAudience(input: {
 }
 
 export function isDeepSeekV4FlashCampaignModel(modelId: string | null | undefined): boolean {
-  return modelId?.trim().toLowerCase() === DEEPSEEK_V4_FLASH_CAMPAIGN.modelId;
+  const normalized = modelId?.trim().toLowerCase();
+  if (!normalized) return false;
+  return DEEPSEEK_V4_FLASH_CAMPAIGN.modelIds.some((id) => id === normalized);
 }

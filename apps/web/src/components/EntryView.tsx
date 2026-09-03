@@ -52,6 +52,7 @@ type EntryCreateProjectInput = Omit<CreateInput, 'metadata'> & {
   pluginType?: string;
   appliedPluginSnapshotId?: string;
   pluginInputs?: Record<string, unknown>;
+  automaticStrategyTaskProfile?: import('@open-design/contracts').ProjectScenarioTaskProfile;
   conversationMode?: ChatSessionMode;
   autoSendFirstMessage?: boolean;
   requestId?: string;
@@ -79,6 +80,9 @@ interface Props {
   // detecting/skeleton state while the cold-start agent stream is in flight.
   agentsLoading?: boolean;
   amrLoggedIn?: boolean | null;
+  amrSessionState?: import('@open-design/contracts').AmrSessionState;
+  /** Forwarded to EntryShell for personal free campaign audience resolution. */
+  amrAccountPlan?: string | null;
   // Execution / model-switching context forwarded to the EntryShell so the
   // sticky top-bar can expose the active CLI/BYOK + model and persist
   // changes through the same channels as the project view.
@@ -256,6 +260,8 @@ export function EntryView({
   agents,
   agentsLoading,
   amrLoggedIn,
+  amrSessionState,
+  amrAccountPlan,
   config,
   providerModelsCache,
   onProviderModelsCacheChange,
@@ -388,6 +394,8 @@ export function EntryView({
       agents={agents}
       {...(agentsLoading !== undefined ? { agentsLoading } : {})}
       {...(amrLoggedIn !== undefined ? { amrLoggedIn } : {})}
+      {...(amrSessionState !== undefined ? { amrSessionState } : {})}
+      {...(amrAccountPlan !== undefined ? { amrAccountPlan } : {})}
       daemonLive={daemonLive}
       onModeChange={onModeChange}
       onAgentChange={onAgentChange}
