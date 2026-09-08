@@ -1,0 +1,46 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "The analysis claims the knowme-builder crate source lives in-repo at tools/knowme-builder, but the packet's file tree contradicts this.",
+      "evidence": "analysis.md states \"The crate is small (7 `.rs` files in `tools/knowme-builder`), a thin `clap` wrapper over a `knowme_builder` library.\" The file_tree lists `tools/` children as only `tools/AGENTS.md`, `tools/dev`, `tools/pack`, `tools/release`, `tools/serve` \u2014 no `tools/knowme-builder` exists. This unsupported in-repo-source claim feeds the Goal 3 cost table (reading 3b) that the user is being asked to decide on in Open Questions item 1; an in-repo crate would make 3b look materially easier than an external-only binary.",
+      "suggested_fix": "Correct the claim to reflect that knowme-builder exists only as an external binary at ~/.cargo/bin/knowme-builder (or verify and cite the actual source path), and re-state the 3b cost row accordingly."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "Key evidence for cand-007 (the phase's self-described blocking decision) cites builder.manifest.json contents that the packet's path verification marks MISSING.",
+      "evidence": "cand-007 evidence asserts \"builder.manifest.json v2.0.0-alpha.1 defines profiles mapping onto the goal's web/desktop/mobile: sovereign-hybrid (Flutter + Tauri + Rust), governed-web-shell (React + Axum), flutter-mobile\" and analysis.md repeats \"Its `builder.manifest.json` (v2.0.0-alpha.1) defines profiles that map cleanly onto the goal's 'web, desktop, and mobile'\". cited_paths records \"MISSING  builder.manifest.json\". The profile-to-goal mapping that justifies treating 3b as viable rests on a file unverifiable in this packet.",
+      "suggested_fix": "Either re-verify the manifest against the actual external source and cite its absolute path, or downgrade the profile-mapping claim to unverified and flag it in Open Questions as a precondition for any 3b decision."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "gaps_addressed skips gap-8 with no explanation, leaving it impossible to confirm every assessment gap was carried into analysis.",
+      "evidence": "The gaps_addressed array is [\"gap-1-local-only-mode\", \"gap-2-signin-precedes-runtime-choice\", \"gap-3-multi-skill-pack-install\", \"gap-4-external-pack-detection\", \"gap-5-skills-travel-to-ejected-project\", \"gap-6-code-scaffold-export\", \"gap-7-hybrid-architecture-scope\", \"gap-9-offline-runtime-models\"] \u2014 the numbering runs 1\u20139 but gap-8 is absent from candidates, build_required, and analysis.md. If the assessment defined a gap-8, no analysis output addresses it.",
+      "suggested_fix": "Either add analysis coverage for gap-8 or explicitly record that no gap-8 exists / it was merged, so plan-stage gap-to-change tracing is complete."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "library-candidates.json",
+      "claim": "cand-002's verdict (\"adopt\", coverage_estimate 1.0) contradicts its own decision_rationale, which concludes build is the only path.",
+      "evidence": "cand-002 is marked \"verdict\": \"adopt\" with \"coverage_estimate\": 1.0, yet its decision_rationale states \"There is no library to adopt for this gap... build is the only path\", and gap-1-local-only-mode is simultaneously listed in build_required with the same scope. A plan stage reading verdicts mechanically could double-count gap-1 as both adopted and built.",
+      "suggested_fix": "Change cand-002's verdict to \"reference\" (license clearance is a finding, not an adoptable artifact) or remove it from candidates and keep gap-1 solely in build_required."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "claim": "The recommended Goal 4 path (4a prompt-only plugin) never verifies a web-UI surface, despite the blocking constraint that every user-facing capability must ship through both the web UI and the od CLI in the same PR.",
+      "evidence": "analysis.md recommends \"4a. Prompt-only plugin \u2014 Clone od-react-export, point at hybrid skills\" and cand-006 cites CLI evidence (\"31 od plugin subcommands\") but no evidence that scenario/export plugins are reachable from apps/web; the dual-surface constraint requires the UI surface to exist or be built in the same PR, which is unscoped here.",
+      "suggested_fix": "Add one verification note: whether plugins/_official scenarios like od-react-export are currently surfaced in apps/web, and if not, include the UI surface in the 4a cost estimate."
+    }
+  ],
+  "checked_classes": []
+}

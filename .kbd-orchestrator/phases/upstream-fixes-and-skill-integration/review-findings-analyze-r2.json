@@ -1,0 +1,38 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "library-candidates.json",
+      "claim": "The build_required entry for gap-1 asserts the exact claim the analysis retracted as false: that no upstream issues track offline/local-only, so no incoming fix will supersede the work.",
+      "evidence": "build_required[0].why_no_candidate: \"...and zero upstream issues track offline/local-only, so no incoming fix will supersede it.\" \u2014 directly contradicted by analysis.md: \"An earlier draft claimed 'zero upstream issues track offline/local-only'... That was wrong: the query was too restrictive. A control query ... immediately surfaced the opposite\" (issue #6599, open, 20 comments). The machine-readable handoff the plan stage consumes still carries the retracted premise.",
+      "suggested_fix": "Rewrite build_required[0].why_no_candidate to cite #6599 and the maintainer's 'intentional as of v18.1' statement as the reason no upstream fix is expected, matching analysis.md."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "Open question 3 claims the forced gate 'largely does not affect us yet' on 0.16.2 because 'the gate landed in 0.18.1', which contradicts the assessment's finding that the gate is present in this tree.",
+      "evidence": "analysis.md Open questions item 3: \"We are on 0.16.2; the gate landed in 0.18.1 ... Stay on 0.16.2 \u2014 the forced gate largely does not affect us yet.\" vs. prior_handoffs summaryForNext: \"Goal 1's forced login is one client-side useEffect (EntryShell.tsx:588-594) that also puts BYOK/Local-CLI *behind* cloud sign-in\" and analysis.md's own Design options table targeting \"EntryShell.tsx:588-594\" in this repo. If the gate only landed upstream in 0.18.1 and this fork is on 0.16.2, the gate's presence in this tree is unexplained \u2014 or the version attribution is wrong. The plan stage cannot sequence rebase-vs-patch (or even determine whether Goal 1 work is currently needed) until this is resolved.",
+      "suggested_fix": "Reconcile the version claim with the in-tree gate: either the fork already carries the gating change (state how), or the 'gate landed in 0.18.1' claim is wrong. Do not present 'stay on 0.16.2 = gate does not affect us' as an option while the gate is confirmed present at EntryShell.tsx:588-594."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "cand-002's decision_rationale claims gap-1 'remains solely in build_required', but cand-001 is also mapped to gap-1 with verdict 'adopt', recreating the double-counting ambiguity the rationale says it was written to prevent.",
+      "evidence": "cand-002.decision_rationale: \"...gap-1 remains solely in build_required.\" vs. cand-001: \"fit_for_gap\": \"gap-1-local-only-mode\", \"verdict\": \"adopt\", \"coverage_estimate\": 0.4. A plan-stage reader summing adopt coverage for gap-1 will get 0.4 from cand-001 plus the build_required entry, exactly the double-count the downgrade was meant to avoid.",
+      "suggested_fix": "Either re-map cand-001 to a distinct interim-workaround gap, or amend cand-002's rationale to state that gap-1 is split: cand-001 covers only the headless interim (0.4) and build_required owns the UI-gate deliverable."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "library-candidates.json",
+      "claim": "cand-001 is named and adopted as 'od daemon start --headless --serve-web' even though its own evidence establishes that --serve-web is a reserved no-op in this tree.",
+      "evidence": "cand-001.name: \"od daemon start --headless --serve-web (in-repo)\", verdict \"adopt\"; cand-001.evidence[1]: \"--serve-web is RESERVED, not implemented ... Only --headless (implies --no-open) is functional today.\" The candidate name advertises a flag that does nothing, which could lead the plan to treat bundled web serving as available.",
+      "suggested_fix": "Rename the candidate to 'od daemon start --headless' and note explicitly in decision_rationale that serving the web bundle is separate downstream work (as thoth does via express.static)."
+    }
+  ]
+}

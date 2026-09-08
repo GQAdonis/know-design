@@ -1,0 +1,354 @@
+{
+  "phase": "upstream-fixes-and-skill-integration",
+  "generated_at": "2026-08-09T15:05:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1_github": 4,
+      "tier2_docs": 0,
+      "tier3_registry": 1,
+      "tier4_web": 0,
+      "minutes": 14
+    }
+  },
+  "gaps_addressed": [
+    "gap-1-local-only-mode",
+    "gap-2-signin-precedes-runtime-choice",
+    "gap-3-multi-skill-pack-install",
+    "gap-4-code-scaffold-export-format",
+    "gap-5-duplicate-design-handoff-generators",
+    "gap-6-goal-3-underspecified",
+    "gap-7-skills-travel-to-ejected-project",
+    "gap-8-external-pack-detection",
+    "gap-9-offline-runtime-models",
+    "gap-10-fork-behind-upstream"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "od daemon start --headless (in-repo interim workaround)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "gap-1-local-only-mode (interim workaround only — the UI-gate deliverable is owned by build_required, not by this candidate)",
+      "verdict": "adopt",
+      "coverage_estimate": 0.4,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/merlining/thoth-opendesign-runtime",
+          "claim": "A third party ships self-contained headless Open Design runtime bundles (daemon + static web export + embedded Node), invoked via 'daemon start --serve-web --no-open', independently confirming the daemon is fully functional without the gated web UI."
+        },
+        {
+          "tier": 1,
+          "claim": "The flags exist in this tree (cli.ts:201 flag list; cli.ts:8319-8326 docblock), but --serve-web is RESERVED, not implemented: 'v1 doesn't bundle a separate web port; the flag is reserved so downstream packaged callers can branch on it.' Only --headless (implies --no-open) is functional today."
+        }
+      ],
+      "risks": [
+        "Sidesteps the desktop UI rather than fixing it; does not by itself satisfy 'fully operational' for a GUI user.",
+        "--serve-web is a reserved no-op in v1; a headless deployment must serve the web bundle itself (as thoth does via express.static), which is additional downstream work.",
+        "Interim unblock only."
+      ],
+      "decision_rationale": "Already shipped and externally corroborated. Adopt ONLY as the immediate workaround and CI/headless story — it is explicitly NOT the deliverable for Goal 1. gap-1 is split: this candidate covers the headless interim (coverage 0.4); the UI-gate deliverable is owned solely by build_required. Renamed from '--headless --serve-web' after review: --serve-web is a reserved no-op in this tree, so serving the web bundle is separate downstream work (thoth does it via express.static)."
+    },
+    {
+      "id": "cand-002",
+      "name": "tony-box/open-design — de-gated fork (commit 9dfc269e)",
+      "kind": "pattern",
+      "repo_url": "https://github.com/tony-box/open-design",
+      "registry": "none",
+      "fit_for_gap": "gap-1-local-only-mode",
+      "verdict": "reference",
+      "coverage_estimate": 0.8,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/tony-box/open-design",
+          "claim": "Apache-2.0 fork of nexu-io/open-design (pushed 2026-08-08) carrying commit 9dfc269e 'fix(web): make Open Design Cloud sign-in optional again' — a license-compatible reference implementation of Goal 1."
+        },
+        {
+          "tier": 1,
+          "claim": "The same fork carries 82bfa63d 'feat(packaging): disable automatic updates by default', independently answering the assessment's UNKNOWN on auto-update opt-out and confirming the concern was real (issue #6599 reports 0.18.1 auto-updating over a pinned 0.18.0)."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/nexu-io/open-design/issues/6599",
+          "claim": "Upstream issue #6599 '[Bug]: Login is now mandatory and cannot be skipped' is OPEN with 20 comments (2026-08-07 → 2026-08-09). Maintainer lefarcen confirms the design is intentional: onboarding is 'identity first, runtime second' and local/BYOK 'just moved behind the sign-in gate instead of being selectable before it' — independently corroborating the assessment's central finding."
+        },
+        {
+          "tier": 1,
+          "claim": "CORRECTION: an earlier draft claimed zero upstream issues track offline/local-only. That was wrong — the query was too restrictive. A control query against 802 open issues surfaced #6599, #3196 (password-based login for Docker/web deployment), #3324 and #5509 immediately."
+        },
+        {
+          "tier": 1,
+          "claim": "LICENSE is Apache License 2.0 and package.json declares license: Apache-2.0; §4 grants Derivative Works rights, so patching the sign-in gate and redistributing is expressly licensed."
+        },
+        {
+          "tier": 1,
+          "claim": "Per maintainer comment on #6599, the self-hosted daemon API is unaffected: OD_API_TOKEN or OPEN_DESIGN_DISABLE_API_AUTH=1 behind a trusted proxy needs no cloud registration and no egress. Corroborates our own code reading that the gate is web-UI-scoped."
+        }
+      ],
+      "risks": [
+        "One contributor's unreviewed fork; no upstream review or test signal.",
+        "Targets 0.18.1 while this repo is on 0.16.2 — not a drop-in cherry-pick.",
+        "It REVERTS the gate rather than adding an explicit local/cloud mode, so it does not by itself satisfy the 'user-selectable local mode' framing.",
+        "Upstream has not committed to any change as of 2026-08-09, so the patch must be carried indefinitely."
+      ],
+      "decision_rationale": "REFERENCE, not adopt: read commit 9dfc269e before writing our own patch, but do not cherry-pick it blind — it targets a tree closer to upstream HEAD than ours (we are 25 commits behind). Verdict downgraded from 'adopt' after review flagged that an 'adopt' verdict on a pure prior-art finding would let the Plan stage double-count gap-1. gap-1 is SPLIT three ways with no overlap: cand-001 = headless interim workaround (0.4), cand-002 = reference implementation to read (0.8, produces no code by itself), build_required = the actual UI-gate deliverable."
+    },
+    {
+      "id": "cand-003",
+      "name": "Open Design plugin system (bundle format + installer)",
+      "kind": "framework",
+      "registry": "none",
+      "fit_for_gap": "gap-3-multi-skill-pack-install",
+      "verdict": "adopt",
+      "coverage_estimate": 0.85,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "docs/skills-protocol.md:9 states installation and catalogue placement are separate concerns and external distribution normally uses the plugin system, not the skill registry."
+        },
+        {
+          "tier": 1,
+          "claim": "The plugin installer already supports local folders, github:owner/repo, and tarballs with trust tiers, doctor, upgrade and yank (apps/daemon/src/plugins/installer.ts; 31 od plugin subcommands)."
+        },
+        {
+          "tier": 1,
+          "claim": "Skill-level local install already works at the HTTP layer today via {source:'local', path} at apps/daemon/src/routes/static-resource.ts:1085-1088, though CLI help advertises only GitHub/tarball."
+        }
+      ],
+      "risks": [
+        "Skill installer expects exactly one top-level SKILL.md, so a 606-skill pack must be a plugin bundle rather than N skill installs.",
+        "Folder/zip skill import is documented as Phase 2 not-implemented."
+      ],
+      "decision_rationale": "Adopt the existing distribution mechanism. Building a second pack-install grammar would duplicate trust, doctor, and upgrade machinery that already exists."
+    },
+    {
+      "id": "cand-004",
+      "name": "od: frontmatter import adapter (new, in-repo)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "gap-3-multi-skill-pack-install",
+      "verdict": "adapt",
+      "coverage_estimate": 0.9,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "SkillMode at apps/daemon/src/skills.ts:34 is 'image|video|audio|deck|design-system|template|prototype' — there is NO 'utility' mode, despite docs/skills-protocol.md documenting od.mode: utility."
+        },
+        {
+          "tier": 1,
+          "claim": "With no od: block, normalizeMode falls through to inferMode(), which regex-matches skill prose. Simulating inferMode over the 39 hybrid skills yields: 22 prototype, 6 image, 4 template, 4 design-system, 2 video, 1 deck — nine engineering skills misfiled as media generators."
+        },
+        {
+          "tier": 1,
+          "claim": "designSystemRequired defaults to true (skills.ts:301-304), so imported code skills would demand a design system."
+        },
+        {
+          "tier": 1,
+          "claim": "All 39 hybrid skills lack a triggers: field; all sampled Prometheus skills lack an od: block."
+        },
+        {
+          "tier": 1,
+          "claim": "Zero name collisions between the 606 Prometheus skill names and OD's bundled skills/ directory (comm -12 over sorted name lists)."
+        }
+      ],
+      "risks": [
+        "Misclassification is SILENT — skills appear installed and simply behave wrong.",
+        "Any import work needs a verification step asserting resulting modes, not merely a successful install."
+      ],
+      "decision_rationale": "Small but mandatory. Without an adapter that injects od.mode and design_system.requires:false, importing either pack produces an unusable catalogue. This is the highest-value small build in the phase."
+    },
+    {
+      "id": "cand-005",
+      "name": "od plugin export --as claude-plugin (plugins/export.ts)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "gap-7-skills-travel-to-ejected-project",
+      "verdict": "adapt",
+      "coverage_estimate": 0.6,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "apps/daemon/src/plugins/export.ts:69-127 already writes SKILL.md, open-design.json, .claude-plugin/plugin.json and a provenance README into an arbitrary user-supplied --out directory: a shipping precedent for OD writing agent-facing content to an unconstrained filesystem location."
+        },
+        {
+          "tier": 1,
+          "claim": "stageActiveSkill copies full skill trees into <project cwd>/.od-skills/ (cwd-aliases.ts:141-142), and for folder-bound projects resolveProjectDir returns metadata.baseDir (projects.ts:117-126) — so OD already writes skill payloads into the user's real repo."
+        },
+        {
+          "tier": 1,
+          "claim": "That staging is excluded from every export path: buildProjectArchive skips dotfiles at projects.ts:499 (verified), and collab mirroring blacklists .od-skills/."
+        },
+        {
+          "tier": 1,
+          "claim": "Writing AGENTS.md / CLAUDE.md / .claude/ into a user project has zero precedent anywhere in apps/ or packages/."
+        }
+      ],
+      "risks": [
+        "cwd-aliases.ts:9-18 makes staged copies deliberately disposable because agents can write to their own cwd; an ejected payload must be durable and git-committable. Reusing .od-skills/ would collide with that rationale.",
+        "Recommend a separate, visible, non-dotfile output path."
+      ],
+      "decision_rationale": "Adapt the plugins/export.ts pattern rather than inventing a write path or overloading .od-skills/. The safe-copy plumbing in cwd-aliases.ts is reusable; the export semantics are new."
+    },
+    {
+      "id": "cand-006",
+      "name": "plugins/_official/scenarios/od-react-export",
+      "kind": "skeleton",
+      "registry": "none",
+      "fit_for_gap": "gap-4-code-scaffold-export-format",
+      "verdict": "adapt",
+      "coverage_estimate": 0.7,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "git ls-files plugins/_official/scenarios/ confirms od-react-export/open-design.json, od-code-migration/, od-default/, od-design-refine/, od-figma-migration/ are git-tracked SOURCE, not build output — refuting the round-2 reviewer concern that the precedent came from .tmp build artifacts."
+        },
+        {
+          "tier": 1,
+          "claim": "Its manifest is exactly the required shape: kind: scenario, taskKind: tune-collab, scenario: downstream-export, mode: export, capabilities [prompt:inject, fs:read, fs:write], pipeline.stages [{id: handoff, atoms: [handoff]}]."
+        },
+        {
+          "tier": 1,
+          "claim": "Plugins cannot ship executable atoms — the atom worker registry (plugins/atoms/registry.ts:55-81) is in-process and daemon-internal, so deterministic scaffolding requires a first-party atom."
+        }
+      ],
+      "risks": [
+        "Prompt-only export is agent-authored and therefore non-deterministic.",
+        "Blocked on the Goal 3 scoping decision: the plugin's target depends on which hybrid-architecture reading is chosen."
+      ],
+      "decision_rationale": "Clone the shipped scenario plugin. Upgrade to a first-party atom only if deterministic, reproducible scaffold output is required."
+    },
+    {
+      "id": "cand-007",
+      "name": "KnowMe Builder (knowme-builder Rust CLI)",
+      "kind": "framework",
+      "repo_url": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill",
+      "registry": "none",
+      "fit_for_gap": "gap-6-goal-3-underspecified",
+      "verdict": "reference",
+      "coverage_estimate": 0.5,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "Already built and installed at ~/.cargo/bin/knowme-builder (3.6 MB, 2026-07-29), so the 'requires a Rust toolchain' objection is weaker on THIS machine — but remains true for any other machine, CI, or packaged build."
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/Projects/hybrid-mobile-architecture-src/builder.manifest.json",
+          "claim": "builder.manifest.json (4865 B, v2.0.0-alpha.1) defines profiles mapping onto the goal's web/desktop/mobile: sovereign-hybrid (Flutter + Tauri + Rust), governed-web-shell (React + Axum), flutter-mobile. EXTERNALLY SOURCED: verified by direct filesystem read at the absolute path above; not reproducible from this repo alone."
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/Projects/hybrid-mobile-architecture-src/tools/knowme-builder",
+          "claim": "CORRECTION: the crate source is NOT in this repo. It lives in the external hybrid tree (7 .rs files); open-design's own tools/ contains only dev, pack, release, serve, AGENTS.md. Reading 3b therefore means depending on an EXTERNAL, separately-versioned binary — materially more expensive than an in-repo crate would be."
+        },
+        {
+          "tier": 1,
+          "claim": "Its README assigns application architecture to KnowMe Builder, lifecycle to Prometheus, agent runs to UAR, and states 'Generated applications must not introduce a second agent loop beside UAR' — Open Design would be a fourth agent loop."
+        },
+        {
+          "tier": 1,
+          "claim": "Ships 39 skills under .claude/skills/ with bare name/description frontmatter and no triggers field."
+        }
+      ],
+      "risks": [
+        "Version 2.0.0-alpha.1 — depending on an alpha external generator for a product feature is a real stability risk.",
+        "Binary distribution problem for non-developer machines and packaged builds.",
+        "Unresolved authority-model conflict with OD's own agent loop.",
+        "Invoking it requires a subprocess capability grant."
+      ],
+      "decision_rationale": "Marked REFERENCE rather than adopt/reject because the verdict is genuinely undecided and belongs to the user. Reading 3a (import the 39 skills) is recommended now; reading 3b (invoke the binary) is plausibly larger than goals 1, 2 and 4 combined and should be its own phase."
+    },
+    {
+      "id": "cand-008",
+      "name": "jszip + tar (existing daemon dependencies)",
+      "kind": "library",
+      "registry": "npm",
+      "fit_for_gap": "gap-7-skills-travel-to-ejected-project",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "in-tree: jszip@3.10.1, tar@7.5.15"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "claim": "apps/daemon/package.json already declares jszip@3.10.1 and tar@7.5.15; no new runtime dependency is required for any packaging or bundling work in this phase."
+        }
+      ],
+      "risks": [],
+      "decision_rationale": "Zero new dependencies. Adding a packaging library would violate the repo's dependency-policy expectations for no benefit."
+    },
+    {
+      "id": "cand-009",
+      "name": "External skill-pack detection (~/.claude/plugins scanning)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "gap-8-external-pack-detection",
+      "verdict": "reject",
+      "coverage_estimate": 0.0,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "Skill discovery reads only USER_SKILLS_DIR and SKILLS_DIR (server.ts:1152); plugin discovery walks six fixed tiers (docs/plugins-spec.md:455-467). Nothing scans ~/.claude/plugins/, ~/.claude/skills/, or any external pack location."
+        },
+        {
+          "tier": 1,
+          "claim": "The Prometheus pack v1.7.0 is installed for Claude Code at ~/.claude/plugins/cache/prometheus-skill-pack/prometheus-skill-pack/1.7.0/ and is completely invisible to Open Design."
+        }
+      ],
+      "risks": [
+        "Scanning another tool's plugin cache couples OD to Claude Code's private on-disk layout, which is unversioned and may change without notice."
+      ],
+      "decision_rationale": "REJECT as an adoptable candidate — there is nothing to adopt, and auto-scanning a foreign tool's cache is architecturally fragile. If Goal 2's 'detect' clause is to be honoured, prefer an explicit user-supplied path over filesystem sniffing. Flows to build_required."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "gap-1-local-only-mode: invert the EntryShell.tsx:588-594 gate onto an explicit local/cloud mode setting, AND reorder onboarding so BYOK/Local-CLI are reachable without cloud sign-in.",
+      "why_no_candidate": "No adoptable library exists — this is a targeted in-repo modification, and Apache-2.0 (LICENSE, package.json) expressly clears it. No upstream fix is expected to supersede it: upstream issue #6599 is OPEN with 20 comments and the maintainer states the behaviour is 'intentional as of v18.1' under an 'identity first, runtime second' design, with no committed change as of 2026-08-09. cand-002 (tony-box fork commit 9dfc269e) is a REFERENCE implementation to read before writing ours, not an adoptable artifact. NOTE: an earlier draft of this field claimed zero upstream issues track offline/local-only — that was wrong and is retracted; see cand-002 evidence.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "gap-2-signin-precedes-runtime-choice: make model-source selection (setStep(1)) reachable independently of continueAfterCloudSignIn().",
+      "why_no_candidate": "Ordering defect in this repo's own onboarding flow; nothing external to adopt.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "gap-8-external-pack-detection: honour Goal 2's 'detect or install' clause for externally-installed skill packs.",
+      "why_no_candidate": "No discovery mechanism exists (server.ts:1152 reads only OD's own roots), and the only conceivable adoption — scanning ~/.claude/plugins/ — couples OD to another tool's unversioned private layout. Prefer an explicit user-supplied path. See cand-009 (rejected).",
+      "capability_gap_id": null
+    },
+    {
+      "need": "gap-9-offline-runtime-models: local mode must select a runtime whose models resolve without network.",
+      "why_no_candidate": "AMR ships fallbackModels: [] (runtimes/defs/amr.ts:649) by deliberate upstream design, so removing the gate alone yields a working screen with a non-working agent. Auto-update opt-out remains UNKNOWN and needs confirmation.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "gap-5-duplicate-design-handoff-generators: reconcile the two independent DESIGN-HANDOFF.md / DESIGN-MANIFEST.json builders.",
+      "why_no_candidate": "Both are in-repo: the daemon builds them at projects.ts:640 (bundled into the archive ZIP at :516) and the web builds them separately at apps/web/src/runtime/exports.ts:239. Nothing external to adopt; this is a divergence-risk cleanup. Cross-app private imports are forbidden (AGENTS.md), so sharing would require promoting the builder into a pure package.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "gap-10-fork-behind-upstream: decide rebase strategy before editing EntryShell.tsx.",
+      "why_no_candidate": "A process/sequencing decision, not a library gap. We are on 0.16.2; the gate landed in 0.18.1 and the tony-box reference patch targets 0.18.1, so porting it backwards wastes its value — but issue #6599 shows users deliberately pinning to 0.18.0 to avoid 0.18.1, making 'upgrade to 0.18.x' a decision with its own cost.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "gap-6-goal-3-underspecified: RESOLVED 2026-08-10 — reading 3a. Import the 39 hybrid .claude/skills/ as OD skills via the mandatory od: import adapter (cand-004). 3b (invoke the external knowme-builder binary) DEFERRED to its own later phase; 3c (port generation profiles) rejected.",
+      "why_no_candidate": "The import mechanism itself is adopted (cand-003 plugin system) plus a small in-repo adapter (cand-004); what remained un-adoptable was the SCOPE CHOICE, which was the user's to make and is now made. Decided by the user ('Go with your recommendation') per decision-log.md 2026-08-10. CONSEQUENCE: Goal 4 is UNBLOCKED and fixed at 4a (prompt-only scenario plugin cloned from od-react-export, referencing the imported hybrid skills). EXPLICITLY OUT OF SCOPE: OD will not generate applications in this phase — 3a imports guidance the agent reads; it does not scaffold Flutter/Tauri/Axum code.",
+      "capability_gap_id": null
+    }
+  ]
+}

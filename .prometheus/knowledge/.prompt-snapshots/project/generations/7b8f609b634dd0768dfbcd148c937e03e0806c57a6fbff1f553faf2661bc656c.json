@@ -1,0 +1,611 @@
+{
+  "schemaVersion": 1,
+  "scope": "project",
+  "generation": "7b8f609b634dd0768dfbcd148c937e03e0806c57a6fbff1f553faf2661bc656c",
+  "candidateCount": 29,
+  "byteCount": 65033,
+  "entries": [
+    {
+      "id": "codex-plugin-verify-and-publish-phase-summary",
+      "title": "Codex Plugin Verify and Publish Phase Summary",
+      "content": "## Context\n\n- **Phase:** `phase-codex-plugin-verify-and-publish`\n- **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`\n- **Captured:** `2026-07-13T08:51:14Z`\n- **Project:** unspecified\n\n## Phase goals\n\n- **G-01:** Exercise `validate:codex` in a real GitHub Actions run to confirm the CI drift/validity gate runs and passes on push/PR.\n- **G-02:** Confirm MCP environment round-trip:\n  - Run `codex-provision-mcp-env.sh` with keys set.\n  - Install the plugin.\n  - Verify `codex doctor` stops warning.\n  - Verify a plugin MCP server can see its key.\n- **G-03:** Verify real plugin hooks run cleanly under Codex with the `CLAUDE_PLUGIN_ROOT:-PLUGIN_ROOT` fix, not just the probe; specifically, `SessionStart` should execute without empty-path errors.\n- **G-04:** Test `git-subdir` source resolution against a real remote:\n  - Run `codex plugin marketplace add <git-url>`.\n  - Confirm published `git-subdir` sources resolve.\n  - Complete first external publish.\n\n## Final status\n\nAll planned work was completed and committed.\n\n`.prometheus/knowledge/wiki/` files were gitignored as expected because they are runtime KB artifacts. Only the three submodule pointer updates landed in git.\n\n| Component | Version | Status |\n|---|---:|---|\n| `liter-llm` | `v1.9.2` | Built, installed, committed |\n| `surreal-memory-server` | SurrealDB `3.2.1` | Built, service running with PID `37910`, committed |\n| `prometheus-entity-management` | `v2.1.0` | Built, committed |\n| Platform skills | 138 skills | Reinstalled everywhere |\n| Codex plugins and slash commands | 138 commands | Synced |\n| Claude Code marketplace | `v1.6.0` | Rebuilt |\n\n## Follow-up\n\nStart the next phase with:\n\n```text\n/kbd-new-phase <next-phase-name>\n```\n\n# Citations\n\n1. stdin\n2. manual:phase-codex-plugin-verify-and-publish",
+      "tags": [
+        "codex-plugin",
+        "github-actions",
+        "mcp-env",
+        "plugin-hooks",
+        "git-subdir",
+        "claude-code",
+        "skill-pack"
+      ],
+      "links": [],
+      "sources": [
+        "stdin",
+        "manual:phase-codex-plugin-verify-and-publish"
+      ],
+      "created_at": "2026-07-13T10:58:56.448233Z",
+      "updated_at": "2026-07-13T10:58:56.448233Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "codex-plugin-verify-publish-remote-sync-check",
+      "title": "Codex Plugin Verify/Publish Remote Sync Check",
+      "content": "## Context\n\n- **Phase:** `phase-codex-plugin-verify-and-publish`\n- **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`\n- **Captured:** `2026-07-13T11:14:56Z`\n- **Source:** `manual:phase-codex-plugin-verify-and-publish`\n\n## Phase goals tracked\n\n- **G-01:** Exercise `validate:codex` in a real GitHub Actions run to confirm the CI drift/validity gate runs and passes on push/PR.\n- **G-02:** Confirm MCP environment round-trip:\n  - Run `codex-provision-mcp-env.sh` with keys set.\n  - Install the plugin.\n  - Verify `codex doctor` stops warning.\n  - Verify a plugin MCP server sees its key.\n- **G-03:** Verify real plugin hooks run cleanly under Codex with the `CLAUDE_PLUGIN_ROOT:-PLUGIN_ROOT` fix; `SessionStart` should execute without empty-path errors.\n- **G-04:** Test `git-subdir` source resolution against a real remote via `codex plugin marketplace add <git-url>` and confirm published `git-subdir` sources resolve.\n\n## Remote sync status\n\n- Local `HEAD` and `origin/main` are both at commit `2497e42`.\n- No push is required; the remote is already up to date.\n- The last `git submodule update` only synced working-tree checkouts and did **not** create new commits.\n- Recommended next action recorded by the session: start the next phase with `/kbd-new-phase <next-phase-name>`.\n\nFor the broader completed phase outcome, see [Codex Plugin Verify and Publish Phase Summary](/codex-plugin-verify-and-publish-phase-summary.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "codex-plugin",
+        "git-sync",
+        "submodules",
+        "github-actions",
+        "mcp-env",
+        "plugin-hooks"
+      ],
+      "links": [
+        "codex-plugin-verify-and-publish-phase-summary"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:15:18.947856Z",
+      "updated_at": "2026-07-13T11:15:18.947856Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "executor-completion-marker-for-upstream-fixes-phase",
+      "title": "Executor Completion Marker for Upstream Fixes Phase",
+      "content": "## Session metadata\n\n- **Status:** executor session complete\n- **Phase:** `upstream-fixes-and-skill-integration`\n- **Change:** unknown\n\n## Outcome\n\nThe raw record is a terminal executor marker for the `upstream-fixes-and-skill-integration` phase. It contains no implementation notes, decisions, timestamps, completed tasks, pending work, or validation results.\n\nBecause `change` is `unknown`, this entry must not be interpreted as evidence that an upstream fix or skill integration was completed. It should be treated as run-state metadata only and is consistent with [Executor Session Complete for Upstream Fixes and Skill Integration](/executor-session-complete-for-upstream-fixes-and-skill-integration.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "executor",
+        "run-state",
+        "upstream-fixes",
+        "skill-integration"
+      ],
+      "links": [
+        "executor-session-complete-for-upstream-fixes-and-skill-integration"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-08-09T18:29:10.461167Z",
+      "updated_at": "2026-08-09T18:29:10.461167Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "executor-completion-marker-upstream-fixes-and-skill-integration",
+      "title": "Executor Marker for Upstream Fixes Skill Integration Phase",
+      "content": "## Session metadata\n\n- **Status:** executor session complete\n- **Phase:** `upstream-fixes-and-skill-integration`\n- **Change:** unknown\n\n## Interpretation\n\nThe raw record is a terminal executor marker for the `upstream-fixes-and-skill-integration` phase. It contains no implementation notes, completed tasks, pending work, validation results, timestamps, or decisions.\n\nBecause `change` is `unknown`, this record must be treated as run-state metadata only. It is not evidence that any upstream fix or skill integration was completed. This interpretation is consistent with [Executor Session Complete for Upstream Fixes and Skill Integration](/executor-session-complete-for-upstream-fixes-and-skill-integration.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "executor",
+        "run-state",
+        "upstream-fixes",
+        "skill-integration"
+      ],
+      "links": [
+        "executor-session-complete-for-upstream-fixes-and-skill-integration"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-09-04T06:48:45.150717Z",
+      "updated_at": "2026-09-04T06:48:45.151667Z",
+      "revision": 1,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {
+        "content_hash": "dd8a15230719b557e826d147bc3f3dc72a7b5b65ac3d926f4444c66f2727e8a1"
+      }
+    },
+    {
+      "id": "executor-session-complete-for-upstream-fixes-and-skill-integration",
+      "title": "Executor Session Complete for Upstream Fixes and Skill Integration",
+      "content": "## Session metadata\n\n- **Status:** executor session complete\n- **Phase:** `upstream-fixes-and-skill-integration`\n- **Change:** unknown\n\n## Outcome\n\nThe session record is a terminal executor marker for the `upstream-fixes-and-skill-integration` phase. It does not include implementation details, completed work, pending tasks, timestamps, or decisions.\n\nBecause `change` is recorded as `unknown`, this entry should not be treated as evidence of a specific upstream fix or skill integration result. It aligns with the existing [Executor Session Complete for Upstream Fixes and Skill Integration](/executor-session-complete-for-upstream-fixes-and-skill-integration.md) run-state record and should be interpreted as session completion metadata only.\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "executor",
+        "run-state",
+        "upstream-fixes",
+        "skill-integration"
+      ],
+      "links": [
+        "executor-session-complete-for-upstream-fixes-and-skill-integration"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-08-09T15:28:32.976616Z",
+      "updated_at": "2026-08-09T15:28:32.976881Z",
+      "revision": 1,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-1d612ebcdda21505",
+      "title": "Karpathy session 1d612ebcdda2",
+      "content": "## Delta\n\nDone. The DMG is at:\n\n```\n~/Downloads/Open Design-default.dmg\n```\n\nVerified: SHA-256 `39b163ff…6bc0adf` matches the build output, 283M, mounts cleanly with full CRC verification passing, and contains `Open Design.app` (0.16.2) alongside the `Applications` symlink for drag-install.\n\nTwo notes:\n\n- **My \"MOUNT FAILED\" a moment ago was wrong** — a flaw in my verification script, not the file. Mounting from `~/Downloads` triggers full checksum verification whose output broke my mount-point parsing. The DMG was always good.\n- **It's unsigned**, so Gatekeeper will block it on first open. Right-click → Open, or `xattr -d com.apple.quarantine \"$HOME/Downloads/Open Design-default.dmg\"`. On your own machine the quarantine flag isn't set by a local copy, but it will be if you send this to anyone else.\n\nThe scratchpad copies (zip, updater payload, `.app`) are still in the session directory if you want any of those moved too — they're the ones at risk from temp cleanup.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T08:14:08.069117Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T08:14:11.635360Z",
+      "updated_at": "2026-08-07T08:14:11.635360Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-2a20e93c12e8516a",
+      "title": "Karpathy session 2a20e93c12e8",
+      "content": "## Delta\n\nPushed. `main` is in sync with `origin/main` at `6fe7f5284`.\n\n## Done\n\n**Commit:** `6fe7f5284` — `fix(tools-pack): pin assembled app to electron-builder's npm collector`\n**Pushed:** `ae6dfe0b2..6fe7f5284  main -> main` (fast-forward, no conflicts)\n\n9 files, +152/−7. Two pre-existing local commits of yours (`e45caa829`, `4453e793d`) went up alongside it — they were already sitting unpushed on your branch before this session.\n\nPre-push verification: tools-pack typecheck clean, 275 tests passing (exit 0), `pnpm guard` clean, `git diff --check` clean, and a final clean in-repo build confirming `pm=npm` with 52 packages and `node-pty` present. No `Co-authored-by` trailer, per the repo's git policy.\n\n**Left uncommitted:** the `.prometheus/knowledge/wiki/` files — session artifacts from your knowledge hooks, unrelated to this fix. They're still in your working tree if you want them.\n\nTwo carry-overs from the previous turn that still apply:\n\n- **Windows and Linux are unproven.** Same mechanism, same code shape, unit tests green — but never built on their native platforms. Worth a real build on each before relying on them.\n- **You committed straight to `main`**, so this bypassed CI review. If the repo runs CI on pushes to `main`, that's now the first real check on the Windows/Linux paths — worth watching.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T14:17:01.478291Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T14:17:38.947002Z",
+      "updated_at": "2026-08-09T14:17:38.947002Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-34643a035dcc185f",
+      "title": "Karpathy session 34643a035dcc",
+      "content": "## Delta\n\nLet me first understand how electron-builder actually decides on the pnpm collector, so the fix targets the real mechanism rather than my inference from log lines.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T08:14:10.742743Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T08:19:23.016910Z",
+      "updated_at": "2026-08-07T08:19:23.016910Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-533da300da01acb3",
+      "title": "Karpathy session 533da300da01",
+      "content": "## Delta\n\nPushed. `main` is in sync with `origin/main` at `6fe7f5284`.\n\n## Done\n\n**Commit:** `6fe7f5284` — `fix(tools-pack): pin assembled app to electron-builder's npm collector`\n**Pushed:** `ae6dfe0b2..6fe7f5284  main -> main` (fast-forward, no conflicts)\n\n9 files, +152/−7. Two pre-existing local commits of yours (`e45caa829`, `4453e793d`) went up alongside it — they were already sitting unpushed on your branch before this session.\n\nPre-push verification: tools-pack typecheck clean, 275 tests passing (exit 0), `pnpm guard` clean, `git diff --check` clean, and a final clean in-repo build confirming `pm=npm` with 52 packages and `node-pty` present. No `Co-authored-by` trailer, per the repo's git policy.\n\n**Left uncommitted:** the `.prometheus/knowledge/wiki/` files — session artifacts from your knowledge hooks, unrelated to this fix. They're still in your working tree if you want them.\n\nTwo carry-overs from the previous turn that still apply:\n\n- **Windows and Linux are unproven.** Same mechanism, same code shape, unit tests green — but never built on their native platforms. Worth a real build on each before relying on them.\n- **You committed straight to `main`**, so this bypassed CI review. If the repo runs CI on pushes to `main`, that's now the first real check on the Windows/Linux paths — worth watching.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T05:30:26.287437Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T05:30:28.867498Z",
+      "updated_at": "2026-08-09T05:30:28.867498Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-77a2bf4f55a4eaf7",
+      "title": "Karpathy session 77a2bf4f55a4",
+      "content": "## Delta\n\nCompleted kbd-analyze — upstream-fixes-and-skill-integration (step 0 of 0)\n\n## Analyze complete — and it found something that changes the plan\n\nThe single most important result: **my initial research was wrong, and correcting it changed Goal 1's verdict.**\n\n### Upstream issue #6599 is open right now\n\n**\"[Bug]: Login is now mandatory and cannot be skipped\"** — filed 2 days ago, 20 comments, still open. The maintainer's reply confirms our assessment in upstream's own words:\n\n> This behavior is intentional as of v18.1 … The local and BYOK options haven't gone away; **they just moved behind the sign-in gate instead of being selectable before it.**\n\nSo this won't be fixed by waiting. The thread is full of your exact use case — air-gapped Kubernetes, corporate proxy whitelisting, enterprise BYOK compliance, one user geoblocked from the login page.\n\n**And someone already fixed it.** `tony-box/open-design` (Apache-2.0) carries `9dfc269e fix(web): make Open Design Cloud sign-in optional again` — plus `82bfa63d` disabling auto-updates, which independently answers the auto-update question I'd left UNKNOWN. **Goal 1 moves from \"build blind\" to \"adapt a known-good patch.\"**\n\n### The finding that kills \"just install the skills\"\n\n`SkillMode` has **no `utility` value** — so any skill without an `od:` block falls through to a regex that guesses mode from prose. I simulated it over your 39 hybrid skills: **6 become image generators, 2 video, 1 deck**, and all get `designSystemRequired: true`. An import adapter is mandatory, and the misclassification is *silent* — they'd look installed and just behave wrong.\n\n### Other results\n\n- **Zero new dependencies** — `jszip` and `tar` are already there.\n- **Goal 2:** adopt the plugin system; don't build a second install grammar.\n- **Goal 4:** clone `od-react-export` (verified git-tracked source), but re-costed S→S–M — I found no scenario-plugin UI surface in `apps/web`, and the dual-surface rule needs UI+CLI in one PR.\n\n### Two corrections worth flagging\n\nThe adversarial judge ran twice, both BLOCK, and was right both times. It caught that I'd claimed the `knowme-builder` crate was in this repo (it's in the external tree — making option 3b more expensive than I'd implied), and that I'd offered \"stay on 0.16.2, the gate doesn't affect us.\" That second one was flatly wrong: **`package.json`'s 0.16.2 is a stale dev version** — upstream `main` says 0.16.2 too while shipping 0.18.x — and the gate **is** in your tree (`886bcc4db` is an ancestor of HEAD). Both fixed.\n\n### Still blocking\n\n**Goal 3's scope.** Three readings, and I can cost them but not choose:\n- **3a** import the 39 skills — small, and unblocks Goal 4's cheap path\n- **3b** invoke `knowme-builder` — external alpha binary, subprocess grant, and its own docs say generated apps must not add a second agent loop (OD would be a fourth)\n- **3c** port the profiles — reimplements someone else's active generator\n\nMy recommendation is **3a now, 3b as its own phase**. Goal 4's shape depends on your answer.\n\nOne limitation to own: I skipped research tiers 2 and 4, so there's **no survey of alternative design-to-code generators**. If you'd want KnowMe Builder compared against alternatives before committing, that research hasn't been done.\n\nStopping here per your instruction. `/kbd-plan upstream-fixes-and-skill-integration` once you've settled Goal 3.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T18:25:58.268358Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n- .prometheus/knowledge/.prompt-snapshots/\n- .prometheus/knowledge/wiki/executor-session-complete-for-upstream-fixes-and-skill-integration.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-2a20e93c12e8516a.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-8a091b2a881071ae.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-a1f11707a14893e8.md\n- .prometheus/knowledge/wiki/karpathy-session-c01efed8c37da6e9.md\n- .prometheus/knowledge/wiki/karpathy-session-c1c229f44a658376.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-e53e1b6deb082904.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T18:26:00.776560Z",
+      "updated_at": "2026-08-09T18:26:00.776560Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-8a091b2a881071ae",
+      "title": "Karpathy session 8a091b2a8810",
+      "content": "## Delta\n\nCompleted kbd-assess — upstream-fixes-and-skill-integration (step 0 of 0)\n\n## Assessment complete — all four goals NOT MET\n\n`.kbd-orchestrator/phases/upstream-fixes-and-skill-integration/assessment.md`\n\n**Adversarially vetted, both rounds PASS** — producer `claude-opus-5`, judge `k3` (genuinely distinct models, fresh context). 0 CRITICAL. The judge caught one real error: I had counted 619 Prometheus skills including `node_modules`; it's **606**. I also rejected two of its findings with evidence and fixed a stale \"18 locales\" entry in your `constraints.md` (disk and `AGENTS.md` both say 19).\n\n### What I found\n\n**Goal 1 — forced login.** Real, and narrower than feared: one `useEffect` at `apps/web/src/components/EntryShell.tsx:588-594` redirects any confirmed-signed-out user to the sign-in screen. But the sharpest finding is the *ordering* — **BYOK and Local-CLI sit behind cloud sign-in**. You can't choose the local runtime without first authenticating. That, more than the redirect, is what breaks the open-source model.\n\nThe good news: the daemon is already local-capable. The only non-test setter of `OD_WORKSPACE_CONTEXT_SOURCE` is `apps/packaged/src/workspace-team.ts:37`, and upstream's own comment calls local-only a *supported degradation*. The `od` CLI never consults the gate at all.\n\n**Goal 2.** Single-skill install already ships (including an undocumented local-path mode). But the pack is 606 skills and installers take one at a time; \"detect\" has no mechanism; and the stated purpose — skills travelling to ejected projects — has **zero** supporting machinery.\n\n**Goal 3 is the phase's main risk.** That directory isn't a skill set — it's **KnowMe Builder**, a Rust CLI generator with its own authority model that doesn't include Open Design. Your goal admits three readings (install 39 skills / invoke the binary / port the profiles) that are *three different projects*, not variants of one.\n\n**Goal 4 is BLOCKED on Goal 3** — your goal text says export \"using the skill in the last point\", so its shape is undetermined until Goal 3 is scoped. Precedent exists (`plugins/_official/scenarios/od-react-export`, git-tracked), but plugins can't ship executable atoms, so deterministic scaffolding needs first-party daemon code.\n\n### Two things you should weigh before analyze\n\n**Offline ≠ removing the gate.** AMR ships `fallbackModels: []`, so the default runtime resolves no models without network. Removing the gate gets you to a screen whose default runtime doesn't work offline — the two problems are linked. Auto-update opt-out is UNKNOWN.\n\n**You're 25 commits behind upstream**, in exactly the files you'd edit. Rebase strategy is a real decision, not a detail.\n\n**Not done:** test baseline — the daemon suite exceeded my 2-minute probe. Not a failure, but it must be captured before any edit or later regressions won't be attributable.\n\nStopping here per your instruction. Six open questions are listed in the assessment; **Goal 3's scope is the one that gates the rest**. Run `/kbd-analyze upstream-fixes-and-skill-integration` when ready.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T15:28:20.967244Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T15:28:26.684513Z",
+      "updated_at": "2026-08-09T15:28:26.684513Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-8bde6d5f3dfe885a",
+      "title": "Karpathy session 8bde6d5f3dfe",
+      "content": "## Delta\n\n```\n/private/tmp/claude-501/-Users-gqadonis-Projects-references-open-design/62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d/scratchpad/odpack/out/mac/namespaces/default/dmg/Open Design-default.dmg\n```\n\nNote the filename contains a space, so quote it in shell commands:\n\n```bash\nopen \"/private/tmp/claude-501/-Users-gqadonis-Projects-references-open-design/62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d/scratchpad/odpack/out/mac/namespaces/default/dmg/Open Design-default.dmg\"\n```\n\nOne caveat: that path is in the session scratchpad under `/private/tmp`, which is subject to OS temp cleanup. If you want to keep this build, copy it somewhere durable first — say `~/Downloads` or `~/Desktop`. Want me to do that?\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T08:12:19.911077Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T08:12:22.301510Z",
+      "updated_at": "2026-08-07T08:12:22.301510Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-9f9fcfd471bce60c",
+      "title": "Karpathy session 9f9fcfd471bc",
+      "content": "## Delta\n\nRepo typecheck is clean — 0 errors (one pre-existing deprecation warning in `apps/landing-page`, unrelated to this change).\n\n## Fixed\n\n`pnpm tools-pack mac build` now works from the default in-repo location. Verified from a clean state: 52 packages collected (was 11), all native modules present, all phases green.\n\n### Root cause\n\napp-builder-lib 26 picks its `node_modules` collector from the **workspace root**, not from the app being packaged. `determinePackageManagerEnv` calls `findWorkspaceRoot`, which for pnpm runs `pnpm --workspace-root exec pwd` with `cwd` = `projectDir`. Since tools-pack assembles under `<repo>/.tmp/`, that walk found the repo's `pnpm-workspace.yaml` and re-detected the collector as pnpm — overriding whatever the app declared. The app is populated with npm, so it has no `.pnpm/` directory; the pnpm collector found nothing, fell through to the repo root, and collected only what was resolvable there.\n\n### The change\n\nNew `tools/pack/src/assembled-app-package-manager.ts` plants two markers in the assembled app before install, each defeating a different detection stage:\n\n- **`pnpm-workspace.yaml`** (`packages: []`) makes `pnpm --workspace-root` resolve to the app itself, so the walk stops before the repo root and the pnpm re-detection never fires.\n- **`package-lock.json`** — by dropping `--no-package-lock` from the install — makes `detectPackageManagerByFile` return npm. This one is load-bearing: without it, detection falls through to `detectPackageManagerByEnv`, which reads `npm_config_user_agent`/`npm_execpath` and reports **pnpm**, because tools-pack itself runs under `pnpm tools-pack`.\n\nBoth markers are excluded from shipped bundles via `!pnpm-workspace.yaml` / `!package-lock.json` in each platform's `files` patterns.\n\nApplied to **all three platforms** — macOS, Windows, and Linux shared the identical defect. On Linux I changed only the npm branch; the containerized pnpm path (`OD_TOOLS_PACK_PNPM_BIN`, `--config.node-linker=hoisted`) is a genuinely different install shape and is untouched.\n\n### Verification\n\n`pnpm typecheck` (0 errors) · `pnpm guard` · `pnpm --filter @open-design/tools-pack test` (275 passed) · `git diff --check` clean. Added `tests/assembled-app-package-manager.test.ts` and updated two `linux.test.ts` cases that pinned the old `--no-package-lock` flag, plus a regression assertion that it never comes back.\n\n### Two things worth your attention\n\n**Only macOS is empirically proven.** I ran real end-to-end builds on this arm64 Mac. The Windows and Linux fixes are the same mechanism applied to identical code, and their unit tests pass — but I can't build those targets here, so they need a real build on each platform before you trust them.\n\n**Those stale artifacts are still on disk.** The broken 297MB `.dmg`/`.zip` from the first failed run were overwritten by these verification builds, but I'd confirm `.tmp/tools-pack/out/mac/` holds only good output before publishing anything from it.\n\nI haven't committed — the changes are staged in the working tree for your review.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T16:01:42.262283Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- tools/pack/src/linux.ts\n- tools/pack/src/mac/app.ts\n- tools/pack/src/mac/commands.ts\n- tools/pack/src/mac/constants.ts\n- tools/pack/src/win/app.ts\n- tools/pack/src/win/constants.ts\n- tools/pack/tests/linux.test.ts\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n- tools/pack/src/assembled-app-package-manager.ts\n- tools/pack/tests/assembled-app-package-manager.test.ts\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T16:01:43.975034Z",
+      "updated_at": "2026-08-07T16:01:43.975034Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-a1f11707a14893e8",
+      "title": "Karpathy session a1f11707a148",
+      "content": "## Delta\n\nImportant finding — the hybrid-mobile directory is **KnowMe Builder**, a Rust CLI generator, not just a skill collection. Let me dig into both external systems.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T14:35:52.912635Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T14:41:16.059881Z",
+      "updated_at": "2026-08-09T14:41:16.059881Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-c01efed8c37da6e9",
+      "title": "Karpathy session c01efed8c37d",
+      "content": "## Delta\n\nPushed. `main` is in sync with `origin/main` at `6fe7f5284`.\n\n## Done\n\n**Commit:** `6fe7f5284` — `fix(tools-pack): pin assembled app to electron-builder's npm collector`\n**Pushed:** `ae6dfe0b2..6fe7f5284  main -> main` (fast-forward, no conflicts)\n\n9 files, +152/−7. Two pre-existing local commits of yours (`e45caa829`, `4453e793d`) went up alongside it — they were already sitting unpushed on your branch before this session.\n\nPre-push verification: tools-pack typecheck clean, 275 tests passing (exit 0), `pnpm guard` clean, `git diff --check` clean, and a final clean in-repo build confirming `pm=npm` with 52 packages and `node-pty` present. No `Co-authored-by` trailer, per the repo's git policy.\n\n**Left uncommitted:** the `.prometheus/knowledge/wiki/` files — session artifacts from your knowledge hooks, unrelated to this fix. They're still in your working tree if you want them.\n\nTwo carry-overs from the previous turn that still apply:\n\n- **Windows and Linux are unproven.** Same mechanism, same code shape, unit tests green — but never built on their native platforms. Worth a real build on each before relying on them.\n- **You committed straight to `main`**, so this bypassed CI review. If the repo runs CI on pushes to `main`, that's now the first real check on the Windows/Linux paths — worth watching.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T05:33:32.778776Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T05:34:10.354522Z",
+      "updated_at": "2026-08-09T05:34:10.354522Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-c1c229f44a658376",
+      "title": "Karpathy session c1c229f44a65",
+      "content": "## Delta\n\nCompleted kbd-new-phase — upstream-fixes-and-skill-integration ready for /kbd-assess\n\n## Phase created\n\n**`upstream-fixes-and-skill-integration`** — `.kbd-orchestrator/phases/upstream-fixes-and-skill-integration/`\n\nFive goals recorded in `goals.md`: the four problems you listed, plus the strict phase-gating instruction as an explicit process goal so it survives compaction and can't get quietly dropped mid-run.\n\nWaypoint flipped to `status: assessment_ready`, `exactNextCommand: /kbd-assess upstream-fixes-and-skill-integration`. `phase:before` hooks fired (`hooks.log.jsonl` written). Both referenced source directories verified present:\n- `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack` ✓\n- `/Users/gqadonis/Projects/hybrid-mobile-architecture-src` ✓\n\n**One thing to flag before assessment:** `project.json` now carries both `active_phase: null` (the pre-existing snake_case field) and `activePhase: \"upstream-fixes-and-skill-integration\"` (written by the skill). The skill writes camelCase; your file was seeded with snake_case. They're not in conflict for this run — the waypoint is authoritative — but if any of your tooling reads `active_phase`, it will still see `null`. Worth reconciling if you hit it.\n\n**Next:** `/kbd-assess upstream-fixes-and-skill-integration` — I'll stop there for your evaluation before analyze.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T14:35:44.135011Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T14:35:56.654267Z",
+      "updated_at": "2026-08-09T14:35:56.654267Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-c394940e5a983930",
+      "title": "Karpathy session c394940e5a98",
+      "content": "## Delta\n\nRepo typecheck is clean — 0 errors (one pre-existing deprecation warning in `apps/landing-page`, unrelated to this change).\n\n## Fixed\n\n`pnpm tools-pack mac build` now works from the default in-repo location. Verified from a clean state: 52 packages collected (was 11), all native modules present, all phases green.\n\n### Root cause\n\napp-builder-lib 26 picks its `node_modules` collector from the **workspace root**, not from the app being packaged. `determinePackageManagerEnv` calls `findWorkspaceRoot`, which for pnpm runs `pnpm --workspace-root exec pwd` with `cwd` = `projectDir`. Since tools-pack assembles under `<repo>/.tmp/`, that walk found the repo's `pnpm-workspace.yaml` and re-detected the collector as pnpm — overriding whatever the app declared. The app is populated with npm, so it has no `.pnpm/` directory; the pnpm collector found nothing, fell through to the repo root, and collected only what was resolvable there.\n\n### The change\n\nNew `tools/pack/src/assembled-app-package-manager.ts` plants two markers in the assembled app before install, each defeating a different detection stage:\n\n- **`pnpm-workspace.yaml`** (`packages: []`) makes `pnpm --workspace-root` resolve to the app itself, so the walk stops before the repo root and the pnpm re-detection never fires.\n- **`package-lock.json`** — by dropping `--no-package-lock` from the install — makes `detectPackageManagerByFile` return npm. This one is load-bearing: without it, detection falls through to `detectPackageManagerByEnv`, which reads `npm_config_user_agent`/`npm_execpath` and reports **pnpm**, because tools-pack itself runs under `pnpm tools-pack`.\n\nBoth markers are excluded from shipped bundles via `!pnpm-workspace.yaml` / `!package-lock.json` in each platform's `files` patterns.\n\nApplied to **all three platforms** — macOS, Windows, and Linux shared the identical defect. On Linux I changed only the npm branch; the containerized pnpm path (`OD_TOOLS_PACK_PNPM_BIN`, `--config.node-linker=hoisted`) is a genuinely different install shape and is untouched.\n\n### Verification\n\n`pnpm typecheck` (0 errors) · `pnpm guard` · `pnpm --filter @open-design/tools-pack test` (275 passed) · `git diff --check` clean. Added `tests/assembled-app-package-manager.test.ts` and updated two `linux.test.ts` cases that pinned the old `--no-package-lock` flag, plus a regression assertion that it never comes back.\n\n### Two things worth your attention\n\n**Only macOS is empirically proven.** I ran real end-to-end builds on this arm64 Mac. The Windows and Linux fixes are the same mechanism applied to identical code, and their unit tests pass — but I can't build those targets here, so they need a real build on each platform before you trust them.\n\n**Those stale artifacts are still on disk.** The broken 297MB `.dmg`/`.zip` from the first failed run were overwritten by these verification builds, but I'd confirm `.tmp/tools-pack/out/mac/` holds only good output before publishing anything from it.\n\nI haven't committed — the changes are staged in the working tree for your review.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T15:58:36.785228Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- tools/pack/src/linux.ts\n- tools/pack/src/mac/app.ts\n- tools/pack/src/mac/commands.ts\n- tools/pack/src/mac/constants.ts\n- tools/pack/src/win/app.ts\n- tools/pack/src/win/constants.ts\n- tools/pack/tests/linux.test.ts\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n- tools/pack/src/assembled-app-package-manager.ts\n- tools/pack/tests/assembled-app-package-manager.test.ts\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T15:58:38.722633Z",
+      "updated_at": "2026-08-07T15:58:38.722633Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-caf7f89a0733065b",
+      "title": "Karpathy session caf7f89a0733",
+      "content": "## Delta\n\nThe DMG mounts cleanly with a drag-install layout (`Open Design.app` + `Applications` symlink) at version 0.16.2.\n\n## Done — release artifacts built\n\nAll three portable stable-channel macOS artifacts are in `…/scratchpad/odpack/out/mac/namespaces/default/`:\n\n| Artifact | Size | Path |\n|---|---|---|\n| DMG | 288M | `dmg/Open Design-default.dmg` |\n| ZIP | 289M | `zip/Open Design-default.zip` |\n| Payload (updater) | 304M | `payload/Open Design-default-payload.zip` |\n| `.app` bundle | 714M | `builder/mac-arm64/Open Design.app` |\n\nIdentity: `Open Design` · 0.16.2 · `io.open-design.desktop` · arm64 · unsigned (`identity: null`, per this repo's local build config).\n\n## One thing you should know\n\n**The default `pnpm tools-pack mac build` is currently broken on this machine, and I had to work around it.** This is worth your attention because the failure mode is dangerous.\n\nRoot cause: electron-builder 26.8.1 detects the repo root's `packageManager: \"pnpm@10.33.2\"` and selects its pnpm dependency collector. But `tools/pack/src/mac/commands.ts:69` populates the assembled app with **npm** (`npm install --omit=dev --no-package-lock`), producing a flat `node_modules` with no `.pnpm/` directory. The pnpm collector finds nothing, logs `no node modules found in collection`, walks up to the repo root, and collects only the 11 packages resolvable there — silently dropping 44, including `node-pty`, `better-sqlite3`, `blake3-wasm`, and all 10 `@open-design/*` packages.\n\nThe workaround is the supported `--dir` flag pointing outside the repo. Away from the workspace root, electron-builder falls back to `pm=traversal` and collects all 52 packages correctly. Nothing in your tracked source was modified — the only files I edited were regenerated build artifacts under `.tmp/`.\n\n**The dangerous part:** on the first failed run, electron-builder still *produced* a complete-looking 297MB `.dmg` and `.zip` from the incomplete bundle. Those are at `.tmp/tools-pack/out/mac/namespaces/default/builder/` and would fail at daemon boot with `ERR_MODULE_NOT_FOUND`. Only the `assertNodePtyRuntime` validator caught it. I'd delete those stale artifacts so they can't be mistaken for good builds.\n\nTwo things I did **not** do, since they're your call:\n- **No source fix.** The durable repair belongs in `tools/pack` — either give the assembled app a `packageManager: \"npm@…\"` field that survives regeneration in `mac/app.ts`, or assemble outside the workspace root by default. `win-prebundle.ts` has the identical npm-install-inside-pnpm-workspace shape, so Windows builds likely share this bug.\n- **Not signed or notarized.** These artifacts will hit Gatekeeper on other machines. Per your memory note this fork builds unsigned, so I left it as-is.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T01:19:45.122492Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T01:19:45.957447Z",
+      "updated_at": "2026-08-07T01:19:45.957447Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-e53e1b6deb082904",
+      "title": "Karpathy session e53e1b6deb08",
+      "content": "## Delta\n\nTwo decisive facts: `knowme-builder` is **already installed** at `~/.cargo/bin/` (3.6 MB, built Jul 29), and the hybrid skills use **bare `name`/`description` frontmatter** — exactly what OD's zero-config skill parser accepts. Let me verify that compatibility claim directly.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T15:28:24.968875Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n- .prometheus/knowledge/.prompt-snapshots/\n- .prometheus/knowledge/wiki/executor-session-complete-for-upstream-fixes-and-skill-integration.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-2a20e93c12e8516a.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-8a091b2a881071ae.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-a1f11707a14893e8.md\n- .prometheus/knowledge/wiki/karpathy-session-c01efed8c37da6e9.md\n- .prometheus/knowledge/wiki/karpathy-session-c1c229f44a658376.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T15:33:32.088151Z",
+      "updated_at": "2026-08-09T15:33:32.088151Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-ebd9e363ac25c453",
+      "title": "Karpathy session ebd9e363ac25",
+      "content": "## Delta\n\nCompleted kbd-analyze — upstream-fixes-and-skill-integration (step 0 of 0)\n\n## Analyze complete — and it found something that changes the plan\n\nThe single most important result: **my initial research was wrong, and correcting it changed Goal 1's verdict.**\n\n### Upstream issue #6599 is open right now\n\n**\"[Bug]: Login is now mandatory and cannot be skipped\"** — filed 2 days ago, 20 comments, still open. The maintainer's reply confirms our assessment in upstream's own words:\n\n> This behavior is intentional as of v18.1 … The local and BYOK options haven't gone away; **they just moved behind the sign-in gate instead of being selectable before it.**\n\nSo this won't be fixed by waiting. The thread is full of your exact use case — air-gapped Kubernetes, corporate proxy whitelisting, enterprise BYOK compliance, one user geoblocked from the login page.\n\n**And someone already fixed it.** `tony-box/open-design` (Apache-2.0) carries `9dfc269e fix(web): make Open Design Cloud sign-in optional again` — plus `82bfa63d` disabling auto-updates, which independently answers the auto-update question I'd left UNKNOWN. **Goal 1 moves from \"build blind\" to \"adapt a known-good patch.\"**\n\n### The finding that kills \"just install the skills\"\n\n`SkillMode` has **no `utility` value** — so any skill without an `od:` block falls through to a regex that guesses mode from prose. I simulated it over your 39 hybrid skills: **6 become image generators, 2 video, 1 deck**, and all get `designSystemRequired: true`. An import adapter is mandatory, and the misclassification is *silent* — they'd look installed and just behave wrong.\n\n### Other results\n\n- **Zero new dependencies** — `jszip` and `tar` are already there.\n- **Goal 2:** adopt the plugin system; don't build a second install grammar.\n- **Goal 4:** clone `od-react-export` (verified git-tracked source), but re-costed S→S–M — I found no scenario-plugin UI surface in `apps/web`, and the dual-surface rule needs UI+CLI in one PR.\n\n### Two corrections worth flagging\n\nThe adversarial judge ran twice, both BLOCK, and was right both times. It caught that I'd claimed the `knowme-builder` crate was in this repo (it's in the external tree — making option 3b more expensive than I'd implied), and that I'd offered \"stay on 0.16.2, the gate doesn't affect us.\" That second one was flatly wrong: **`package.json`'s 0.16.2 is a stale dev version** — upstream `main` says 0.16.2 too while shipping 0.18.x — and the gate **is** in your tree (`886bcc4db` is an ancestor of HEAD). Both fixed.\n\n### Still blocking\n\n**Goal 3's scope.** Three readings, and I can cost them but not choose:\n- **3a** import the 39 skills — small, and unblocks Goal 4's cheap path\n- **3b** invoke `knowme-builder` — external alpha binary, subprocess grant, and its own docs say generated apps must not add a second agent loop (OD would be a fourth)\n- **3c** port the profiles — reimplements someone else's active generator\n\nMy recommendation is **3a now, 3b as its own phase**. Goal 4's shape depends on your answer.\n\nOne limitation to own: I skipped research tiers 2 and 4, so there's **no survey of alternative design-to-code generators**. If you'd want KnowMe Builder compared against alternatives before committing, that research hasn't been done.\n\nStopping here per your instruction. `/kbd-plan upstream-fixes-and-skill-integration` once you've settled Goal 3.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T18:29:04.192704Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n- .prometheus/knowledge/.prompt-snapshots/\n- .prometheus/knowledge/wiki/executor-session-complete-for-upstream-fixes-and-skill-integration.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-2a20e93c12e8516a.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-77a2bf4f55a4eaf7.md\n- .prometheus/knowledge/wiki/karpathy-session-8a091b2a881071ae.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-a1f11707a14893e8.md\n- .prometheus/knowledge/wiki/karpathy-session-c01efed8c37da6e9.md\n- .prometheus/knowledge/wiki/karpathy-session-c1c229f44a658376.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-e53e1b6deb082904.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T18:29:10.184437Z",
+      "updated_at": "2026-08-09T18:29:10.184437Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-ff0134ddafa1da25",
+      "title": "Karpathy session ff0134ddafa1",
+      "content": "## Delta\n\nThe DMG mounts cleanly with a drag-install layout (`Open Design.app` + `Applications` symlink) at version 0.16.2.\n\n## Done — release artifacts built\n\nAll three portable stable-channel macOS artifacts are in `…/scratchpad/odpack/out/mac/namespaces/default/`:\n\n| Artifact | Size | Path |\n|---|---|---|\n| DMG | 288M | `dmg/Open Design-default.dmg` |\n| ZIP | 289M | `zip/Open Design-default.zip` |\n| Payload (updater) | 304M | `payload/Open Design-default-payload.zip` |\n| `.app` bundle | 714M | `builder/mac-arm64/Open Design.app` |\n\nIdentity: `Open Design` · 0.16.2 · `io.open-design.desktop` · arm64 · unsigned (`identity: null`, per this repo's local build config).\n\n## One thing you should know\n\n**The default `pnpm tools-pack mac build` is currently broken on this machine, and I had to work around it.** This is worth your attention because the failure mode is dangerous.\n\nRoot cause: electron-builder 26.8.1 detects the repo root's `packageManager: \"pnpm@10.33.2\"` and selects its pnpm dependency collector. But `tools/pack/src/mac/commands.ts:69` populates the assembled app with **npm** (`npm install --omit=dev --no-package-lock`), producing a flat `node_modules` with no `.pnpm/` directory. The pnpm collector finds nothing, logs `no node modules found in collection`, walks up to the repo root, and collects only the 11 packages resolvable there — silently dropping 44, including `node-pty`, `better-sqlite3`, `blake3-wasm`, and all 10 `@open-design/*` packages.\n\nThe workaround is the supported `--dir` flag pointing outside the repo. Away from the workspace root, electron-builder falls back to `pm=traversal` and collects all 52 packages correctly. Nothing in your tracked source was modified — the only files I edited were regenerated build artifacts under `.tmp/`.\n\n**The dangerous part:** on the first failed run, electron-builder still *produced* a complete-looking 297MB `.dmg` and `.zip` from the incomplete bundle. Those are at `.tmp/tools-pack/out/mac/namespaces/default/builder/` and would fail at daemon boot with `ERR_MODULE_NOT_FOUND`. Only the `assertNodePtyRuntime` validator caught it. I'd delete those stale artifacts so they can't be mistaken for good builds.\n\nTwo things I did **not** do, since they're your call:\n- **No source fix.** The durable repair belongs in `tools/pack` — either give the assembled app a `packageManager: \"npm@…\"` field that survives regeneration in `mac/app.ts`, or assemble outside the workspace root by default. `win-prebundle.ts` has the identical npm-install-inside-pnpm-workspace shape, so Windows builds likely share this bug.\n- **Not signed or notarized.** These artifacts will hit Gatekeeper on other machines. Per your memory note this fork builds unsigned, so I left it as-is.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T01:16:40.187366Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T01:16:42.019842Z",
+      "updated_at": "2026-08-07T01:16:42.019842Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t11-44-21z",
+      "title": "No-Op Session Snapshot at 2026-07-13T11:44:21Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T11:44:21Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This is another no-op run-state record, consistent with the immediately preceding [No-Op Session Snapshot at 2026-07-13T11:44Z](/no-op-session-snapshot-at-2026-07-13t11-44z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t11-44z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:46:50.913715Z",
+      "updated_at": "2026-07-13T11:46:50.913715Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t11-44z",
+      "title": "No-Op Session Snapshot at 2026-07-13T11:44Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T11:44:03Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This matches the earlier [No-Op Session Snapshot on 2026-07-13](/no-op-session-snapshot-on-2026-07-13.md) pattern.\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-on-2026-07-13"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:44:10.031394Z",
+      "updated_at": "2026-07-13T11:44:10.031394Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t13-14-03z",
+      "title": "No-Op Session Snapshot at 2026-07-13T13:14:03Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T13:14:03Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This follows the same no-op run-state pattern as [No-Op Session Snapshot at 2026-07-13T11:44:21Z](/no-op-session-snapshot-at-2026-07-13t11-44-21z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t11-44-21z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T13:14:12.375712Z",
+      "updated_at": "2026-07-13T13:14:12.375712Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t13-14-21z",
+      "title": "No-Op Session Snapshot at 2026-07-13T13:14:21Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T13:14:21Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the same no-op run-state pattern as [No-Op Session Snapshot at 2026-07-13T13:14:03Z](/no-op-session-snapshot-at-2026-07-13t13-14-03z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t13-14-03z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T13:18:51.744595Z",
+      "updated_at": "2026-07-13T13:18:51.744595Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t14-03-56z",
+      "title": "No-Op Session Snapshot at 2026-07-13T14:03:56Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T14:03:56Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the no-op run-state pattern seen in [No-Op Session Snapshot at 2026-07-13T13:14:21Z](/no-op-session-snapshot-at-2026-07-13t13-14-21z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t13-14-21z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T14:04:02.948419Z",
+      "updated_at": "2026-07-13T14:04:02.948419Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t14-04-34z",
+      "title": "No-Op Session Snapshot at 2026-07-13T14:04:34Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T14:04:34Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the no-op run-state pattern seen in [No-Op Session Snapshot at 2026-07-13T14:03:56Z](/no-op-session-snapshot-at-2026-07-13t14-03-56z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t14-03-56z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T14:12:08.085551Z",
+      "updated_at": "2026-07-13T14:12:08.085551Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t14-12-30z",
+      "title": "No-Op Session Snapshot at 2026-07-13T14:12:30Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T14:12:30Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the no-op run-state pattern seen in [No-Op Session Snapshot at 2026-07-13T14:04:34Z](/no-op-session-snapshot-at-2026-07-13t14-04-34z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t14-04-34z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T14:15:01.227393Z",
+      "updated_at": "2026-07-13T14:15:01.227393Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-on-2026-07-13",
+      "title": "No-Op Session Snapshot on 2026-07-13",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T10:59:03Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot.\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:05:08.773468Z",
+      "updated_at": "2026-07-13T11:05:08.773468Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    }
+  ]
+}

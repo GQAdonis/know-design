@@ -1,0 +1,45 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment states the i18n requirement as 19 locales, contradicting the project constraint of 18 locale files.",
+      "evidence": "Constraint Check says \"any new UI string needs `types.ts` first, then all 19 locales\" and Open Question 3 says \"Does it need a UI toggle (\u2192 19 locales)\", but `constraints` states: \"New i18n keys must be added to `types.ts` first and defined in all 18 locale files under `apps/web/src/i18n/locales/*.ts`.\"",
+      "suggested_fix": "Correct both instances to 18 locales (or verify the actual count against `apps/web/src/i18n/locales/` and cite it), so downstream scoping of UI-string work uses the right multiplier."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Goal 4 is analyzed as a standalone generic export plugin, ignoring that the goal text explicitly requires the export to use the hybrid architecture skill, making Goal 4 dependent on Goal 3's unresolved scope.",
+      "evidence": "Goal 4 reads: \"Build a custom plugin or Open-Design-native extension that exports projects using the hybrid architecture skill.\" The Goal 4 section discusses `od-react-export` precedent, atom limitations, and EXPORT_FORMATS without once mentioning the hybrid architecture skills, and Open Question 6 (\"Export target \u2014 prompt-only plugin \u2026 vs. first-party atom + contract + CLI\") frames the choice independently of Open Question 1 (\"Goal 3 scope \u2014 install 39 skills / invoke `knowme-builder` / port profiles?\"). Each Goal 3 reading implies a different Goal 4 deliverable.",
+      "suggested_fix": "Add an explicit dependency finding: Goal 4's export shape cannot be decided until Goal 3's interpretation is resolved, and state which Goal 4 option pairs with each Goal 3 reading."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Goal 2's purpose clause \u2014 integration \"with ejected code projects\" \u2014 receives no gap analysis; the assessment covers only install mechanics.",
+      "evidence": "Goal 2 reads: \"Detect or install the Prometheus skill system \u2026 so work done here integrates with ejected code projects.\" The word \"ejected\" appears nowhere in the artifact; the Goal 2 section and SPEC GAP SUMMARY address only single-skill vs. pack install, leaving the ejected-code integration path (what ejection means in this codebase, whether an eject/export path exists for the pack to hook into) unassessed.",
+      "suggested_fix": "Add a finding on whether any code-ejection/export path exists in the daemon or web app that installed skills integrate with, or mark it UNKNOWN with an explicit open question for analyze."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The claim that the gate effect \"re-fires on every render where the condition holds\" contradicts the quoted dependency array.",
+      "evidence": "The quoted code ends with `}, [amrLoggedIn, view]);` \u2014 a `useEffect` with a two-element deps array re-fires only when `amrLoggedIn` or `view` changes, not on every render.",
+      "suggested_fix": "Reword to \"re-fires whenever `amrLoggedIn` or `view` changes while the condition holds\" so the mechanism description matches the evidence."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The \"no offline-mode flag exists\" finding is scoped to three source trees and does not rule out an existing flag elsewhere.",
+      "evidence": "\"Grep for `OD_OFFLINE|offlineMode|localOnlyMode|disableCloud|skipSignIn|SELF_HOST` across `apps/daemon/src`, `apps/web/src`, `apps/packaged/src` returns zero hits\" \u2014 `apps/desktop` (present in the file tree) and `packages/` were not searched, and desktop is the packaged runtime where such a flag would plausibly live.",
+      "suggested_fix": "Extend the grep to `apps/desktop` and `packages/` (or state the exclusion explicitly) before asserting no flag exists."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-08-09T18:07:25Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "9 candidates (3 adopt / 3 adapt / 2 reference / 1 reject) across all 10 assessment gaps; ZERO new runtime dependencies (jszip+tar already present). KEY VERDICT CHANGE: Goal 1 moved BUILD -> ADAPT after discovering upstream issue #6599 ('Login is now mandatory and cannot be skipped', OPEN, 20 comments) where the maintainer confirms the gate is INTENTIONAL ('identity first, runtime second'; local/BYOK 'moved behind the sign-in gate'), plus an Apache-2.0 de-gated fork tony-box/open-design commit 9dfc269e that is a direct reference implementation (and 82bfa63d resolves the auto-update UNKNOWN). Goal 2: ADOPT the plugin system, do NOT build a second pack grammar; but a MANDATORY new finding is that SkillMode has no 'utility' value, so imported skills fall through to prose-regex inferMode -- simulated over the 39 hybrid skills this misfiles 6 as image, 2 as video, 1 as deck, and forces designSystemRequired=true. An od: import adapter is mandatory, and misclassification is SILENT so any import work needs a mode-assertion test. Goal 4: ADAPT plugins/_official/scenarios/od-react-export (verified git-tracked source), re-costed S->S-M because no scenario-plugin surface was found in apps/web and AGENTS.md requires UI+CLI in one PR. STILL BLOCKING: Goal 3 scope (3a import 39 skills / 3b invoke external knowme-builder binary / 3c port profiles) -- recommendation 3a now, 3b as its own phase; Goal 4's shape depends on the answer. Adversarial review ran 2 rounds (producer claude-opus-5, judge k3), both BLOCK, all findings accepted and fixed; vet closed at the round cap with no unresolved findings. WARNINGS carried: (1) the version field 0.16.2 is stale -- the gate IS in our tree (886bcc4db is an ancestor of HEAD), so 'stay put' is not a rebase option; (2) tiers 2 and 4 were not exercised, so no survey of alternative design-to-code generators exists; (3) external-tree claims are filesystem-verified but not reproducible from this repo alone.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -46,8 +46,10 @@ this file, follow `AGENTS.md` and update this file.
   update contracts before wiring divergent web/daemon shapes.
 - Treat every `pnpm-lock.yaml` change as requiring a Nix pnpm deps hash refresh
   check.
-- New i18n keys must be added to `types.ts` first and defined in all 18 locale
-  files under `apps/web/src/i18n/locales/*.ts`.
+- New i18n keys must be added to `types.ts` first and defined in all 19 locale
+  files under `apps/web/src/i18n/locales/*.ts` (`ar`, `de`, `en`, `es-ES`, `fa`,
+  `fr`, `hu`, `id`, `it`, `ja`, `ko`, `pl`, `pt-BR`, `ru`, `th`, `tr`, `uk`,
+  `zh-CN`, `zh-TW`) — count verified against disk and `AGENTS.md:260`.
 - New `apps/web` UI should reuse `@open-design/components` primitives; new
   component styles default to CSS Modules, not global stylesheets.
 - Desktop is **Electron** (`apps/desktop` + `apps/packaged`), not Tauri.

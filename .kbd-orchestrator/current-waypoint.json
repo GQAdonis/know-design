@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "5",
+  "phase": "upstream-fixes-and-skill-integration",
+  "previousPhase": null,
+  "change": null,
+  "status": "assessment_ready",
+  "currentTask": "run kbd-assess for upstream-fixes-and-skill-integration",
+  "nextPendingChange": null,
+  "sourceTool": "unknown",
+  "exactNextCommand": "/kbd-assess upstream-fixes-and-skill-integration",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "completionMetric": "implementation",
+  "implementationCompleted": 0,
+  "implementationTotal": 0,
+  "certificationStatus": "NOT_TRACKED",
+  "publicationStatus": "NOT_TRACKED",
+  "planRevision": 1,
+  "revision": 0,
+  "updatedAt": "2026-08-09T14:35:24Z"
+}

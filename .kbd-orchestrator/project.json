@@ -4,7 +4,14 @@
   "active_phase": null,
   "focus_project_path": "/Users/gqadonis/Projects/references/open-design",
   "stack": "Next.js 16 + React 18 monorepo (pnpm workspaces); Electron desktop; local Node ~24 daemon",
-  "spec_paths": ["openspec/specs", "openspec/changes", "docs", "specs", "specs/current", "specs/change"],
+  "spec_paths": [
+    "openspec/specs",
+    "openspec/changes",
+    "docs",
+    "specs",
+    "specs/current",
+    "specs/change"
+  ],
   "openspec_available": true,
   "constraint_file": ".kbd-orchestrator/constraints.md",
   "build_health_command": "pnpm guard && pnpm typecheck",
@@ -27,7 +34,13 @@
   "workspace": {
     "workspace_file": null,
     "folders": [
-      { "path": "/Users/gqadonis/Projects/references/open-design", "role": "focus", "write_access": true }
+      {
+        "path": "/Users/gqadonis/Projects/references/open-design",
+        "role": "focus",
+        "write_access": true
+      }
     ]
-  }
+  },
+  "activePhase": "upstream-fixes-and-skill-integration",
+  "updatedAt": "2026-08-09T14:35:24Z"
 }
