@@ -1249,12 +1249,6 @@ function AssistantMessageImpl({
     hasEmptyResponse ||
     !!copyMarkdown ||
     canFork);
-  // Continuing unfinished work is current-turn state, unlike copy/feedback/
-  // fork. Restoring historical action rows must not revive stale todo work.
-  const continueRemaining =
-    isLast && onContinueRemainingTasks && continuableTodos.length > 0
-      ? () => onContinueRemainingTasks(continuableTodos)
-      : undefined;
   const canShowOpenDesignSubmission = !!onShareToOpenDesign && showFeedback && runSucceeded;
   const showOpenDesignSubmission =
     canShowOpenDesignSubmission && (!!isLast || shareToOpenDesignBusy);
@@ -1316,15 +1310,26 @@ function AssistantMessageImpl({
   // path), the turn is mid-handshake, not settled. Suppressed direction forms
   // render as a locked pill the user cannot answer, so they don't hold the
   // card back.
-  const hasPendingQuestionForm = useMemo(() => {
-    if (hasUnterminatedQuestionForm(message.content)) return true;
-    return splitOnQuestionForms(message.content).some(
+  const { hasPendingQuestionForm, hasPendingCompleteQuestionForm } = useMemo(() => {
+    const hasPendingCompleteQuestionForm = splitOnQuestionForms(message.content).some(
       (seg) =>
         seg.kind === "form" &&
         !(suppressDirectionForms && isDirectionForm(seg.form)) &&
         (!nextUserContent || !parseSubmittedAnswers(seg.form, nextUserContent)),
     );
+    return {
+      hasPendingCompleteQuestionForm,
+      hasPendingQuestionForm:
+        hasPendingCompleteQuestionForm || hasUnterminatedQuestionForm(message.content),
+    };
   }, [message.content, nextUserContent, suppressDirectionForms]);
+  // Continuing unfinished work belongs to the current turn, and must wait
+  // for a complete pending form, including when the Todo snapshot was inherited.
+  // A terminal truncated form has no answer control; keep its recovery action.
+  const continueRemaining =
+    isLast && !hasPendingCompleteQuestionForm && onContinueRemainingTasks && continuableTodos.length > 0
+      ? () => onContinueRemainingTasks(continuableTodos)
+      : undefined;
   /**
    * 整轮失败的那一轮,**「这一轮到此为止」由壳头那句「运行失败」宣布**,页脚不再重说。
    *
