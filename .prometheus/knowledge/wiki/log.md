@@ -1,5 +1,16 @@
 # Update Log
 
+## 2026-09-14
+* **Update**: [Executor Completion Marker for Upstream Fixes Skill Integration](/executor-completion-marker-upstream-fixes-and-skill-integration.md)
+
+## 2026-09-11
+* **Ingest**: [Karpathy session fd56cbf5dbd0](/karpathy-session-fd56cbf5dbd02f99.md)
+* **Ingest**: [Karpathy session b16fcba2135b](/karpathy-session-b16fcba2135bab7f.md)
+* **Ingest**: [Karpathy session 311c898d65bf](/karpathy-session-311c898d65bf9a7c.md)
+
+## 2026-09-08
+* **Update**: [Executor Completion Marker for Upstream Fixes Skill Integration](/executor-completion-marker-upstream-fixes-and-skill-integration.md)
+
 ## 2026-09-07
 * **Ingest**: [Karpathy session 6a82fc74fcc4](/karpathy-session-6a82fc74fcc42926.md)
 
