@@ -1,3 +1,4 @@
+import { finalizeRuntimeManifest } from "../resources/runtime-manifest.js";
 import { execFile } from "node:child_process";
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
@@ -401,7 +402,7 @@ export async function createWinPackagedAppCacheKey(
     platform: "win32",
     prebundle: shouldUseWinStandalonePrebundle(config.webOutputMode),
     runtimeDependencies: shouldUseWinStandalonePrebundle(config.webOutputMode) ? runtimeDependencies : null,
-    schemaVersion: 6,
+    schemaVersion: 7,
     tarballsKey,
     webOutputMode: config.webOutputMode,
   });
@@ -447,6 +448,7 @@ export async function prepareWinPackagedApp(
         platform: "win32",
       });
       await runElectronRebuild(config, appRoot);
+      await finalizeRuntimeManifest(appRoot);
       const nativeValidationError = await validateWinPackagedAppRuntime(appRoot);
       if (nativeValidationError != null) throw new Error(nativeValidationError);
       return { packagedVersion };
@@ -468,6 +470,8 @@ export async function prepareWinPackagedApp(
     packagedVersion,
     { usePrebundle },
   );
+  // Entrypoints are regenerated on both cache hits and misses.
+  await finalizeRuntimeManifest(join(manifest.entryPath, "app"));
   await writePackagedConfig(
     config,
     paths,
