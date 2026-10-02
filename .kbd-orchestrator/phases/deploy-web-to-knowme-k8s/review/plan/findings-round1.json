@@ -1,0 +1,55 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The plan does not cover required PostgreSQL work for Goal 5 and instead explicitly plans to keep SQLite.",
+      "evidence": "Goals require: \"Use PostgreSQL as the database wherever multiple database options exist (replacing the local SQLite default)\". The plan states: \"This plan keeps SQLite on a PVC\" and the coverage table marks \"Goal 5 \u2014 PostgreSQL\" as \"CUT \u2014 see Decision 1\".",
+      "suggested_fix": "Either revise the goals before this plan proceeds, or add concrete PostgreSQL implementation/migration work with acceptance criteria that prove SQLite is replaced where required."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "Change 4 has a missing explicit dependency on the DNS prerequisite despite being blocked by it.",
+      "evidence": "Change 4 lists \"Depends on: `deploy-daemon-workload`\" but also says \"BLOCKED ON: the external DNS prerequisite in change 5.\" The execution order also says Round 4 \"needs Round 1 DNS resolved\".",
+      "suggested_fix": "Add `dns-a-record-prerequisite` to Change 4's dependency list so schedulers and implementers cannot start gateway/certificate work before DNS is ready."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "Change 1 contradicts itself on whether a workflow edit is required.",
+      "evidence": "The plan says \"no workflow edit is required \u2014 publishing is gated only on a `v*.*.*` tag or a release `workflow_call`\" and immediately instructs: \"Add a `workflow_dispatch` publish path so an image can be cut without inventing a version tag\".",
+      "suggested_fix": "Choose one path: either publish via the existing tag/workflow_call path with no workflow change, or make the workflow_dispatch edit an explicit required repo change with validation."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The plan includes conditional auth changes that are not part of the stated goals while also claiming every change maps to a goal.",
+      "evidence": "Prior handoff says \"auth is an UNSOURCED scope addition ... do not treat as authoritative until written into goals.md\". The plan includes changes 7 and 8, labels their goal as \"candidate scope\", and then claims \"No change exists that does not map to a goal.\"",
+      "suggested_fix": "Remove changes 7\u20138 from this plan, or require an updated goals.md before including them as planned work."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The runbook acceptance criterion is too subjective to test reliably.",
+      "evidence": "Change 6 acceptance says: \"a reader can reproduce the deployment from a clean cluster using only the runbook.\"",
+      "suggested_fix": "Replace with concrete checks, such as the exact manifests/commands documented, required secrets/inputs listed, DNS prerequisite documented, and a fresh namespace deployment producing Ready pod, accepted HTTPRoute, valid certificate, and reachable HTTPS endpoint."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

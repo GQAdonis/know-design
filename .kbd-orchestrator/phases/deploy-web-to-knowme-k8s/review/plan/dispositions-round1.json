@@ -1,0 +1,37 @@
+{
+  "stage": "plan",
+  "round": 1,
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "producer_model": "claude-opus-5",
+  "cross_model_check": "verified-distinct",
+  "note": "First genuinely cross-model review in this phase; both assess rounds fell back to harness-native because the gateway returned HTTP 429.",
+  "dispositions": [
+    {
+      "severity": "CRITICAL",
+      "claim": "Plan does not cover goal 5's PostgreSQL work; plans to keep SQLite instead.",
+      "resolution": "ESCALATED-TO-OPERATOR, NOT SELF-RESOLVED. The judge's own suggested fix named two paths: revise the goals, or add concrete PostgreSQL work. Selecting between them is a scope decision the planner must not make alone - amending goals.md to match the plan would be fitting the spec to the work. Operator chose KEEP THE GOAL on 2026-09-14. Decision 1 rewritten; changes 4/5/6 (provision-postgres-cluster, implement-postgres-daemon-backend, cut-over-deployment-to-postgres) added with falsifiable acceptance criteria."
+    },
+    {
+      "severity": "WARNING",
+      "claim": "expose-via-shared-gateway declared the DNS blocker in prose but omitted it from Depends on.",
+      "resolution": "ACCEPTED-AND-FIXED. dns-a-record-prerequisite added to the machine-readable dependency list so a scheduler cannot start certificate work before DNS resolves."
+    },
+    {
+      "severity": "WARNING",
+      "claim": "publish-fork-container-image said no workflow edit is required, then instructed adding a workflow_dispatch path.",
+      "resolution": "ACCEPTED-AND-FIXED. Genuine self-contradiction. The no-edit path (cut a v*.*.* tag) is the one implemented; workflow_dispatch is explicitly out of scope, with 'git diff touches no .github/workflows file' as an acceptance criterion."
+    },
+    {
+      "severity": "WARNING",
+      "claim": "Plan included auth changes mapping to no goal while asserting every change maps to a goal.",
+      "resolution": "ACCEPTED-AND-FIXED-AT-SOURCE. Operator ratified auth as goal 6 on 2026-09-14 and goals.md was amended. Changes 10/11 are no longer conditional; the coverage claim is now true rather than reworded. Ratification recorded with explicit scope: edge authentication only, no per-user isolation."
+    },
+    {
+      "severity": "SUGGESTION",
+      "claim": "Runbook acceptance criterion ('a reader can reproduce the deployment') is too subjective to test.",
+      "resolution": "ACCEPTED-AND-FIXED. Replaced with five enumerated content requirements plus a fresh-namespace dry run asserting pod Ready, HTTPRoute Accepted+ResolvedRefs, Certificate Ready=True, and an HTTPS 200."
+    }
+  ]
+}

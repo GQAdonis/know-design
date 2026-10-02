@@ -1,22 +1,32 @@
 {
   "schemaVersion": "5",
-  "phase": "upstream-fixes-and-skill-integration",
-  "previousPhase": null,
-  "change": null,
-  "status": "assessment_ready",
-  "currentTask": "run kbd-assess for upstream-fixes-and-skill-integration",
-  "nextPendingChange": null,
-  "sourceTool": "unknown",
-  "exactNextCommand": "/kbd-assess upstream-fixes-and-skill-integration",
-  "parentPhase": null,
-  "childPhases": [],
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 4,
+  "derivedRevision": 4,
+  "frontier": {
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 4
+  },
+  "conflictCount": 0,
+  "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
+  "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
+  "path": [
+    "deploy-web-to-knowme-k8s"
+  ],
+  "phaseIds": [
+    "deploy-web-to-knowme-k8s"
+  ],
+  "activePhaseId": "deploy-web-to-knowme-k8s",
+  "phase": "deploy-web-to-knowme-k8s",
   "childPointer": null,
+  "change": null,
+  "currentTask": null,
+  "status": "ready",
   "completionMetric": "implementation",
   "implementationCompleted": 0,
-  "implementationTotal": 0,
-  "certificationStatus": "NOT_TRACKED",
-  "publicationStatus": "NOT_TRACKED",
+  "implementationTotal": 1,
   "planRevision": 1,
-  "revision": 0,
-  "updatedAt": "2026-08-09T14:35:24Z"
+  "revision": 4,
+  "exactNextCommand": "/kbd-assess deploy-web-to-knowme-k8s",
+  "updatedAt": "2026-09-14T12:28:58.917289Z"
 }

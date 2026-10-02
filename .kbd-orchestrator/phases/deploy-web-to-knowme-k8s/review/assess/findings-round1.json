@@ -1,0 +1,17 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude-sonnet-5",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5",
+  "cross_model_check": "verified-distinct",
+  "round": 1,
+  "findings": [
+    {"severity":"CRITICAL","file":"assessment.md","claim":"Image provenance deferred as an open question instead of assessed.","evidence":"Section 10 item 5 restates the Goal 1 gap as 'Image provenance undecided' rather than assessing whether the fork can publish.","resolution":"ACCEPTED-AND-FIXED; investigation CONTRADICTED the judge's hypothesis (Actions are active on the fork; workflow image is owner-templated, not upstream-hardcoded). Goal 1 rewritten with a verdict."},
+    {"severity":"CRITICAL","file":"assessment.md","claim":"Goal 4 marked ACHIEVABLE without confirming write access to argocd-namespace Gateway/Certificate.","evidence":"Section 5 lists two unmet prerequisites on resources outside the repo; access never established.","resolution":"ACCEPTED-AS-GAP, verdict UPHELD on new evidence: kubectl auth can-i confirms patch gateway/certificate + update gateway + create httproute = yes as system:serviceaccount:kube-system:lke-admin. Evidence added; verdict stays ACHIEVABLE."},
+    {"severity":"WARNING","file":"assessment.md","claim":"A sixth auth goal is promoted to equal status without a cited source.","evidence":"packet goals field contains exactly 5 bullets, none mentioning auth.","resolution":"ACCEPTED-AND-FIXED; auth relabelled as user-added in-session on 2026-09-14, not present in goals.md."},
+    {"severity":"WARNING","file":"assessment.md","claim":"'Single-replica + PVC is the honest shape' is a recommendation stated as a finding.","evidence":"Appears as 'Consequence' in section 6 and again as 'Recommendation' in section 10.","resolution":"ACCEPTED-AND-FIXED; section 6 reduced to feasibility facts, judgment moved to risks."},
+    {"severity":"WARNING","file":"assessment.md","claim":"Namespace/data-root scoping never evaluated as an existing per-user primitive.","evidence":"Section 7 concludes zero per-user capability after searching only for userId-style columns.","resolution":"ACCEPTED-AND-FIXED; evaluated and ruled out — daemon-paths.ts/server.ts/cli.ts carry no namespace or OD_NAMESPACE concept; namespacing is a tools-dev/packaged orchestration concept, not a daemon runtime one."}
+  ],
+  "checked_classes": []
+}

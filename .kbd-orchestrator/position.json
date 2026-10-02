@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 4,
+  "derivedRevision": 4,
+  "frontier": {
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 4
+  },
+  "conflictCount": 0,
+  "updatedAt": "2026-09-14T12:28:58.917289Z",
+  "cursor": [
+    "deploy-web-to-knowme-k8s",
+    "assess"
+  ],
+  "root": {
+    "type": "phase",
+    "id": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
+    "status": "ready",
+    "progress": {
+      "done": 0,
+      "total": 1
+    },
+    "children": [
+      {
+        "type": "phase",
+        "id": "deploy-web-to-knowme-k8s",
+        "canonicalId": "deploy-web-to-knowme-k8s",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 1
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "publish-fork-container-image",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "upstream-fixes-and-skill-integration",
+        "canonicalId": "upstream-fixes-and-skill-integration",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      }
+    ],
+    "annotations": []
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The authentication cut-over leaves the direct unauthenticated gateway route from change 7 unresolved, so the final routing state is ambiguous and can conflict with or bypass the flint-gate route.",
+      "evidence": "Change 7 creates \"an HTTPRoute to the Service\" for `design.know-me.tools`; change 10 later says \"Route `design.know-me.tools` through flint-gate instead of directly to the Service\" but only specifies \"Add a route to the existing `know-me-tools` site\" and never requires deleting or patching the direct HTTPRoute created by change 7. Its acceptance checks redirect behavior but does not assert that no direct HTTPRoute for the host remains.",
+      "suggested_fix": "Make change 10 explicitly patch/delete the direct HTTPRoute from change 7, or make change 7 create only a temporary route clearly replaced by change 10. Add acceptance that the only active route for `design.know-me.tools` goes through flint-gate and unauthenticated direct service routing is impossible."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "Goal 5 coverage omits the `OD_PROJECT_STORAGE`/`project-storage.ts` database seam identified by assessment, so the plan may not replace all existing SQLite/local database options with PostgreSQL.",
+      "evidence": "The prior handoff states: \"storage/daemon-db.ts and project-storage.ts already define the OD_DAEMON_DB/OD_PROJECT_STORAGE seam but have ZERO callers and throw when selected\". The plan's Postgres implementation only says: \"Implement the Postgres backend behind the existing, already-designed seam: `storage/daemon-db.ts` defines `DaemonDbKind = 'sqlite' | 'postgres'` and `resolveDaemonDbConfig()` reading `OD_DAEMON_DB` / `OD_PG_*`\" and the cut-over only sets \"`OD_DAEMON_DB=postgres` plus `OD_PG_*`\".",
+      "suggested_fix": "Add explicit work and acceptance for `project-storage.ts` / `OD_PROJECT_STORAGE`, or document with evidence why that seam is not a database option covered by Goal 5."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The core Postgres implementation is not sufficiently planned because it leaves incompatible implementation decisions unresolved while also asserting concrete parity acceptance.",
+      "evidence": "Change 5 says it carries unresolved `DECISION:` markers for \"full async rewrite versus a sync-over-async shim at the seam\" and \"whether SQLite remains supported after cut-over (dual-engine forever) or becomes legacy.\" The same change's acceptance requires \"a contract test suite runs the same assertions against both engines and passes on both,\" which assumes a dual-engine implementation at least during testing.",
+      "suggested_fix": "Resolve the async-boundary and dual-engine decisions before spawning implementation work, or split change 5 into a design/spike change followed by implementation changes with unambiguous acceptance criteria."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The plan adds a new runtime dependency but does not include the required package-management and validation gates from the constraints.",
+      "evidence": "Change 5 says it \"Requires adding the workspace's first Postgres client dependency\". The constraints require: \"Run `pnpm install` after changing package manifests\" and \"Treat every `pnpm-lock.yaml` change as requiring a Nix pnpm deps hash refresh check,\" plus repo-level \"`pnpm guard` and `pnpm typecheck`\" before ready. Change 5 acceptance only covers daemon boot, schema creation, health, parity tests, and no longer throwing.",
+      "suggested_fix": "Add acceptance for `pnpm install`, lockfile/Nix pnpm deps hash refresh check, `pnpm guard`, `pnpm typecheck`, and package-scoped daemon tests/builds for the dependency-adding change."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

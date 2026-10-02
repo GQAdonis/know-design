@@ -1,7 +1,6 @@
 {
   "name": "open-design",
   "description": "Local-first design product: detects your installed code-agent CLI, runs design skills + design systems, streams artifacts into a sandboxed preview.",
-  "active_phase": null,
   "focus_project_path": "/Users/gqadonis/Projects/references/open-design",
   "stack": "Next.js 16 + React 18 monorepo (pnpm workspaces); Electron desktop; local Node ~24 daemon",
   "spec_paths": [
@@ -41,6 +40,6 @@
       }
     ]
   },
-  "activePhase": "upstream-fixes-and-skill-integration",
-  "updatedAt": "2026-08-09T14:35:24Z"
+  "activePhase": "deploy-web-to-knowme-k8s",
+  "updatedAt": "2026-09-14T09:52:49Z"
 }

@@ -1,0 +1,1170 @@
+{
+  "schemaVersion": 1,
+  "scope": "project",
+  "generation": "e1972e20b47966f65c0c727ae7c803ac5fb5f47b0125917df4f84be4caf52f01",
+  "candidateCount": 58,
+  "byteCount": 166695,
+  "entries": [
+    {
+      "id": "codex-plugin-verify-and-publish-phase-summary",
+      "title": "Codex Plugin Verify and Publish Phase Summary",
+      "content": "## Context\n\n- **Phase:** `phase-codex-plugin-verify-and-publish`\n- **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`\n- **Captured:** `2026-07-13T08:51:14Z`\n- **Project:** unspecified\n\n## Phase goals\n\n- **G-01:** Exercise `validate:codex` in a real GitHub Actions run to confirm the CI drift/validity gate runs and passes on push/PR.\n- **G-02:** Confirm MCP environment round-trip:\n  - Run `codex-provision-mcp-env.sh` with keys set.\n  - Install the plugin.\n  - Verify `codex doctor` stops warning.\n  - Verify a plugin MCP server can see its key.\n- **G-03:** Verify real plugin hooks run cleanly under Codex with the `CLAUDE_PLUGIN_ROOT:-PLUGIN_ROOT` fix, not just the probe; specifically, `SessionStart` should execute without empty-path errors.\n- **G-04:** Test `git-subdir` source resolution against a real remote:\n  - Run `codex plugin marketplace add <git-url>`.\n  - Confirm published `git-subdir` sources resolve.\n  - Complete first external publish.\n\n## Final status\n\nAll planned work was completed and committed.\n\n`.prometheus/knowledge/wiki/` files were gitignored as expected because they are runtime KB artifacts. Only the three submodule pointer updates landed in git.\n\n| Component | Version | Status |\n|---|---:|---|\n| `liter-llm` | `v1.9.2` | Built, installed, committed |\n| `surreal-memory-server` | SurrealDB `3.2.1` | Built, service running with PID `37910`, committed |\n| `prometheus-entity-management` | `v2.1.0` | Built, committed |\n| Platform skills | 138 skills | Reinstalled everywhere |\n| Codex plugins and slash commands | 138 commands | Synced |\n| Claude Code marketplace | `v1.6.0` | Rebuilt |\n\n## Follow-up\n\nStart the next phase with:\n\n```text\n/kbd-new-phase <next-phase-name>\n```\n\n# Citations\n\n1. stdin\n2. manual:phase-codex-plugin-verify-and-publish",
+      "tags": [
+        "codex-plugin",
+        "github-actions",
+        "mcp-env",
+        "plugin-hooks",
+        "git-subdir",
+        "claude-code",
+        "skill-pack"
+      ],
+      "links": [],
+      "sources": [
+        "stdin",
+        "manual:phase-codex-plugin-verify-and-publish"
+      ],
+      "created_at": "2026-07-13T10:58:56.448233Z",
+      "updated_at": "2026-07-13T10:58:56.448233Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "codex-plugin-verify-publish-remote-sync-check",
+      "title": "Codex Plugin Verify/Publish Remote Sync Check",
+      "content": "## Context\n\n- **Phase:** `phase-codex-plugin-verify-and-publish`\n- **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`\n- **Captured:** `2026-07-13T11:14:56Z`\n- **Source:** `manual:phase-codex-plugin-verify-and-publish`\n\n## Phase goals tracked\n\n- **G-01:** Exercise `validate:codex` in a real GitHub Actions run to confirm the CI drift/validity gate runs and passes on push/PR.\n- **G-02:** Confirm MCP environment round-trip:\n  - Run `codex-provision-mcp-env.sh` with keys set.\n  - Install the plugin.\n  - Verify `codex doctor` stops warning.\n  - Verify a plugin MCP server sees its key.\n- **G-03:** Verify real plugin hooks run cleanly under Codex with the `CLAUDE_PLUGIN_ROOT:-PLUGIN_ROOT` fix; `SessionStart` should execute without empty-path errors.\n- **G-04:** Test `git-subdir` source resolution against a real remote via `codex plugin marketplace add <git-url>` and confirm published `git-subdir` sources resolve.\n\n## Remote sync status\n\n- Local `HEAD` and `origin/main` are both at commit `2497e42`.\n- No push is required; the remote is already up to date.\n- The last `git submodule update` only synced working-tree checkouts and did **not** create new commits.\n- Recommended next action recorded by the session: start the next phase with `/kbd-new-phase <next-phase-name>`.\n\nFor the broader completed phase outcome, see [Codex Plugin Verify and Publish Phase Summary](/codex-plugin-verify-and-publish-phase-summary.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "codex-plugin",
+        "git-sync",
+        "submodules",
+        "github-actions",
+        "mcp-env",
+        "plugin-hooks"
+      ],
+      "links": [
+        "codex-plugin-verify-and-publish-phase-summary"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:15:18.947856Z",
+      "updated_at": "2026-07-13T11:15:18.947856Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "executor-completion-marker-for-deploy-web-to-knowme-k8s",
+      "title": "Executor Completion Marker for KnowMe K8s Web Deploy",
+      "content": "## Session metadata\n\n- **Status:** executor session complete\n- **Phase:** `deploy-web-to-knowme-k8s`\n- **Change:** unknown\n\n## Interpretation\n\nThe raw record is a terminal executor marker for the `deploy-web-to-knowme-k8s` phase. It contains no deployment details, implementation notes, timestamps, validation output, completed-task list, pending work, or decisions.\n\nBecause `change` is `unknown`, this entry is run-state metadata only. It must not be treated as evidence that the KnowMe Kubernetes web deployment completed successfully or changed application/infrastructure state. This interpretation is consistent with [Executor Marker for Deploy Web to KnowMe K8s Phase](/executor-completion-marker-for-deploy-web-to-knowme-k8s.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "executor",
+        "run-state",
+        "kubernetes",
+        "web-deploy",
+        "knowme"
+      ],
+      "links": [
+        "executor-completion-marker-for-deploy-web-to-knowme-k8s"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-09-14T12:50:03.494508Z",
+      "updated_at": "2026-09-14T12:50:03.495505Z",
+      "revision": 1,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {
+        "content_hash": "346ace3787f5e43fd76510b909b17306179594c052dbdfe85c76db2e3eaec322"
+      }
+    },
+    {
+      "id": "executor-completion-marker-for-upstream-fixes-phase",
+      "title": "Executor Completion Marker for Upstream Fixes Phase",
+      "content": "## Session metadata\n\n- **Status:** executor session complete\n- **Phase:** `upstream-fixes-and-skill-integration`\n- **Change:** unknown\n\n## Outcome\n\nThe raw record is a terminal executor marker for the `upstream-fixes-and-skill-integration` phase. It contains no implementation notes, decisions, timestamps, completed tasks, pending work, or validation results.\n\nBecause `change` is `unknown`, this entry must not be interpreted as evidence that an upstream fix or skill integration was completed. It should be treated as run-state metadata only and is consistent with [Executor Session Complete for Upstream Fixes and Skill Integration](/executor-session-complete-for-upstream-fixes-and-skill-integration.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "executor",
+        "run-state",
+        "upstream-fixes",
+        "skill-integration"
+      ],
+      "links": [
+        "executor-session-complete-for-upstream-fixes-and-skill-integration"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-08-09T18:29:10.461167Z",
+      "updated_at": "2026-08-09T18:29:10.461167Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "executor-completion-marker-upstream-fixes-and-skill-integration",
+      "title": "Executor Marker for Upstream Fixes Skill Integration Phase",
+      "content": "## Session metadata\n\n- **Status:** executor session complete\n- **Phase:** `upstream-fixes-and-skill-integration`\n- **Change:** unknown\n\n## Interpretation\n\nThe record is a terminal executor marker for the `upstream-fixes-and-skill-integration` phase. It contains no implementation notes, decisions, timestamps, completed tasks, pending work, or validation results.\n\nBecause `change` is `unknown`, this entry must be treated as run-state metadata only. It is not evidence that an upstream fix or skill integration was completed. This interpretation is consistent with [Executor Session Complete for Upstream Fixes and Skill Integration](/executor-session-complete-for-upstream-fixes-and-skill-integration.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "executor",
+        "run-state",
+        "upstream-fixes",
+        "skill-integration"
+      ],
+      "links": [
+        "executor-session-complete-for-upstream-fixes-and-skill-integration"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-09-14T09:27:21.716811Z",
+      "updated_at": "2026-09-14T09:27:21.717274Z",
+      "revision": 1,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {
+        "content_hash": "dd8a15230719b557e826d147bc3f3dc72a7b5b65ac3d926f4444c66f2727e8a1"
+      }
+    },
+    {
+      "id": "executor-session-complete-for-upstream-fixes-and-skill-integration",
+      "title": "Executor Session Complete for Upstream Fixes and Skill Integration",
+      "content": "## Session metadata\n\n- **Status:** executor session complete\n- **Phase:** `upstream-fixes-and-skill-integration`\n- **Change:** unknown\n\n## Outcome\n\nThe session record is a terminal executor marker for the `upstream-fixes-and-skill-integration` phase. It does not include implementation details, completed work, pending tasks, timestamps, or decisions.\n\nBecause `change` is recorded as `unknown`, this entry should not be treated as evidence of a specific upstream fix or skill integration result. It aligns with the existing [Executor Session Complete for Upstream Fixes and Skill Integration](/executor-session-complete-for-upstream-fixes-and-skill-integration.md) run-state record and should be interpreted as session completion metadata only.\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "executor",
+        "run-state",
+        "upstream-fixes",
+        "skill-integration"
+      ],
+      "links": [
+        "executor-session-complete-for-upstream-fixes-and-skill-integration"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-08-09T15:28:32.976616Z",
+      "updated_at": "2026-08-09T15:28:32.976881Z",
+      "revision": 1,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-0c69b30fe611e6c3",
+      "title": "Karpathy session 0c69b30fe611",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T01:19:58.500753Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T11:28:03.262266Z",
+      "updated_at": "2026-09-05T11:28:03.262266Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-1010fc480bd66a8a",
+      "title": "Karpathy session 1010fc480bd6",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T01:31:15.485420Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T11:31:26.311343Z",
+      "updated_at": "2026-09-05T11:31:26.311343Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-11555d91df3f7771",
+      "title": "Karpathy session 11555d91df3f",
+      "content": "## Delta\n\nThe three ember values read as one coherent family — a legible progression from mark to fill to text, each carrying its own contrast job. The system still reads as ember, not brown.\n\n## Audit complete — 6 defects found and fixed, `ok: true`, ID unchanged\n\n### First, a scope correction\n\nFive of the files you named don't exist in this package: `brand.json`, `variables.css`, `theme.json`, `kit.html`, `kit.dark.html`. That's not a gap — this package uses a different convention, and the equivalents are all present:\n\n| You asked about | This package uses |\n|---|---|\n| `variables.css` / `theme.json` | `colors_and_type.css` + `assets/aso.css` (light + `html.dark` in one file) |\n| `brand.json` | `assets/brand/*.svg` + DESIGN.md §2 |\n| `kit.html` / `kit.dark.html` | `ui_kits/app/index.html` — one kit with a live theme toggle, not two files |\n\nNothing needs creating; a dark-specific kit file would duplicate a working runtime toggle.\n\n### What the audit actually found\n\nThe structural audit passed before I started. **The real defects were in contrast — which no automated check here covers.** I measured every foreground/background pair the system renders, in both themes:\n\n| Defect | Was | Now |\n|---|---|---|\n| **Primary button, white text** | **2.97:1** ✗ | 4.51:1 |\n| Primary button hover | **3.99:1** ✗ | 6.03:1 |\n| `--accent` on `--s3` (active rail step) | **4.20:1** ✗ | 4.75:1 |\n| `--fg-3` on `--s2` (metadata on raised panels) | **4.38:1** ✗ | 4.93:1 |\n| `.chain-stage` pending | **4.46:1** ✗ | 5.78:1 |\n| **`.doc .cite` — citation chip inside the letter** | **4.38:1** ✗ | 4.93:1 |\n\nThe primary button is the most-used control in the system and was failing AA by a wide margin. The last one matters most in context: that's the chip a payer reads to verify a claim's source, on a document that gets printed and faxed.\n\n**The fix respects the system's own rules.** I added `--ember-fill` `#B85E1C` rather than changing `--ember` — the mark keeps `#DF7C35` in all three SVGs, unchanged. Ember now has three contrast-graded values with distinct jobs: mark, fill, text. I rejected the alternative (ink text on bright ember) because the source explicitly forbids changing a solid button's foreground alone, and it would read as a warning chip rather than a primary action.\n\n**Dark mode needed no corrections** — every pair already passed, lowest 4.64:1. Those ratios were flagged \"unverified\" in my previous handoff; they're now measured and recorded.\n\nI also corrected my own earlier documentation: `--fg` is 16.3:1 (I'd written 15.8), `--fg-2` 7.3 (not 7.4), `--fg-3` was 5.03 (not 5.1). Those came from source CSS comments I'd reproduced without checking.\n\n### Also fixed\n- **`.landed` had no live demo** — the sanctioned replacement for forbidden `scrollIntoView` was described but never shown. Added a working one to `radius-shadows.html`.\n- Synced all token values and ratio claims across DESIGN.md, README.md, SKILL.md, and 4 preview cards.\n- Added a **README § Accessibility** with the full measured matrix, two new enforceable anti-patterns, and a **§ Readiness audit** in `context/provenance.md` marking these as the only values that *don't* trace to the source.\n\n### Remaining gaps before publishing\n\n1. **`--fg-3` on `--s3` is 4.46:1 — unfixable without cost.** Darkening it enough would collapse the gap between `--fg-2` and `--fg-3` and flatten the three-weight hierarchy. Documented as a hard rule instead: *never place `--fg-3` on `--s3`*. One component violated it; now fixed.\n2. **Non-contrast accessibility is untested.** No screen-reader pass, no keyboard-only run through the ten-step flow, no 200% zoom reflow. Static review looks sound — real `<label for>`, ARIA on disclosure, text on every status — but that's review, not testing. This is the largest genuine gap.\n3. **No `build/` or `fonts/`.** The source has zero raster assets and zero font binaries; all three families load from Google Fonts. Unchanged from before, and not fixable without inventing assets.\n4. **C\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: e4709b64-8ae0-4d8e-905a-2748d218154a\n- Captured: 2026-09-04T00:35:31.304314Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:e4709b64-8ae0-4d8e-905a-2748d218154a"
+      ],
+      "created_at": "2026-09-05T11:31:37.937534Z",
+      "updated_at": "2026-09-05T11:31:37.937534Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-1d612ebcdda21505",
+      "title": "Karpathy session 1d612ebcdda2",
+      "content": "## Delta\n\nDone. The DMG is at:\n\n```\n~/Downloads/Open Design-default.dmg\n```\n\nVerified: SHA-256 `39b163ff…6bc0adf` matches the build output, 283M, mounts cleanly with full CRC verification passing, and contains `Open Design.app` (0.16.2) alongside the `Applications` symlink for drag-install.\n\nTwo notes:\n\n- **My \"MOUNT FAILED\" a moment ago was wrong** — a flaw in my verification script, not the file. Mounting from `~/Downloads` triggers full checksum verification whose output broke my mount-point parsing. The DMG was always good.\n- **It's unsigned**, so Gatekeeper will block it on first open. Right-click → Open, or `xattr -d com.apple.quarantine \"$HOME/Downloads/Open Design-default.dmg\"`. On your own machine the quarantine flag isn't set by a local copy, but it will be if you send this to anyone else.\n\nThe scratchpad copies (zip, updater payload, `.app`) are still in the session directory if you want any of those moved too — they're the ones at risk from temp cleanup.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T08:14:08.069117Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T08:14:11.635360Z",
+      "updated_at": "2026-08-07T08:14:11.635360Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-1d920626cfe64e65",
+      "title": "Karpathy session 1d920626cfe6",
+      "content": "## Delta\n\nThose are the monitor's final events winding down — it confirmed the same three artifacts (DMG, ZIP, payload) I already verified, plus the `install/` and `mount/` directories from the harness install step. Nothing new, nothing to act on.\n\nStatus is unchanged and complete: **v0.21.1 built, installed to `/Applications`, running and verified** (daemon healthy on port 60495, web UI on 60545, 460 plugins loaded, live agent round-trip confirmed).\n\nTwo things remain open for you:\n\n- **`/Applications/Open Design.app.v0.16.2.bak`** (660 MB) — your rollback copy. Delete when you're satisfied with 0.21.1.\n- **Data location** — the installed app reads and writes inside the repo at `.tmp/tools-pack/runtime/mac/namespaces/default/data`, so a `tools-pack mac cleanup` or `.tmp` wipe would take your app data with it. Rebuilding with `--portable` moves it to a normal system directory; say the word and I'll do that.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: fe8a500a-73e6-4e7e-90fc-7d9696344d07\n- Captured: 2026-09-03T16:10:30.592223Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:fe8a500a-73e6-4e7e-90fc-7d9696344d07"
+      ],
+      "created_at": "2026-09-05T11:42:23.127150Z",
+      "updated_at": "2026-09-05T11:42:23.127150Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-25ca57cb0f22105f",
+      "title": "Karpathy session 25ca57cb0f22",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T08:29:07.871925Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T11:43:16.153672Z",
+      "updated_at": "2026-09-05T11:43:16.153672Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-2a20e93c12e8516a",
+      "title": "Karpathy session 2a20e93c12e8",
+      "content": "## Delta\n\nPushed. `main` is in sync with `origin/main` at `6fe7f5284`.\n\n## Done\n\n**Commit:** `6fe7f5284` — `fix(tools-pack): pin assembled app to electron-builder's npm collector`\n**Pushed:** `ae6dfe0b2..6fe7f5284  main -> main` (fast-forward, no conflicts)\n\n9 files, +152/−7. Two pre-existing local commits of yours (`e45caa829`, `4453e793d`) went up alongside it — they were already sitting unpushed on your branch before this session.\n\nPre-push verification: tools-pack typecheck clean, 275 tests passing (exit 0), `pnpm guard` clean, `git diff --check` clean, and a final clean in-repo build confirming `pm=npm` with 52 packages and `node-pty` present. No `Co-authored-by` trailer, per the repo's git policy.\n\n**Left uncommitted:** the `.prometheus/knowledge/wiki/` files — session artifacts from your knowledge hooks, unrelated to this fix. They're still in your working tree if you want them.\n\nTwo carry-overs from the previous turn that still apply:\n\n- **Windows and Linux are unproven.** Same mechanism, same code shape, unit tests green — but never built on their native platforms. Worth a real build on each before relying on them.\n- **You committed straight to `main`**, so this bypassed CI review. If the repo runs CI on pushes to `main`, that's now the first real check on the Windows/Linux paths — worth watching.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T14:17:01.478291Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T14:17:38.947002Z",
+      "updated_at": "2026-08-09T14:17:38.947002Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-2b3447cf1d904c63",
+      "title": "Karpathy session 2b3447cf1d90",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T05:56:11.804075Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T11:47:17.389341Z",
+      "updated_at": "2026-09-05T11:47:17.389341Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-30494b4b81ace3ed",
+      "title": "Karpathy session 30494b4b81ac",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T06:48:38.464720Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T11:49:01.840579Z",
+      "updated_at": "2026-09-05T11:49:01.840579Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-311c898d65bf9a7c",
+      "title": "Karpathy session 311c898d65bf",
+      "content": "## Delta\n\nDone — `/Applications/Open Design.app` is now **0.21.6**, replacing 0.21.1.\n\n**What I did:**\n1. Backed up the old install to `/Applications/Open Design.app.v0.21.1.bak` (matching your existing `.v0.16.2.bak` convention) — the copy is intact if you need to roll back\n2. Copied the new bundle in with `ditto` (preserves resource forks and extended attributes; `cp` would not)\n3. No sudo needed — `/Applications` is writable by your user\n\n**Verified in place:**\n- Version **0.21.6**, identifier `io.open-design.desktop`, 949M\n- **169 packages** with native `better_sqlite3.node` present — your collector fix carried through to the installed app\n- Launched successfully and **stayed up**: settled at 10 processes across 18 seconds of polling, with the sidecar supervisor running under the correct five-field stamp (`channel=stable namespace=default source=packaged mode=runtime app=desktop`)\n\n**On Gatekeeper:** the bundle is **ad-hoc signed only**, so `spctl` rejects it. It launched anyway because there's no `com.apple.quarantine` flag — the app was built locally rather than downloaded. That means it runs fine for you, but if you ever copy this bundle to another Mac via download, AirDrop, or a shared drive, quarantine will attach and Gatekeeper will block it until you right-click → Open or clear the attribute.\n\nI verified the process stays alive but did not exercise the UI — if you want the window and a real workflow confirmed, say so and I'll drive it.\n\nTwo loose ends you may want to clean up at some point: there are now two backups sitting in `/Applications` (`.v0.16.2.bak` and `.v0.21.1.bak`) eating roughly a gigabyte each, and the Node version mismatch I flagged earlier still stands — this was built under v26.5.0 against a `~24` pin.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 826f0b3a-0503-4a42-adbc-efb2fe6d0d7e\n- Captured: 2026-09-08T13:49:06.714232Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:826f0b3a-0503-4a42-adbc-efb2fe6d0d7e"
+      ],
+      "created_at": "2026-09-11T16:25:38.715592Z",
+      "updated_at": "2026-09-11T16:25:38.715592Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-34643a035dcc185f",
+      "title": "Karpathy session 34643a035dcc",
+      "content": "## Delta\n\nLet me first understand how electron-builder actually decides on the pnpm collector, so the fix targets the real mechanism rather than my inference from log lines.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T08:14:10.742743Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T08:19:23.016910Z",
+      "updated_at": "2026-08-07T08:19:23.016910Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-35f9940eb5f6231c",
+      "title": "Karpathy session 35f9940eb5f6",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-03T16:28:13.016977Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T11:52:42.704752Z",
+      "updated_at": "2026-09-05T11:52:42.704752Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-415495455cd8efd6",
+      "title": "Karpathy session 415495455cd8",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-03T23:55:08.701481Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T12:20:03.998241Z",
+      "updated_at": "2026-09-05T12:20:03.998241Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-426d6876fd7dbc07",
+      "title": "Karpathy session 426d6876fd7d",
+      "content": "## Delta\n\nThose are the monitor's final events winding down — it confirmed the same three artifacts (DMG, ZIP, payload) I already verified, plus the `install/` and `mount/` directories from the harness install step. Nothing new, nothing to act on.\n\nStatus is unchanged and complete: **v0.21.1 built, installed to `/Applications`, running and verified** (daemon healthy on port 60495, web UI on 60545, 460 plugins loaded, live agent round-trip confirmed).\n\nTwo things remain open for you:\n\n- **`/Applications/Open Design.app.v0.16.2.bak`** (660 MB) — your rollback copy. Delete when you're satisfied with 0.21.1.\n- **Data location** — the installed app reads and writes inside the repo at `.tmp/tools-pack/runtime/mac/namespaces/default/data`, so a `tools-pack mac cleanup` or `.tmp` wipe would take your app data with it. Rebuilding with `--portable` moves it to a normal system directory; say the word and I'll do that.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: fe8a500a-73e6-4e7e-90fc-7d9696344d07\n- Captured: 2026-09-03T16:52:23.504134Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:fe8a500a-73e6-4e7e-90fc-7d9696344d07"
+      ],
+      "created_at": "2026-09-05T12:20:13.501239Z",
+      "updated_at": "2026-09-05T12:20:13.501239Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-496cbef8bb9762d5",
+      "title": "Karpathy session 496cbef8bb97",
+      "content": "## Delta\n\n**Partly. It generates mobile + desktop together, but not a browser web app.**\n\nHere's the manifest, which is the authoritative answer ([builder.manifest.json:29](../../hybrid-mobile-architecture-src/builder.manifest.json)):\n\n```json\n\"sovereign-hybrid\": {\n  \"surfaces\": [\"flutter-mobile\", \"tauri-desktop\", \"rust-core\"],\n  \"uarMode\": \"hybrid\",\n  \"runnableVerticalSlice\": true\n}\n```\n\nThree surfaces in one generation, sharing one Rust core. But `react-web` is not among them — that surface belongs to `governed-web-shell` and `axum-web`, which pair `react-web` with `axum-bff`.\n\n## The \"web\" ambiguity is the trap\n\n`sovereign-hybrid` *does* contain React — but as the **Tauri desktop renderer**, not a deployable website. The profiles doc is explicit: *\"Tauri and React own desktop presentation.\"* You get React screens that run inside the desktop shell, talking to Rust over Tauri commands. Point a browser at them and there is no `window.__TAURI__`, no command bridge, and no backend — because `sovereign-hybrid` has no BFF. The two web-capable profiles both include `axum-bff` precisely because a browser needs a server-side boundary that a desktop app doesn't.\n\nSo: if \"web\" means *your desktop UI is built with web tech*, yes. If it means *a URL a user visits*, no.\n\n## Why it isn't just a config flag\n\nThe blocker is `uarMode`, and it's a genuine architectural split rather than a packaging one:\n\n| Profile | uarMode | What that means |\n|---|---|---|\n| `sovereign-hybrid` | `hybrid` | UAR **embedded** in-process on mobile; service/in-process facade on desktop |\n| `governed-web-shell` / `axum-web` | `service` | UAR behind a server; browser never holds the runtime |\n\nEmbedded UAR means the agent runtime, model routing, and tool governance live inside the app process — which is what makes the profile \"sovereign\" and local-first. A browser tab cannot host that. It must reach a service, and that service must derive actor and tenant from verified identity (the `governed-web-shell` decisions list is emphatic: *\"Axum derives actor and tenant from verified identity\"*). That's a different authorization model, not a different build target.\n\n## If you need all four surfaces\n\nThe doc anticipates this and gives a specific instruction — worth heeding, because the failure mode is inventing a half-profile:\n\n> If answers span both major profiles, do not invent a new implicit profile. Adopt the closest profile and record explicit project-local additions in the policy overlay and generated ownership state.\n\nPractically, two options:\n\n1. **Generate `sovereign-hybrid`, add the web surface as a declared overlay addition.** You keep one Rust core and one token source; you add an Axum BFF and a browser React target as recorded extensions. This is the sanctioned path.\n2. **Two generations against one design system.** `sovereign-hybrid` for mobile+desktop, `governed-web-shell` for the browser, both fed by the same `tokens.toml`. Cleaner architecturally, but you now maintain two Rust boundaries and must decide which owns durable state.\n\nThere's also `--mode skeleton`, which *may* contain unsupported surfaces — but each gap must be declared in the manifest and generated docs. That's a way to stub the web surface honestly, not a way to get it for free.\n\n## Bearing on the OD handoff\n\nThis changes step 2 of the sequence I gave you. Before choosing a profile, sort your OD screens by **delivery surface**, not just by destination:\n\n- Phone-form screens → Flutter\n- Desktop-window screens → Tauri/React\n- Screens someone opens at a URL → a web surface `sovereign-hybrid` won't generate\n\nIf your OD session produced all three, you've discovered a profile decision — and it's better to find it now, from the screen inventory, than after `knowme-builder new` has committed you to a boundary. The `tokens.toml` transcription is unaffected either way; it feeds every surface regardless of how many generations you end up running.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 46bafb74-43c6-46e7-9603-df21683327c3\n- Captured: 2026-09-04T00:17:55.928969Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:46bafb74-43c6-46e7-9603-df21683327c3"
+      ],
+      "created_at": "2026-09-05T12:21:29.729172Z",
+      "updated_at": "2026-09-05T12:21:29.729172Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-533da300da01acb3",
+      "title": "Karpathy session 533da300da01",
+      "content": "## Delta\n\nPushed. `main` is in sync with `origin/main` at `6fe7f5284`.\n\n## Done\n\n**Commit:** `6fe7f5284` — `fix(tools-pack): pin assembled app to electron-builder's npm collector`\n**Pushed:** `ae6dfe0b2..6fe7f5284  main -> main` (fast-forward, no conflicts)\n\n9 files, +152/−7. Two pre-existing local commits of yours (`e45caa829`, `4453e793d`) went up alongside it — they were already sitting unpushed on your branch before this session.\n\nPre-push verification: tools-pack typecheck clean, 275 tests passing (exit 0), `pnpm guard` clean, `git diff --check` clean, and a final clean in-repo build confirming `pm=npm` with 52 packages and `node-pty` present. No `Co-authored-by` trailer, per the repo's git policy.\n\n**Left uncommitted:** the `.prometheus/knowledge/wiki/` files — session artifacts from your knowledge hooks, unrelated to this fix. They're still in your working tree if you want them.\n\nTwo carry-overs from the previous turn that still apply:\n\n- **Windows and Linux are unproven.** Same mechanism, same code shape, unit tests green — but never built on their native platforms. Worth a real build on each before relying on them.\n- **You committed straight to `main`**, so this bypassed CI review. If the repo runs CI on pushes to `main`, that's now the first real check on the Windows/Linux paths — worth watching.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T05:30:26.287437Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T05:30:28.867498Z",
+      "updated_at": "2026-08-09T05:30:28.867498Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-6a82fc74fcc42926",
+      "title": "Karpathy session 6a82fc74fcc4",
+      "content": "## Delta\n\nWritten to **`design-to-development-method.md`** (504 lines), copied to `prior-auth/docs/method/` so it sits beside the code it describes.\n\n## The structure\n\nTen stages, each with what it consumes, what it emits, what actually happened, and a reusable checklist — 43 checkable items total.\n\n```\n0 Frame → 1 Prototype → 2 Pressure-test → 3 Formalize → 4 Adversarial\n→ 5 Research → 6 Document → 7 Publish → 8 Scaffold → 9 Enforce\n```\n\n**The framing that makes it a method rather than a retrospective:** stages 0–2 are OpenDesign's territory, 8–9 are the skill packages', and **3–7 are the seam** — which is where design-to-code handoffs normally fail. The contribution is making that seam explicit and executable.\n\n## What I emphasized, and why\n\nI weighted the document toward the moments where **execution contradicted intention**, because those are the transferable parts:\n\n- The schema's first draft didn't run — three defects found only by applying it to a real database\n- The adversarial reviewer returned BLOCK with four criticals, and checking one of its claims surfaced something worse: a laundering path already sitting in the code\n- Parallel research agents overturned two premises I was about to publish as fact\n- Dependency versions I'd invented rather than looked up\n- **The audit had three bugs of its own**, including reporting PASS while a check failed\n\nThat last one gets its own section. An audit that has never failed is an audit that has never been tested, and negative-testing it — planting a real violation to confirm it catches one — is the single most transferable habit in the whole document.\n\n## Verification\n\nI checked every numeric claim against the artifacts rather than trusting recall: 18 screens ✓, 60 tables ✓, 9 typed pairs ✓, 6 audit checks ✓, 22 token roles ✓, shared core shell-free ✓, and the T1/T4/T9 test IDs quoted verbatim from the check suite.\n\nOne finding worth surfacing: **the web app has grown from 9 source files to 121 since the scaffold**, with new features and components — and the audit still passes. The boundaries held under work I didn't do, which is the only real evidence they were boundaries rather than intentions. I added that as durability evidence in stage 9.\n\nThe closing rule is the one I'd hold onto: *\"Working\" is a runtime claim. Compiling is not evidence* — with the four-word vocabulary (Passed / Build-only / Blocked / Failed) where only the first means finished.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-05T15:51:47.883432Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-07T19:59:17.980800Z",
+      "updated_at": "2026-09-07T19:59:17.980800Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-6c0f5edf49e1f246",
+      "title": "Karpathy session 6c0f5edf49e1",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-03T22:59:42.059779Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T12:47:09.280338Z",
+      "updated_at": "2026-09-05T12:47:09.280338Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-77a2bf4f55a4eaf7",
+      "title": "Karpathy session 77a2bf4f55a4",
+      "content": "## Delta\n\nCompleted kbd-analyze — upstream-fixes-and-skill-integration (step 0 of 0)\n\n## Analyze complete — and it found something that changes the plan\n\nThe single most important result: **my initial research was wrong, and correcting it changed Goal 1's verdict.**\n\n### Upstream issue #6599 is open right now\n\n**\"[Bug]: Login is now mandatory and cannot be skipped\"** — filed 2 days ago, 20 comments, still open. The maintainer's reply confirms our assessment in upstream's own words:\n\n> This behavior is intentional as of v18.1 … The local and BYOK options haven't gone away; **they just moved behind the sign-in gate instead of being selectable before it.**\n\nSo this won't be fixed by waiting. The thread is full of your exact use case — air-gapped Kubernetes, corporate proxy whitelisting, enterprise BYOK compliance, one user geoblocked from the login page.\n\n**And someone already fixed it.** `tony-box/open-design` (Apache-2.0) carries `9dfc269e fix(web): make Open Design Cloud sign-in optional again` — plus `82bfa63d` disabling auto-updates, which independently answers the auto-update question I'd left UNKNOWN. **Goal 1 moves from \"build blind\" to \"adapt a known-good patch.\"**\n\n### The finding that kills \"just install the skills\"\n\n`SkillMode` has **no `utility` value** — so any skill without an `od:` block falls through to a regex that guesses mode from prose. I simulated it over your 39 hybrid skills: **6 become image generators, 2 video, 1 deck**, and all get `designSystemRequired: true`. An import adapter is mandatory, and the misclassification is *silent* — they'd look installed and just behave wrong.\n\n### Other results\n\n- **Zero new dependencies** — `jszip` and `tar` are already there.\n- **Goal 2:** adopt the plugin system; don't build a second install grammar.\n- **Goal 4:** clone `od-react-export` (verified git-tracked source), but re-costed S→S–M — I found no scenario-plugin UI surface in `apps/web`, and the dual-surface rule needs UI+CLI in one PR.\n\n### Two corrections worth flagging\n\nThe adversarial judge ran twice, both BLOCK, and was right both times. It caught that I'd claimed the `knowme-builder` crate was in this repo (it's in the external tree — making option 3b more expensive than I'd implied), and that I'd offered \"stay on 0.16.2, the gate doesn't affect us.\" That second one was flatly wrong: **`package.json`'s 0.16.2 is a stale dev version** — upstream `main` says 0.16.2 too while shipping 0.18.x — and the gate **is** in your tree (`886bcc4db` is an ancestor of HEAD). Both fixed.\n\n### Still blocking\n\n**Goal 3's scope.** Three readings, and I can cost them but not choose:\n- **3a** import the 39 skills — small, and unblocks Goal 4's cheap path\n- **3b** invoke `knowme-builder` — external alpha binary, subprocess grant, and its own docs say generated apps must not add a second agent loop (OD would be a fourth)\n- **3c** port the profiles — reimplements someone else's active generator\n\nMy recommendation is **3a now, 3b as its own phase**. Goal 4's shape depends on your answer.\n\nOne limitation to own: I skipped research tiers 2 and 4, so there's **no survey of alternative design-to-code generators**. If you'd want KnowMe Builder compared against alternatives before committing, that research hasn't been done.\n\nStopping here per your instruction. `/kbd-plan upstream-fixes-and-skill-integration` once you've settled Goal 3.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T18:25:58.268358Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n- .prometheus/knowledge/.prompt-snapshots/\n- .prometheus/knowledge/wiki/executor-session-complete-for-upstream-fixes-and-skill-integration.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-2a20e93c12e8516a.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-8a091b2a881071ae.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-a1f11707a14893e8.md\n- .prometheus/knowledge/wiki/karpathy-session-c01efed8c37da6e9.md\n- .prometheus/knowledge/wiki/karpathy-session-c1c229f44a658376.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-e53e1b6deb082904.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T18:26:00.776560Z",
+      "updated_at": "2026-08-09T18:26:00.776560Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-842c187e344a589c",
+      "title": "Karpathy session 842c187e344a",
+      "content": "## Delta\n\nThose are the monitor's final events winding down — it confirmed the same three artifacts (DMG, ZIP, payload) I already verified, plus the `install/` and `mount/` directories from the harness install step. Nothing new, nothing to act on.\n\nStatus is unchanged and complete: **v0.21.1 built, installed to `/Applications`, running and verified** (daemon healthy on port 60495, web UI on 60545, 460 plugins loaded, live agent round-trip confirmed).\n\nTwo things remain open for you:\n\n- **`/Applications/Open Design.app.v0.16.2.bak`** (660 MB) — your rollback copy. Delete when you're satisfied with 0.21.1.\n- **Data location** — the installed app reads and writes inside the repo at `.tmp/tools-pack/runtime/mac/namespaces/default/data`, so a `tools-pack mac cleanup` or `.tmp` wipe would take your app data with it. Rebuilding with `--portable` moves it to a normal system directory; say the word and I'll do that.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: fe8a500a-73e6-4e7e-90fc-7d9696344d07\n- Captured: 2026-09-03T15:51:03.108280Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:fe8a500a-73e6-4e7e-90fc-7d9696344d07"
+      ],
+      "created_at": "2026-09-05T12:58:13.887235Z",
+      "updated_at": "2026-09-05T12:58:13.887235Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-88c2ce9e01711ab2",
+      "title": "Karpathy session 88c2ce9e0171",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T06:21:43.242241Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T13:06:34.110060Z",
+      "updated_at": "2026-09-05T13:06:34.110060Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-8a091b2a881071ae",
+      "title": "Karpathy session 8a091b2a8810",
+      "content": "## Delta\n\nCompleted kbd-assess — upstream-fixes-and-skill-integration (step 0 of 0)\n\n## Assessment complete — all four goals NOT MET\n\n`.kbd-orchestrator/phases/upstream-fixes-and-skill-integration/assessment.md`\n\n**Adversarially vetted, both rounds PASS** — producer `claude-opus-5`, judge `k3` (genuinely distinct models, fresh context). 0 CRITICAL. The judge caught one real error: I had counted 619 Prometheus skills including `node_modules`; it's **606**. I also rejected two of its findings with evidence and fixed a stale \"18 locales\" entry in your `constraints.md` (disk and `AGENTS.md` both say 19).\n\n### What I found\n\n**Goal 1 — forced login.** Real, and narrower than feared: one `useEffect` at `apps/web/src/components/EntryShell.tsx:588-594` redirects any confirmed-signed-out user to the sign-in screen. But the sharpest finding is the *ordering* — **BYOK and Local-CLI sit behind cloud sign-in**. You can't choose the local runtime without first authenticating. That, more than the redirect, is what breaks the open-source model.\n\nThe good news: the daemon is already local-capable. The only non-test setter of `OD_WORKSPACE_CONTEXT_SOURCE` is `apps/packaged/src/workspace-team.ts:37`, and upstream's own comment calls local-only a *supported degradation*. The `od` CLI never consults the gate at all.\n\n**Goal 2.** Single-skill install already ships (including an undocumented local-path mode). But the pack is 606 skills and installers take one at a time; \"detect\" has no mechanism; and the stated purpose — skills travelling to ejected projects — has **zero** supporting machinery.\n\n**Goal 3 is the phase's main risk.** That directory isn't a skill set — it's **KnowMe Builder**, a Rust CLI generator with its own authority model that doesn't include Open Design. Your goal admits three readings (install 39 skills / invoke the binary / port the profiles) that are *three different projects*, not variants of one.\n\n**Goal 4 is BLOCKED on Goal 3** — your goal text says export \"using the skill in the last point\", so its shape is undetermined until Goal 3 is scoped. Precedent exists (`plugins/_official/scenarios/od-react-export`, git-tracked), but plugins can't ship executable atoms, so deterministic scaffolding needs first-party daemon code.\n\n### Two things you should weigh before analyze\n\n**Offline ≠ removing the gate.** AMR ships `fallbackModels: []`, so the default runtime resolves no models without network. Removing the gate gets you to a screen whose default runtime doesn't work offline — the two problems are linked. Auto-update opt-out is UNKNOWN.\n\n**You're 25 commits behind upstream**, in exactly the files you'd edit. Rebase strategy is a real decision, not a detail.\n\n**Not done:** test baseline — the daemon suite exceeded my 2-minute probe. Not a failure, but it must be captured before any edit or later regressions won't be attributable.\n\nStopping here per your instruction. Six open questions are listed in the assessment; **Goal 3's scope is the one that gates the rest**. Run `/kbd-analyze upstream-fixes-and-skill-integration` when ready.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T15:28:20.967244Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T15:28:26.684513Z",
+      "updated_at": "2026-08-09T15:28:26.684513Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-8bde6d5f3dfe885a",
+      "title": "Karpathy session 8bde6d5f3dfe",
+      "content": "## Delta\n\n```\n/private/tmp/claude-501/-Users-gqadonis-Projects-references-open-design/62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d/scratchpad/odpack/out/mac/namespaces/default/dmg/Open Design-default.dmg\n```\n\nNote the filename contains a space, so quote it in shell commands:\n\n```bash\nopen \"/private/tmp/claude-501/-Users-gqadonis-Projects-references-open-design/62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d/scratchpad/odpack/out/mac/namespaces/default/dmg/Open Design-default.dmg\"\n```\n\nOne caveat: that path is in the session scratchpad under `/private/tmp`, which is subject to OS temp cleanup. If you want to keep this build, copy it somewhere durable first — say `~/Downloads` or `~/Desktop`. Want me to do that?\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T08:12:19.911077Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T08:12:22.301510Z",
+      "updated_at": "2026-08-07T08:12:22.301510Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-8ddacb0af8979d63",
+      "title": "Karpathy session 8ddacb0af897",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T01:14:21.571319Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T13:09:01.330422Z",
+      "updated_at": "2026-09-05T13:09:01.330422Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-91c04a59ea033e7f",
+      "title": "Karpathy session 91c04a59ea03",
+      "content": "## Delta\n\n**Partly. It generates mobile + desktop together, but not a browser web app.**\n\nHere's the manifest, which is the authoritative answer ([builder.manifest.json:29](../../hybrid-mobile-architecture-src/builder.manifest.json)):\n\n```json\n\"sovereign-hybrid\": {\n  \"surfaces\": [\"flutter-mobile\", \"tauri-desktop\", \"rust-core\"],\n  \"uarMode\": \"hybrid\",\n  \"runnableVerticalSlice\": true\n}\n```\n\nThree surfaces in one generation, sharing one Rust core. But `react-web` is not among them — that surface belongs to `governed-web-shell` and `axum-web`, which pair `react-web` with `axum-bff`.\n\n## The \"web\" ambiguity is the trap\n\n`sovereign-hybrid` *does* contain React — but as the **Tauri desktop renderer**, not a deployable website. The profiles doc is explicit: *\"Tauri and React own desktop presentation.\"* You get React screens that run inside the desktop shell, talking to Rust over Tauri commands. Point a browser at them and there is no `window.__TAURI__`, no command bridge, and no backend — because `sovereign-hybrid` has no BFF. The two web-capable profiles both include `axum-bff` precisely because a browser needs a server-side boundary that a desktop app doesn't.\n\nSo: if \"web\" means *your desktop UI is built with web tech*, yes. If it means *a URL a user visits*, no.\n\n## Why it isn't just a config flag\n\nThe blocker is `uarMode`, and it's a genuine architectural split rather than a packaging one:\n\n| Profile | uarMode | What that means |\n|---|---|---|\n| `sovereign-hybrid` | `hybrid` | UAR **embedded** in-process on mobile; service/in-process facade on desktop |\n| `governed-web-shell` / `axum-web` | `service` | UAR behind a server; browser never holds the runtime |\n\nEmbedded UAR means the agent runtime, model routing, and tool governance live inside the app process — which is what makes the profile \"sovereign\" and local-first. A browser tab cannot host that. It must reach a service, and that service must derive actor and tenant from verified identity (the `governed-web-shell` decisions list is emphatic: *\"Axum derives actor and tenant from verified identity\"*). That's a different authorization model, not a different build target.\n\n## If you need all four surfaces\n\nThe doc anticipates this and gives a specific instruction — worth heeding, because the failure mode is inventing a half-profile:\n\n> If answers span both major profiles, do not invent a new implicit profile. Adopt the closest profile and record explicit project-local additions in the policy overlay and generated ownership state.\n\nPractically, two options:\n\n1. **Generate `sovereign-hybrid`, add the web surface as a declared overlay addition.** You keep one Rust core and one token source; you add an Axum BFF and a browser React target as recorded extensions. This is the sanctioned path.\n2. **Two generations against one design system.** `sovereign-hybrid` for mobile+desktop, `governed-web-shell` for the browser, both fed by the same `tokens.toml`. Cleaner architecturally, but you now maintain two Rust boundaries and must decide which owns durable state.\n\nThere's also `--mode skeleton`, which *may* contain unsupported surfaces — but each gap must be declared in the manifest and generated docs. That's a way to stub the web surface honestly, not a way to get it for free.\n\n## Bearing on the OD handoff\n\nThis changes step 2 of the sequence I gave you. Before choosing a profile, sort your OD screens by **delivery surface**, not just by destination:\n\n- Phone-form screens → Flutter\n- Desktop-window screens → Tauri/React\n- Screens someone opens at a URL → a web surface `sovereign-hybrid` won't generate\n\nIf your OD session produced all three, you've discovered a profile decision — and it's better to find it now, from the screen inventory, than after `knowme-builder new` has committed you to a boundary. The `tokens.toml` transcription is unaffected either way; it feeds every surface regardless of how many generations you end up running.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 46bafb74-43c6-46e7-9603-df21683327c3\n- Captured: 2026-09-04T00:13:37.678931Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:46bafb74-43c6-46e7-9603-df21683327c3"
+      ],
+      "created_at": "2026-09-05T13:09:07.519644Z",
+      "updated_at": "2026-09-05T13:09:07.519644Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-9c4e3fa2f765278d",
+      "title": "Karpathy session 9c4e3fa2f765",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T08:51:24.864592Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T13:18:08.697559Z",
+      "updated_at": "2026-09-05T13:18:08.697559Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-9cf5327573c4f146",
+      "title": "Karpathy session 9cf5327573c4",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T07:07:25.704867Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T13:19:05.122470Z",
+      "updated_at": "2026-09-05T13:19:05.122470Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-9f9fcfd471bce60c",
+      "title": "Karpathy session 9f9fcfd471bc",
+      "content": "## Delta\n\nRepo typecheck is clean — 0 errors (one pre-existing deprecation warning in `apps/landing-page`, unrelated to this change).\n\n## Fixed\n\n`pnpm tools-pack mac build` now works from the default in-repo location. Verified from a clean state: 52 packages collected (was 11), all native modules present, all phases green.\n\n### Root cause\n\napp-builder-lib 26 picks its `node_modules` collector from the **workspace root**, not from the app being packaged. `determinePackageManagerEnv` calls `findWorkspaceRoot`, which for pnpm runs `pnpm --workspace-root exec pwd` with `cwd` = `projectDir`. Since tools-pack assembles under `<repo>/.tmp/`, that walk found the repo's `pnpm-workspace.yaml` and re-detected the collector as pnpm — overriding whatever the app declared. The app is populated with npm, so it has no `.pnpm/` directory; the pnpm collector found nothing, fell through to the repo root, and collected only what was resolvable there.\n\n### The change\n\nNew `tools/pack/src/assembled-app-package-manager.ts` plants two markers in the assembled app before install, each defeating a different detection stage:\n\n- **`pnpm-workspace.yaml`** (`packages: []`) makes `pnpm --workspace-root` resolve to the app itself, so the walk stops before the repo root and the pnpm re-detection never fires.\n- **`package-lock.json`** — by dropping `--no-package-lock` from the install — makes `detectPackageManagerByFile` return npm. This one is load-bearing: without it, detection falls through to `detectPackageManagerByEnv`, which reads `npm_config_user_agent`/`npm_execpath` and reports **pnpm**, because tools-pack itself runs under `pnpm tools-pack`.\n\nBoth markers are excluded from shipped bundles via `!pnpm-workspace.yaml` / `!package-lock.json` in each platform's `files` patterns.\n\nApplied to **all three platforms** — macOS, Windows, and Linux shared the identical defect. On Linux I changed only the npm branch; the containerized pnpm path (`OD_TOOLS_PACK_PNPM_BIN`, `--config.node-linker=hoisted`) is a genuinely different install shape and is untouched.\n\n### Verification\n\n`pnpm typecheck` (0 errors) · `pnpm guard` · `pnpm --filter @open-design/tools-pack test` (275 passed) · `git diff --check` clean. Added `tests/assembled-app-package-manager.test.ts` and updated two `linux.test.ts` cases that pinned the old `--no-package-lock` flag, plus a regression assertion that it never comes back.\n\n### Two things worth your attention\n\n**Only macOS is empirically proven.** I ran real end-to-end builds on this arm64 Mac. The Windows and Linux fixes are the same mechanism applied to identical code, and their unit tests pass — but I can't build those targets here, so they need a real build on each platform before you trust them.\n\n**Those stale artifacts are still on disk.** The broken 297MB `.dmg`/`.zip` from the first failed run were overwritten by these verification builds, but I'd confirm `.tmp/tools-pack/out/mac/` holds only good output before publishing anything from it.\n\nI haven't committed — the changes are staged in the working tree for your review.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T16:01:42.262283Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- tools/pack/src/linux.ts\n- tools/pack/src/mac/app.ts\n- tools/pack/src/mac/commands.ts\n- tools/pack/src/mac/constants.ts\n- tools/pack/src/win/app.ts\n- tools/pack/src/win/constants.ts\n- tools/pack/tests/linux.test.ts\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n- tools/pack/src/assembled-app-package-manager.ts\n- tools/pack/tests/assembled-app-package-manager.test.ts\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T16:01:43.975034Z",
+      "updated_at": "2026-08-07T16:01:43.975034Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-a1f11707a14893e8",
+      "title": "Karpathy session a1f11707a148",
+      "content": "## Delta\n\nImportant finding — the hybrid-mobile directory is **KnowMe Builder**, a Rust CLI generator, not just a skill collection. Let me dig into both external systems.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T14:35:52.912635Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T14:41:16.059881Z",
+      "updated_at": "2026-08-09T14:41:16.059881Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-a7efbb9969f32e8c",
+      "title": "Karpathy session a7efbb9969f3",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T06:10:02.708246Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T13:42:53.673384Z",
+      "updated_at": "2026-09-05T13:42:53.673384Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-a8f25e81a062cd45",
+      "title": "Karpathy session a8f25e81a062",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T01:08:53.932778Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T13:44:19.394465Z",
+      "updated_at": "2026-09-05T13:44:19.394465Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-b16fcba2135bab7f",
+      "title": "Karpathy session b16fcba2135b",
+      "content": "## Delta\n\nDone — `/Applications/Open Design.app` is now **0.21.6**, replacing 0.21.1.\n\n**What I did:**\n1. Backed up the old install to `/Applications/Open Design.app.v0.21.1.bak` (matching your existing `.v0.16.2.bak` convention) — the copy is intact if you need to roll back\n2. Copied the new bundle in with `ditto` (preserves resource forks and extended attributes; `cp` would not)\n3. No sudo needed — `/Applications` is writable by your user\n\n**Verified in place:**\n- Version **0.21.6**, identifier `io.open-design.desktop`, 949M\n- **169 packages** with native `better_sqlite3.node` present — your collector fix carried through to the installed app\n- Launched successfully and **stayed up**: settled at 10 processes across 18 seconds of polling, with the sidecar supervisor running under the correct five-field stamp (`channel=stable namespace=default source=packaged mode=runtime app=desktop`)\n\n**On Gatekeeper:** the bundle is **ad-hoc signed only**, so `spctl` rejects it. It launched anyway because there's no `com.apple.quarantine` flag — the app was built locally rather than downloaded. That means it runs fine for you, but if you ever copy this bundle to another Mac via download, AirDrop, or a shared drive, quarantine will attach and Gatekeeper will block it until you right-click → Open or clear the attribute.\n\nI verified the process stays alive but did not exercise the UI — if you want the window and a real workflow confirmed, say so and I'll drive it.\n\nTwo loose ends you may want to clean up at some point: there are now two backups sitting in `/Applications` (`.v0.16.2.bak` and `.v0.21.1.bak`) eating roughly a gigabyte each, and the Node version mismatch I flagged earlier still stands — this was built under v26.5.0 against a `~24` pin.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 826f0b3a-0503-4a42-adbc-efb2fe6d0d7e\n- Captured: 2026-09-08T13:57:44.801361Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:826f0b3a-0503-4a42-adbc-efb2fe6d0d7e"
+      ],
+      "created_at": "2026-09-11T16:46:31.335333Z",
+      "updated_at": "2026-09-11T16:46:31.335333Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-bacc03f3589664eb",
+      "title": "Karpathy session bacc03f35896",
+      "content": "## Delta\n\nThe three ember values read as one coherent family — a legible progression from mark to fill to text, each carrying its own contrast job. The system still reads as ember, not brown.\n\n## Audit complete — 6 defects found and fixed, `ok: true`, ID unchanged\n\n### First, a scope correction\n\nFive of the files you named don't exist in this package: `brand.json`, `variables.css`, `theme.json`, `kit.html`, `kit.dark.html`. That's not a gap — this package uses a different convention, and the equivalents are all present:\n\n| You asked about | This package uses |\n|---|---|\n| `variables.css` / `theme.json` | `colors_and_type.css` + `assets/aso.css` (light + `html.dark` in one file) |\n| `brand.json` | `assets/brand/*.svg` + DESIGN.md §2 |\n| `kit.html` / `kit.dark.html` | `ui_kits/app/index.html` — one kit with a live theme toggle, not two files |\n\nNothing needs creating; a dark-specific kit file would duplicate a working runtime toggle.\n\n### What the audit actually found\n\nThe structural audit passed before I started. **The real defects were in contrast — which no automated check here covers.** I measured every foreground/background pair the system renders, in both themes:\n\n| Defect | Was | Now |\n|---|---|---|\n| **Primary button, white text** | **2.97:1** ✗ | 4.51:1 |\n| Primary button hover | **3.99:1** ✗ | 6.03:1 |\n| `--accent` on `--s3` (active rail step) | **4.20:1** ✗ | 4.75:1 |\n| `--fg-3` on `--s2` (metadata on raised panels) | **4.38:1** ✗ | 4.93:1 |\n| `.chain-stage` pending | **4.46:1** ✗ | 5.78:1 |\n| **`.doc .cite` — citation chip inside the letter** | **4.38:1** ✗ | 4.93:1 |\n\nThe primary button is the most-used control in the system and was failing AA by a wide margin. The last one matters most in context: that's the chip a payer reads to verify a claim's source, on a document that gets printed and faxed.\n\n**The fix respects the system's own rules.** I added `--ember-fill` `#B85E1C` rather than changing `--ember` — the mark keeps `#DF7C35` in all three SVGs, unchanged. Ember now has three contrast-graded values with distinct jobs: mark, fill, text. I rejected the alternative (ink text on bright ember) because the source explicitly forbids changing a solid button's foreground alone, and it would read as a warning chip rather than a primary action.\n\n**Dark mode needed no corrections** — every pair already passed, lowest 4.64:1. Those ratios were flagged \"unverified\" in my previous handoff; they're now measured and recorded.\n\nI also corrected my own earlier documentation: `--fg` is 16.3:1 (I'd written 15.8), `--fg-2` 7.3 (not 7.4), `--fg-3` was 5.03 (not 5.1). Those came from source CSS comments I'd reproduced without checking.\n\n### Also fixed\n- **`.landed` had no live demo** — the sanctioned replacement for forbidden `scrollIntoView` was described but never shown. Added a working one to `radius-shadows.html`.\n- Synced all token values and ratio claims across DESIGN.md, README.md, SKILL.md, and 4 preview cards.\n- Added a **README § Accessibility** with the full measured matrix, two new enforceable anti-patterns, and a **§ Readiness audit** in `context/provenance.md` marking these as the only values that *don't* trace to the source.\n\n### Remaining gaps before publishing\n\n1. **`--fg-3` on `--s3` is 4.46:1 — unfixable without cost.** Darkening it enough would collapse the gap between `--fg-2` and `--fg-3` and flatten the three-weight hierarchy. Documented as a hard rule instead: *never place `--fg-3` on `--s3`*. One component violated it; now fixed.\n2. **Non-contrast accessibility is untested.** No screen-reader pass, no keyboard-only run through the ten-step flow, no 200% zoom reflow. Static review looks sound — real `<label for>`, ARIA on disclosure, text on every status — but that's review, not testing. This is the largest genuine gap.\n3. **No `build/` or `fonts/`.** The source has zero raster assets and zero font binaries; all three families load from Google Fonts. Unchanged from before, and not fixable without inventing assets.\n4. **C\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: e4709b64-8ae0-4d8e-905a-2748d218154a\n- Captured: 2026-09-04T00:44:44.794262Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:e4709b64-8ae0-4d8e-905a-2748d218154a"
+      ],
+      "created_at": "2026-09-05T13:55:40.316642Z",
+      "updated_at": "2026-09-05T13:55:40.316642Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-c01efed8c37da6e9",
+      "title": "Karpathy session c01efed8c37d",
+      "content": "## Delta\n\nPushed. `main` is in sync with `origin/main` at `6fe7f5284`.\n\n## Done\n\n**Commit:** `6fe7f5284` — `fix(tools-pack): pin assembled app to electron-builder's npm collector`\n**Pushed:** `ae6dfe0b2..6fe7f5284  main -> main` (fast-forward, no conflicts)\n\n9 files, +152/−7. Two pre-existing local commits of yours (`e45caa829`, `4453e793d`) went up alongside it — they were already sitting unpushed on your branch before this session.\n\nPre-push verification: tools-pack typecheck clean, 275 tests passing (exit 0), `pnpm guard` clean, `git diff --check` clean, and a final clean in-repo build confirming `pm=npm` with 52 packages and `node-pty` present. No `Co-authored-by` trailer, per the repo's git policy.\n\n**Left uncommitted:** the `.prometheus/knowledge/wiki/` files — session artifacts from your knowledge hooks, unrelated to this fix. They're still in your working tree if you want them.\n\nTwo carry-overs from the previous turn that still apply:\n\n- **Windows and Linux are unproven.** Same mechanism, same code shape, unit tests green — but never built on their native platforms. Worth a real build on each before relying on them.\n- **You committed straight to `main`**, so this bypassed CI review. If the repo runs CI on pushes to `main`, that's now the first real check on the Windows/Linux paths — worth watching.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T05:33:32.778776Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T05:34:10.354522Z",
+      "updated_at": "2026-08-09T05:34:10.354522Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-c1c229f44a658376",
+      "title": "Karpathy session c1c229f44a65",
+      "content": "## Delta\n\nCompleted kbd-new-phase — upstream-fixes-and-skill-integration ready for /kbd-assess\n\n## Phase created\n\n**`upstream-fixes-and-skill-integration`** — `.kbd-orchestrator/phases/upstream-fixes-and-skill-integration/`\n\nFive goals recorded in `goals.md`: the four problems you listed, plus the strict phase-gating instruction as an explicit process goal so it survives compaction and can't get quietly dropped mid-run.\n\nWaypoint flipped to `status: assessment_ready`, `exactNextCommand: /kbd-assess upstream-fixes-and-skill-integration`. `phase:before` hooks fired (`hooks.log.jsonl` written). Both referenced source directories verified present:\n- `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack` ✓\n- `/Users/gqadonis/Projects/hybrid-mobile-architecture-src` ✓\n\n**One thing to flag before assessment:** `project.json` now carries both `active_phase: null` (the pre-existing snake_case field) and `activePhase: \"upstream-fixes-and-skill-integration\"` (written by the skill). The skill writes camelCase; your file was seeded with snake_case. They're not in conflict for this run — the waypoint is authoritative — but if any of your tooling reads `active_phase`, it will still see `null`. Worth reconciling if you hit it.\n\n**Next:** `/kbd-assess upstream-fixes-and-skill-integration` — I'll stop there for your evaluation before analyze.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T14:35:44.135011Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T14:35:56.654267Z",
+      "updated_at": "2026-08-09T14:35:56.654267Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-c394940e5a983930",
+      "title": "Karpathy session c394940e5a98",
+      "content": "## Delta\n\nRepo typecheck is clean — 0 errors (one pre-existing deprecation warning in `apps/landing-page`, unrelated to this change).\n\n## Fixed\n\n`pnpm tools-pack mac build` now works from the default in-repo location. Verified from a clean state: 52 packages collected (was 11), all native modules present, all phases green.\n\n### Root cause\n\napp-builder-lib 26 picks its `node_modules` collector from the **workspace root**, not from the app being packaged. `determinePackageManagerEnv` calls `findWorkspaceRoot`, which for pnpm runs `pnpm --workspace-root exec pwd` with `cwd` = `projectDir`. Since tools-pack assembles under `<repo>/.tmp/`, that walk found the repo's `pnpm-workspace.yaml` and re-detected the collector as pnpm — overriding whatever the app declared. The app is populated with npm, so it has no `.pnpm/` directory; the pnpm collector found nothing, fell through to the repo root, and collected only what was resolvable there.\n\n### The change\n\nNew `tools/pack/src/assembled-app-package-manager.ts` plants two markers in the assembled app before install, each defeating a different detection stage:\n\n- **`pnpm-workspace.yaml`** (`packages: []`) makes `pnpm --workspace-root` resolve to the app itself, so the walk stops before the repo root and the pnpm re-detection never fires.\n- **`package-lock.json`** — by dropping `--no-package-lock` from the install — makes `detectPackageManagerByFile` return npm. This one is load-bearing: without it, detection falls through to `detectPackageManagerByEnv`, which reads `npm_config_user_agent`/`npm_execpath` and reports **pnpm**, because tools-pack itself runs under `pnpm tools-pack`.\n\nBoth markers are excluded from shipped bundles via `!pnpm-workspace.yaml` / `!package-lock.json` in each platform's `files` patterns.\n\nApplied to **all three platforms** — macOS, Windows, and Linux shared the identical defect. On Linux I changed only the npm branch; the containerized pnpm path (`OD_TOOLS_PACK_PNPM_BIN`, `--config.node-linker=hoisted`) is a genuinely different install shape and is untouched.\n\n### Verification\n\n`pnpm typecheck` (0 errors) · `pnpm guard` · `pnpm --filter @open-design/tools-pack test` (275 passed) · `git diff --check` clean. Added `tests/assembled-app-package-manager.test.ts` and updated two `linux.test.ts` cases that pinned the old `--no-package-lock` flag, plus a regression assertion that it never comes back.\n\n### Two things worth your attention\n\n**Only macOS is empirically proven.** I ran real end-to-end builds on this arm64 Mac. The Windows and Linux fixes are the same mechanism applied to identical code, and their unit tests pass — but I can't build those targets here, so they need a real build on each platform before you trust them.\n\n**Those stale artifacts are still on disk.** The broken 297MB `.dmg`/`.zip` from the first failed run were overwritten by these verification builds, but I'd confirm `.tmp/tools-pack/out/mac/` holds only good output before publishing anything from it.\n\nI haven't committed — the changes are staged in the working tree for your review.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T15:58:36.785228Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- tools/pack/src/linux.ts\n- tools/pack/src/mac/app.ts\n- tools/pack/src/mac/commands.ts\n- tools/pack/src/mac/constants.ts\n- tools/pack/src/win/app.ts\n- tools/pack/src/win/constants.ts\n- tools/pack/tests/linux.test.ts\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n- tools/pack/src/assembled-app-package-manager.ts\n- tools/pack/tests/assembled-app-package-manager.test.ts\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T15:58:38.722633Z",
+      "updated_at": "2026-08-07T15:58:38.722633Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-c8c4d744e3b119c8",
+      "title": "Karpathy session c8c4d744e3b1",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T07:48:53.378724Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T14:35:54.456039Z",
+      "updated_at": "2026-09-05T14:35:54.456039Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-caf7f89a0733065b",
+      "title": "Karpathy session caf7f89a0733",
+      "content": "## Delta\n\nThe DMG mounts cleanly with a drag-install layout (`Open Design.app` + `Applications` symlink) at version 0.16.2.\n\n## Done — release artifacts built\n\nAll three portable stable-channel macOS artifacts are in `…/scratchpad/odpack/out/mac/namespaces/default/`:\n\n| Artifact | Size | Path |\n|---|---|---|\n| DMG | 288M | `dmg/Open Design-default.dmg` |\n| ZIP | 289M | `zip/Open Design-default.zip` |\n| Payload (updater) | 304M | `payload/Open Design-default-payload.zip` |\n| `.app` bundle | 714M | `builder/mac-arm64/Open Design.app` |\n\nIdentity: `Open Design` · 0.16.2 · `io.open-design.desktop` · arm64 · unsigned (`identity: null`, per this repo's local build config).\n\n## One thing you should know\n\n**The default `pnpm tools-pack mac build` is currently broken on this machine, and I had to work around it.** This is worth your attention because the failure mode is dangerous.\n\nRoot cause: electron-builder 26.8.1 detects the repo root's `packageManager: \"pnpm@10.33.2\"` and selects its pnpm dependency collector. But `tools/pack/src/mac/commands.ts:69` populates the assembled app with **npm** (`npm install --omit=dev --no-package-lock`), producing a flat `node_modules` with no `.pnpm/` directory. The pnpm collector finds nothing, logs `no node modules found in collection`, walks up to the repo root, and collects only the 11 packages resolvable there — silently dropping 44, including `node-pty`, `better-sqlite3`, `blake3-wasm`, and all 10 `@open-design/*` packages.\n\nThe workaround is the supported `--dir` flag pointing outside the repo. Away from the workspace root, electron-builder falls back to `pm=traversal` and collects all 52 packages correctly. Nothing in your tracked source was modified — the only files I edited were regenerated build artifacts under `.tmp/`.\n\n**The dangerous part:** on the first failed run, electron-builder still *produced* a complete-looking 297MB `.dmg` and `.zip` from the incomplete bundle. Those are at `.tmp/tools-pack/out/mac/namespaces/default/builder/` and would fail at daemon boot with `ERR_MODULE_NOT_FOUND`. Only the `assertNodePtyRuntime` validator caught it. I'd delete those stale artifacts so they can't be mistaken for good builds.\n\nTwo things I did **not** do, since they're your call:\n- **No source fix.** The durable repair belongs in `tools/pack` — either give the assembled app a `packageManager: \"npm@…\"` field that survives regeneration in `mac/app.ts`, or assemble outside the workspace root by default. `win-prebundle.ts` has the identical npm-install-inside-pnpm-workspace shape, so Windows builds likely share this bug.\n- **Not signed or notarized.** These artifacts will hit Gatekeeper on other machines. Per your memory note this fork builds unsigned, so I left it as-is.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T01:19:45.122492Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T01:19:45.957447Z",
+      "updated_at": "2026-08-07T01:19:45.957447Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-da76e8952caa45d4",
+      "title": "Karpathy session da76e8952caa",
+      "content": "## Delta\n\nEverything's built and verified. Here's what landed in `/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth`.\n\n## The system\n\n**Rust workspace** — three crates plus the Tauri shell. The architecture is the dependency direction: `aso-host` names no shell at all, which is what lets one core serve Axum, Tauri, and Flutter. The audit fails the build if that ever stops being true.\n\n**React** — feature-based clean architecture, every filename kebab-case, enforced mechanically. `Component → feature hook → feature api → shared http client` — no component touches the network.\n\n**Flutter** — Riverpod, same contracts, bottom bar on every platform switching to a rail by *window width*, never by OS.\n\n**One token source** — `tokens.toml` generates both `web/src/theme.css` and `mobile/lib/core/theme/tokens.dart`. Verified: 22 roles × 2 themes, identical values across surfaces, regeneration idempotent.\n\n**`docs/`** — the full design system copied in: 18 screens, the shared CSS/JS, 4 SQL files, both PDF addenda, plus 3 ADRs and a build-order plan. Your existing brand docs are untouched.\n\n## Verified, not assumed\n\n| | |\n|---|---|\n| `cargo build --workspace` | 4 crates compile |\n| `cargo test --workspace` | 5 invariant tests pass |\n| Server on `:8791` | **admin refused, surgeon's four affirmations flip the gate** |\n| `flutter analyze` | no issues |\n| `flutter test` | 7 pass |\n| `scripts/audit.sh` | 6 boundary checks pass |\n\nThe server run is the one I'd point at: `{\"error\":\"actor 00000000-… does not hold the AffirmGate capability\"}` came from a live HTTP call, not a unit test.\n\n## Three things worth flagging\n\n**My Flutter pins were invented.** I wrote `riverpod_lint: 3.3.2` — a version that has never been published. `flutter pub get` caught it; a caret range would have resolved to something arbitrary and hidden the mistake. I looked up the real versions and re-pinned.\n\n**`custom_lint` had to be dropped.** It caps `analyzer_plugin` at `^0.13` while `riverpod_lint` needs `^0.14`, and `riverpod_generator` needs a `riverpod_analyzer_utils` that `custom_lint` also refuses. You cannot satisfy all of them today. Codegen matters more than extra lint rules, so the generator won — with a comment saying to re-add both together, never one alone.\n\n**The audit had three bugs of its own**, including reporting `PASS` while a check failed, because `FAIL=1` was set inside a pipeline subshell. Fixed and negative-tested: I planted a component calling `fetch()` and confirmed it gets caught.\n\n## What is *not* done\n\nNo physical-device run, no production web build, no Tauri window launched. Per the verification contract those surfaces are **build-only** — real, but not \"working\". I've recorded that honestly in the README rather than letting a green test suite imply more than it proves.\n\n`docs/plan/build-order.md` has the phase status. Phases 1 and 2 are the irreversible ones — lane and privacy class per table, and the gateway wiring — and both are still partial.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e\n- Captured: 2026-09-04T00:58:38.562337Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:31d3eb3b-e2a1-49c4-a7bf-1f2e644d130e"
+      ],
+      "created_at": "2026-09-05T14:41:38.351637Z",
+      "updated_at": "2026-09-05T14:41:38.351637Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-e53e1b6deb082904",
+      "title": "Karpathy session e53e1b6deb08",
+      "content": "## Delta\n\nTwo decisive facts: `knowme-builder` is **already installed** at `~/.cargo/bin/` (3.6 MB, built Jul 29), and the hybrid skills use **bare `name`/`description` frontmatter** — exactly what OD's zero-config skill parser accepts. Let me verify that compatibility claim directly.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T15:28:24.968875Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n- .prometheus/knowledge/.prompt-snapshots/\n- .prometheus/knowledge/wiki/executor-session-complete-for-upstream-fixes-and-skill-integration.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-2a20e93c12e8516a.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-8a091b2a881071ae.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-a1f11707a14893e8.md\n- .prometheus/knowledge/wiki/karpathy-session-c01efed8c37da6e9.md\n- .prometheus/knowledge/wiki/karpathy-session-c1c229f44a658376.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T15:33:32.088151Z",
+      "updated_at": "2026-08-09T15:33:32.088151Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-ebd9e363ac25c453",
+      "title": "Karpathy session ebd9e363ac25",
+      "content": "## Delta\n\nCompleted kbd-analyze — upstream-fixes-and-skill-integration (step 0 of 0)\n\n## Analyze complete — and it found something that changes the plan\n\nThe single most important result: **my initial research was wrong, and correcting it changed Goal 1's verdict.**\n\n### Upstream issue #6599 is open right now\n\n**\"[Bug]: Login is now mandatory and cannot be skipped\"** — filed 2 days ago, 20 comments, still open. The maintainer's reply confirms our assessment in upstream's own words:\n\n> This behavior is intentional as of v18.1 … The local and BYOK options haven't gone away; **they just moved behind the sign-in gate instead of being selectable before it.**\n\nSo this won't be fixed by waiting. The thread is full of your exact use case — air-gapped Kubernetes, corporate proxy whitelisting, enterprise BYOK compliance, one user geoblocked from the login page.\n\n**And someone already fixed it.** `tony-box/open-design` (Apache-2.0) carries `9dfc269e fix(web): make Open Design Cloud sign-in optional again` — plus `82bfa63d` disabling auto-updates, which independently answers the auto-update question I'd left UNKNOWN. **Goal 1 moves from \"build blind\" to \"adapt a known-good patch.\"**\n\n### The finding that kills \"just install the skills\"\n\n`SkillMode` has **no `utility` value** — so any skill without an `od:` block falls through to a regex that guesses mode from prose. I simulated it over your 39 hybrid skills: **6 become image generators, 2 video, 1 deck**, and all get `designSystemRequired: true`. An import adapter is mandatory, and the misclassification is *silent* — they'd look installed and just behave wrong.\n\n### Other results\n\n- **Zero new dependencies** — `jszip` and `tar` are already there.\n- **Goal 2:** adopt the plugin system; don't build a second install grammar.\n- **Goal 4:** clone `od-react-export` (verified git-tracked source), but re-costed S→S–M — I found no scenario-plugin UI surface in `apps/web`, and the dual-surface rule needs UI+CLI in one PR.\n\n### Two corrections worth flagging\n\nThe adversarial judge ran twice, both BLOCK, and was right both times. It caught that I'd claimed the `knowme-builder` crate was in this repo (it's in the external tree — making option 3b more expensive than I'd implied), and that I'd offered \"stay on 0.16.2, the gate doesn't affect us.\" That second one was flatly wrong: **`package.json`'s 0.16.2 is a stale dev version** — upstream `main` says 0.16.2 too while shipping 0.18.x — and the gate **is** in your tree (`886bcc4db` is an ancestor of HEAD). Both fixed.\n\n### Still blocking\n\n**Goal 3's scope.** Three readings, and I can cost them but not choose:\n- **3a** import the 39 skills — small, and unblocks Goal 4's cheap path\n- **3b** invoke `knowme-builder` — external alpha binary, subprocess grant, and its own docs say generated apps must not add a second agent loop (OD would be a fourth)\n- **3c** port the profiles — reimplements someone else's active generator\n\nMy recommendation is **3a now, 3b as its own phase**. Goal 4's shape depends on your answer.\n\nOne limitation to own: I skipped research tiers 2 and 4, so there's **no survey of alternative design-to-code generators**. If you'd want KnowMe Builder compared against alternatives before committing, that research hasn't been done.\n\nStopping here per your instruction. `/kbd-plan upstream-fixes-and-skill-integration` once you've settled Goal 3.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-09T18:29:04.192704Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n- .prometheus/knowledge/.prompt-snapshots/\n- .prometheus/knowledge/wiki/executor-session-complete-for-upstream-fixes-and-skill-integration.md\n- .prometheus/knowledge/wiki/karpathy-session-1d612ebcdda21505.md\n- .prometheus/knowledge/wiki/karpathy-session-2a20e93c12e8516a.md\n- .prometheus/knowledge/wiki/karpathy-session-34643a035dcc185f.md\n- .prometheus/knowledge/wiki/karpathy-session-533da300da01acb3.md\n- .prometheus/knowledge/wiki/karpathy-session-77a2bf4f55a4eaf7.md\n- .prometheus/knowledge/wiki/karpathy-session-8a091b2a881071ae.md\n- .prometheus/knowledge/wiki/karpathy-session-8bde6d5f3dfe885a.md\n- .prometheus/knowledge/wiki/karpathy-session-9f9fcfd471bce60c.md\n- .prometheus/knowledge/wiki/karpathy-session-a1f11707a14893e8.md\n- .prometheus/knowledge/wiki/karpathy-session-c01efed8c37da6e9.md\n- .prometheus/knowledge/wiki/karpathy-session-c1c229f44a658376.md\n- .prometheus/knowledge/wiki/karpathy-session-c394940e5a983930.md\n- .prometheus/knowledge/wiki/karpathy-session-caf7f89a0733065b.md\n- .prometheus/knowledge/wiki/karpathy-session-e53e1b6deb082904.md\n- .prometheus/knowledge/wiki/karpathy-session-ff0134ddafa1da25.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-09T18:29:10.184437Z",
+      "updated_at": "2026-08-09T18:29:10.184437Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-f200ddfa8994549c",
+      "title": "Karpathy session f200ddfa8994",
+      "content": "## Delta\n\nThose are the monitor's final events winding down — it confirmed the same three artifacts (DMG, ZIP, payload) I already verified, plus the `install/` and `mount/` directories from the harness install step. Nothing new, nothing to act on.\n\nStatus is unchanged and complete: **v0.21.1 built, installed to `/Applications`, running and verified** (daemon healthy on port 60495, web UI on 60545, 460 plugins loaded, live agent round-trip confirmed).\n\nTwo things remain open for you:\n\n- **`/Applications/Open Design.app.v0.16.2.bak`** (660 MB) — your rollback copy. Delete when you're satisfied with 0.21.1.\n- **Data location** — the installed app reads and writes inside the repo at `.tmp/tools-pack/runtime/mac/namespaces/default/data`, so a `tools-pack mac cleanup` or `.tmp` wipe would take your app data with it. Rebuilding with `--portable` moves it to a normal system directory; say the word and I'll do that.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: fe8a500a-73e6-4e7e-90fc-7d9696344d07\n- Captured: 2026-09-03T16:52:10.944727Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- .kbd-orchestrator/constraints.md\n- .kbd-orchestrator/project.json\n- .kbd-orchestrator/current-waypoint.json\n- .kbd-orchestrator/model-preflight.json\n- .kbd-orchestrator/phases/\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:fe8a500a-73e6-4e7e-90fc-7d9696344d07"
+      ],
+      "created_at": "2026-09-05T14:56:32.568352Z",
+      "updated_at": "2026-09-05T14:56:32.568352Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-fd56cbf5dbd02f99",
+      "title": "Karpathy session fd56cbf5dbd0",
+      "content": "## Delta\n\nDone — `/Applications/Open Design.app` is now **0.21.6**, replacing 0.21.1.\n\n**What I did:**\n1. Backed up the old install to `/Applications/Open Design.app.v0.21.1.bak` (matching your existing `.v0.16.2.bak` convention) — the copy is intact if you need to roll back\n2. Copied the new bundle in with `ditto` (preserves resource forks and extended attributes; `cp` would not)\n3. No sudo needed — `/Applications` is writable by your user\n\n**Verified in place:**\n- Version **0.21.6**, identifier `io.open-design.desktop`, 949M\n- **169 packages** with native `better_sqlite3.node` present — your collector fix carried through to the installed app\n- Launched successfully and **stayed up**: settled at 10 processes across 18 seconds of polling, with the sidecar supervisor running under the correct five-field stamp (`channel=stable namespace=default source=packaged mode=runtime app=desktop`)\n\n**On Gatekeeper:** the bundle is **ad-hoc signed only**, so `spctl` rejects it. It launched anyway because there's no `com.apple.quarantine` flag — the app was built locally rather than downloaded. That means it runs fine for you, but if you ever copy this bundle to another Mac via download, AirDrop, or a shared drive, quarantine will attach and Gatekeeper will block it until you right-click → Open or clear the attribute.\n\nI verified the process stays alive but did not exercise the UI — if you want the window and a real workflow confirmed, say so and I'll drive it.\n\nTwo loose ends you may want to clean up at some point: there are now two backups sitting in `/Applications` (`.v0.16.2.bak` and `.v0.21.1.bak`) eating roughly a gigabyte each, and the Node version mismatch I flagged earlier still stands — this was built under v26.5.0 against a `~24` pin.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 826f0b3a-0503-4a42-adbc-efb2fe6d0d7e\n- Captured: 2026-09-08T14:02:56.782515Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:826f0b3a-0503-4a42-adbc-efb2fe6d0d7e"
+      ],
+      "created_at": "2026-09-11T16:56:29.475565Z",
+      "updated_at": "2026-09-11T16:56:29.475565Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-ff0134ddafa1da25",
+      "title": "Karpathy session ff0134ddafa1",
+      "content": "## Delta\n\nThe DMG mounts cleanly with a drag-install layout (`Open Design.app` + `Applications` symlink) at version 0.16.2.\n\n## Done — release artifacts built\n\nAll three portable stable-channel macOS artifacts are in `…/scratchpad/odpack/out/mac/namespaces/default/`:\n\n| Artifact | Size | Path |\n|---|---|---|\n| DMG | 288M | `dmg/Open Design-default.dmg` |\n| ZIP | 289M | `zip/Open Design-default.zip` |\n| Payload (updater) | 304M | `payload/Open Design-default-payload.zip` |\n| `.app` bundle | 714M | `builder/mac-arm64/Open Design.app` |\n\nIdentity: `Open Design` · 0.16.2 · `io.open-design.desktop` · arm64 · unsigned (`identity: null`, per this repo's local build config).\n\n## One thing you should know\n\n**The default `pnpm tools-pack mac build` is currently broken on this machine, and I had to work around it.** This is worth your attention because the failure mode is dangerous.\n\nRoot cause: electron-builder 26.8.1 detects the repo root's `packageManager: \"pnpm@10.33.2\"` and selects its pnpm dependency collector. But `tools/pack/src/mac/commands.ts:69` populates the assembled app with **npm** (`npm install --omit=dev --no-package-lock`), producing a flat `node_modules` with no `.pnpm/` directory. The pnpm collector finds nothing, logs `no node modules found in collection`, walks up to the repo root, and collects only the 11 packages resolvable there — silently dropping 44, including `node-pty`, `better-sqlite3`, `blake3-wasm`, and all 10 `@open-design/*` packages.\n\nThe workaround is the supported `--dir` flag pointing outside the repo. Away from the workspace root, electron-builder falls back to `pm=traversal` and collects all 52 packages correctly. Nothing in your tracked source was modified — the only files I edited were regenerated build artifacts under `.tmp/`.\n\n**The dangerous part:** on the first failed run, electron-builder still *produced* a complete-looking 297MB `.dmg` and `.zip` from the incomplete bundle. Those are at `.tmp/tools-pack/out/mac/namespaces/default/builder/` and would fail at daemon boot with `ERR_MODULE_NOT_FOUND`. Only the `assertNodePtyRuntime` validator caught it. I'd delete those stale artifacts so they can't be mistaken for good builds.\n\nTwo things I did **not** do, since they're your call:\n- **No source fix.** The durable repair belongs in `tools/pack` — either give the assembled app a `packageManager: \"npm@…\"` field that survives regeneration in `mac/app.ts`, or assemble outside the workspace root by default. `win-prebundle.ts` has the identical npm-install-inside-pnpm-workspace shape, so Windows builds likely share this bug.\n- **Not signed or notarized.** These artifacts will hit Gatekeeper on other machines. Per your memory note this fork builds unsigned, so I left it as-is.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: 62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d\n- Captured: 2026-08-07T01:16:40.187366Z\n- Project: /Users/gqadonis/Projects/references/open-design\n\n## Changed Paths\n\n- No changed paths detected.\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:62e61bd9-11d0-49ba-94ba-c1a2e9e12f6d"
+      ],
+      "created_at": "2026-08-07T01:16:42.019842Z",
+      "updated_at": "2026-08-07T01:16:42.019842Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t11-44-21z",
+      "title": "No-Op Session Snapshot at 2026-07-13T11:44:21Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T11:44:21Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This is another no-op run-state record, consistent with the immediately preceding [No-Op Session Snapshot at 2026-07-13T11:44Z](/no-op-session-snapshot-at-2026-07-13t11-44z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t11-44z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:46:50.913715Z",
+      "updated_at": "2026-07-13T11:46:50.913715Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t11-44z",
+      "title": "No-Op Session Snapshot at 2026-07-13T11:44Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T11:44:03Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This matches the earlier [No-Op Session Snapshot on 2026-07-13](/no-op-session-snapshot-on-2026-07-13.md) pattern.\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-on-2026-07-13"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:44:10.031394Z",
+      "updated_at": "2026-07-13T11:44:10.031394Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t13-14-03z",
+      "title": "No-Op Session Snapshot at 2026-07-13T13:14:03Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T13:14:03Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This follows the same no-op run-state pattern as [No-Op Session Snapshot at 2026-07-13T11:44:21Z](/no-op-session-snapshot-at-2026-07-13t11-44-21z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t11-44-21z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T13:14:12.375712Z",
+      "updated_at": "2026-07-13T13:14:12.375712Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t13-14-21z",
+      "title": "No-Op Session Snapshot at 2026-07-13T13:14:21Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T13:14:21Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the same no-op run-state pattern as [No-Op Session Snapshot at 2026-07-13T13:14:03Z](/no-op-session-snapshot-at-2026-07-13t13-14-03z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t13-14-03z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T13:18:51.744595Z",
+      "updated_at": "2026-07-13T13:18:51.744595Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t14-03-56z",
+      "title": "No-Op Session Snapshot at 2026-07-13T14:03:56Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T14:03:56Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the no-op run-state pattern seen in [No-Op Session Snapshot at 2026-07-13T13:14:21Z](/no-op-session-snapshot-at-2026-07-13t13-14-21z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t13-14-21z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T14:04:02.948419Z",
+      "updated_at": "2026-07-13T14:04:02.948419Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t14-04-34z",
+      "title": "No-Op Session Snapshot at 2026-07-13T14:04:34Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T14:04:34Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the no-op run-state pattern seen in [No-Op Session Snapshot at 2026-07-13T14:03:56Z](/no-op-session-snapshot-at-2026-07-13t14-03-56z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t14-03-56z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T14:12:08.085551Z",
+      "updated_at": "2026-07-13T14:12:08.085551Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-at-2026-07-13t14-12-30z",
+      "title": "No-Op Session Snapshot at 2026-07-13T14:12:30Z",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T14:12:30Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot. This continues the no-op run-state pattern seen in [No-Op Session Snapshot at 2026-07-13T14:04:34Z](/no-op-session-snapshot-at-2026-07-13t14-04-34z.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [
+        "no-op-session-snapshot-at-2026-07-13t14-04-34z"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T14:15:01.227393Z",
+      "updated_at": "2026-07-13T14:15:01.227393Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "no-op-session-snapshot-on-2026-07-13",
+      "title": "No-Op Session Snapshot on 2026-07-13",
+      "content": "## Session metadata\n\n- **Ended:** `2026-07-13T10:59:03Z`\n- **Phase:** unknown\n- **Stage:** unknown\n- **Last completed:** none\n- **Progress:** `0 of 0 changes done`\n- **Next pending:** none\n\n## Outcome\n\nNo actionable work, completed changes, pending tasks, or phase-specific decisions were recorded in this session snapshot.\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "session-log",
+        "no-op",
+        "run-state"
+      ],
+      "links": [],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-07-13T11:05:08.773468Z",
+      "updated_at": "2026-07-13T11:05:08.773468Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    }
+  ]
+}

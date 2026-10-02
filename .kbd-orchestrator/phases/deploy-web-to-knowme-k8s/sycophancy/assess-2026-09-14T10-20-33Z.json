@@ -1,0 +1,24 @@
+{
+  "audit_trail": {
+    "agent_did": null,
+    "executed_at": "2026-09-14T10:20:33.816514Z",
+    "hook_log": [],
+    "passes": 0,
+    "skill_id": "sycophancy.correction",
+    "strictness": "standard",
+    "version": "1.0.0"
+  },
+  "classifications": [
+    {
+      "location": null,
+      "pattern_id": "S-07",
+      "rationale": "Response is 843 words — substantially exceeds typical task scope. Verify added content delivers analytical value rather than visible effort.",
+      "severity": "low"
+    }
+  ],
+  "correction_mandatory": false,
+  "delta_summary": "Score: 0.02. 1 pattern(s) detected (detect_only mode — no correction applied): [S-07] Low — length.",
+  "sycophancy_score": 0.01785714365541935,
+  "action_taken": "proceed_as_is",
+  "threshold_note": "score < 0.3 -> write assessment as-is per prompts/assess.md"
+}

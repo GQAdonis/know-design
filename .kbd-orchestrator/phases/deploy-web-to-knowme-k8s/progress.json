@@ -2,26 +2,26 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 2,
-  "derivedRevision": 2,
+  "sourceRevision": 4,
+  "derivedRevision": 4,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 2
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 4
   },
   "conflictCount": 0,
-  "phase": "upstream-fixes-and-skill-integration",
-  "phaseId": "upstream-fixes-and-skill-integration",
+  "phase": "deploy-web-to-knowme-k8s",
+  "phaseId": "deploy-web-to-knowme-k8s",
   "parentPhase": null,
-  "last_updated": "2026-09-14T10:24:38.474455Z",
+  "last_updated": "2026-09-14T12:28:28.258803Z",
   "last_updated_by": "kbd-runtime",
-  "changes_total": 0,
+  "changes_total": 1,
   "changes_completed": 0,
-  "implementation_total": 0,
+  "implementation_total": 1,
   "implementation_completed": 0,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
       "completed": 0,
-      "total": 0,
+      "total": 1,
       "status": "PENDING"
     },
     "evidence": {
@@ -40,7 +40,19 @@
       "blockers": []
     }
   },
-  "changes": [],
+  "changes": [
+    {
+      "id": "publish-fork-container-image",
+      "title": "Publish ghcr.io/GQAdonis/od from this fork (no workflow edit)",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
   "children": {},
   "migrationStatus": null
 }

@@ -1,0 +1,38 @@
+{
+  "stage": "plan",
+  "round": 2,
+  "round_cap_reached": true,
+  "accepted_at_cap": true,
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "producer_model": "claude-opus-5",
+  "cross_model_check": "verified-distinct",
+  "anti_theater_gate": "PASS (score=0.0, strictness=strict)",
+  "dispositions": [
+    {
+      "severity": "CRITICAL",
+      "claim": "gate-authenticated-access never deletes the direct HTTPRoute created by expose-via-shared-gateway, leaving two routes for design.know-me.tools and an unauthenticated bypass.",
+      "resolution": "ACCEPTED-AND-FIXED. Genuine security defect introduced by the planner. The direct route is now explicitly temporary, named open-design-direct, with a manifest comment requiring its removal; gate-authenticated-access must delete it in the same change. Acceptance added: kubectl query must return exactly one HTTPRoute for the host, backed by flint-gate."
+    },
+    {
+      "severity": "CRITICAL",
+      "claim": "Goal 5 coverage omits the OD_PROJECT_STORAGE / project-storage.ts seam named by the assessment alongside OD_DAEMON_DB.",
+      "resolution": "PARTIALLY-ACCEPTED — documented, not implemented. The judge offered two branches ('add explicit work OR document why not covered'); the second was taken. project-storage.ts is a blob/object-storage abstraction for project FILES (local disk vs S3-compatible), not a database option, so it falls outside goal 5's wording. Now named explicitly in cut-over-deployment-to-postgres's scope note and in Non-goals, with its multi-replica relevance stated. A broader reading of 'database options' would make it additional scope; recorded as an unresolved interpretation."
+    },
+    {
+      "severity": "WARNING",
+      "claim": "implement-postgres-daemon-backend asserted concrete parity acceptance while carrying unresolved DECISION markers.",
+      "resolution": "ACCEPTED-AND-FIXED. Split into 5a decide-postgres-backend-design (spike closing four decisions - async boundary, dual-engine lifetime, client library, schema authorship - with zero production diffs) and 5b implement-postgres-daemon-backend, whose acceptance criteria are set by 5a's outcome. Falsifiable criteria cannot be written for an undecided implementation shape."
+    },
+    {
+      "severity": "WARNING",
+      "claim": "Adding the workspace's first Postgres client omitted the constraints' package-management and validation gates.",
+      "resolution": "ACCEPTED-AND-FIXED. 5b acceptance now requires pnpm install, committed pnpm-lock.yaml, the Nix pnpm deps hash refresh check (constraints treat every lockfile change as requiring it), pnpm guard, pnpm typecheck, package-scoped daemon test/build compared against the carried-risk-1 baseline, and PR-checklist declaration of the new dependency."
+    }
+  ],
+  "unresolved": [
+    "The final text (route-deletion requirement, 5a/5b split, dependency gates) post-dates the last review and carries no adversarial scrutiny.",
+    "Finding 2's narrowing is an interpretation of goal 5's scope, not a proof; a broader reading pulls the blob seam into scope."
+  ]
+}
