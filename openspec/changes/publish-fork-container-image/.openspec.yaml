@@ -1,0 +1,9 @@
+schema: spec-driven
+created: 2026-09-14
+# This change publishes a build artifact. It introduces no user-facing behavior
+# and no requirement a spec could describe, so it declares zero deltas.
+# The artifact instructions require an explicit opt-out rather than a
+# manufactured capability: "specs describe behavior, so if behavior does not
+# change, no spec should change either. Do not invent a requirement just to
+# satisfy validation."
+skip_specs: true

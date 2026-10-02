@@ -2,8 +2,9 @@ name: Docker image
 
 # Standalone Docker packaging line (not part of core merge validation in ci.yml).
 #
-# - pull_request / workflow_dispatch: smoke build only (push: false, amd64)
-# - tag v*.*.* / workflow_call from release: multi-arch build + push to ghcr.io
+# - pull_request / workflow_dispatch without release_version: smoke build only (push: false, amd64)
+# - tag v*.*.* / workflow_call from release / workflow_dispatch with release_version:
+#   multi-arch build + push to ghcr.io
 
 on:
   workflow_call:
@@ -34,6 +35,17 @@ on:
       - "pnpm-workspace.yaml"
       - ".github/workflows/docker-image.yml"
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Docker tag to publish. Leave empty for a smoke-only build."
+        required: false
+        type: string
+        default: ""
+      publish_latest:
+        description: "Whether to also publish :latest."
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-and-push:
