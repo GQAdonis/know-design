@@ -1,5 +1,6 @@
 import { getDiagnosticsEvidence, recordDiagnosticFailure } from '../services/diagnostics-evidence.js';
 import { createHash } from 'node:crypto';
+import { getBuildProfile } from '../runtimes/build-profile.js';
 import {
   buildWorkspacePermissions,
   buildWorkspaceSeatSummary,
@@ -133,10 +134,17 @@ export function mapVelaWorkspaceContext(
   const workspaceType = raw.workspaceType as WorkspaceType;
   const role = raw.role as CollabMemberRole;
   const memberStatus = raw.memberStatus as WorkspaceMemberStatus;
-  const lifecycleState = raw.lifecycleState as WorkspaceLifecycleState;
-  const billingState = BILLING_STATES.has(raw.billingState as WorkspaceBillingState)
-    ? raw.billingState as WorkspaceBillingState
-    : billingStateFromLifecycle(lifecycleState);
+  const profile = getBuildProfile();
+  const decoupled = profile === 'knowdesign';
+  // knowdesign: billing/lifecycle never gates workspace authority.
+  const lifecycleState: WorkspaceLifecycleState = decoupled
+    ? 'active'
+    : raw.lifecycleState as WorkspaceLifecycleState;
+  const billingState: WorkspaceBillingState = decoupled
+    ? 'active'
+    : BILLING_STATES.has(raw.billingState as WorkspaceBillingState)
+      ? raw.billingState as WorkspaceBillingState
+      : billingStateFromLifecycle(lifecycleState);
 
   const context: WorkspaceCollabContext = {
     workspaceId,
@@ -149,9 +157,11 @@ export function mapVelaWorkspaceContext(
     planId: str(raw.planId) || null,
     providerMode: raw.providerMode as WorkspaceProviderMode,
     seatSummary: parseSeatSummary(raw.seatSummary),
+    // knowdesign ignores Vela-supplied permissions and derives from the
+    // normalised input; default profile passes them straight through.
     permissions:
-      parsePermissions(raw.permissions) ??
-      buildWorkspacePermissions({ role, lifecycleState, memberStatus }),
+      (decoupled ? null : parsePermissions(raw.permissions)) ??
+      buildWorkspacePermissions({ role, lifecycleState, memberStatus, profile }),
   };
   const billingRecovery = parseBillingRecovery(raw.billingRecovery);
   if (billingRecovery) context.billingRecovery = billingRecovery;
@@ -212,7 +222,9 @@ function mapVelaWorkspaceDirectoryItem(input: unknown): WorkspaceDirectoryItem |
     workspaceMemberId,
     role: raw.role as CollabMemberRole,
     memberStatus: raw.memberStatus as WorkspaceMemberStatus,
-    lifecycleState: raw.lifecycleState as WorkspaceLifecycleState,
+    lifecycleState: getBuildProfile() === 'knowdesign'
+      ? 'active'
+      : raw.lifecycleState as WorkspaceLifecycleState,
   };
   const workspaceIconKey = str(raw.workspaceIconKey);
   if (workspaceIconKey) item.workspaceIconKey = workspaceIconKey;
@@ -381,8 +393,10 @@ export function workspaceContextFromDirectoryItem(
     workspaceMemberId: item.workspaceMemberId,
     role: item.role,
     memberStatus: item.memberStatus,
-    lifecycleState: item.lifecycleState,
-    billingState: billingStateFromLifecycle(item.lifecycleState),
+    lifecycleState: getBuildProfile() === 'knowdesign' ? 'active' : item.lifecycleState,
+    billingState: getBuildProfile() === 'knowdesign'
+      ? 'active'
+      : billingStateFromLifecycle(item.lifecycleState),
     planId: null,
     providerMode: 'platform_credits',
     seatSummary: buildWorkspaceSeatSummary({ seatLimit: 0, usedSeats: 0 }),
@@ -390,6 +404,7 @@ export function workspaceContextFromDirectoryItem(
       role: item.role,
       lifecycleState: item.lifecycleState,
       memberStatus: item.memberStatus,
+      profile: getBuildProfile(),
     }),
   };
   const settingsUrl = resolveWorkspaceSettingsUrl(

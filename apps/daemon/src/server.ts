@@ -161,6 +161,7 @@ import {
 // Shared with `POST /api/runs/:id/steer` so the opening prompt and a B11
 // mid-turn steering frame are encoded by the same writer.
 import { encodeStreamJsonUserMessage } from './runtimes/run-steering.js';
+import { getBuildProfile } from './runtimes/build-profile.js';
 import { assertOdNextSemanticRequestFactProducerCoverage } from './runtimes/od-next-exact-input.js';
 import {
   normalizeRunContextSelection,
@@ -8212,6 +8213,7 @@ export async function startServer({
     res.json({
       ok: true,
       version: versionInfo.version,
+      buildProfile: getBuildProfile(),
       amrTerminalReporter: {
         status: 'active',
         pending,

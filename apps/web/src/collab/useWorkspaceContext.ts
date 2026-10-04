@@ -22,6 +22,7 @@ import {
   patchProjectDisplaySnapshots,
 } from '../state/project-display-cache';
 import { isTeamPlanTier } from './team-plan';
+import { getWebBuildProfile, primeWebBuildProfile } from './build-profile';
 import {
   beginTeamProjectCatalogRefresh,
   beginTeamProjectMetadataRefresh,
@@ -248,6 +249,8 @@ export function currentWorkspaceContextRequestToken(): string {
 }
 
 async function fetchWorkspaceDirectory(): Promise<WorkspaceDirectoryResponse> {
+  // Learn the build profile before any directory item is projected into a context.
+  await primeWebBuildProfile();
   const response = await fetch('/api/workspace/directory', { cache: 'no-store' });
   if (!response.ok) {
     const error = new Error(`workspace-directory ${response.status}`) as Error & {
@@ -305,14 +308,17 @@ function billingStateFromLifecycle(
 export function workspaceContextFromDirectoryItem(
   item: WorkspaceDirectoryItem,
 ): WorkspaceCollabContext {
+  const profile = getWebBuildProfile();
   const context: WorkspaceCollabContext = {
     workspaceId: item.workspaceId,
     workspaceType: item.workspaceType,
     workspaceMemberId: item.workspaceMemberId,
     role: item.role,
     memberStatus: item.memberStatus,
-    lifecycleState: item.lifecycleState,
-    billingState: billingStateFromLifecycle(item.lifecycleState),
+    lifecycleState: profile === 'knowdesign' ? 'active' : item.lifecycleState,
+    billingState: profile === 'knowdesign'
+      ? 'active'
+      : billingStateFromLifecycle(item.lifecycleState),
     planId: null,
     providerMode: 'platform_credits',
     seatSummary: buildWorkspaceSeatSummary({ seatLimit: 0, usedSeats: 0 }),
@@ -320,6 +326,7 @@ export function workspaceContextFromDirectoryItem(
       role: item.role,
       lifecycleState: item.lifecycleState,
       memberStatus: item.memberStatus,
+      profile,
     }),
     workspaceName: item.workspaceName,
   };

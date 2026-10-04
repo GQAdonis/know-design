@@ -11,6 +11,7 @@ import type {
   WorkspaceProviderMode,
   WorkspaceType,
 } from '@open-design/contracts';
+import { getBuildProfile } from '../runtimes/build-profile.js';
 import { resolveEffectiveVelaConsoleOrigin } from '../integrations/vela-console-origin.js';
 
 // The daemon's single B-integration point . Presence + sync need the
@@ -248,7 +249,10 @@ function withWorkspaceDeepLink(url: string, workspaceId: string): string {
  * payload only needs role + lifecycle + seat counts; the real B proxy passes
  * B's already-derived values straight through.
  */
-export function parseWorkspaceCollabContext(input: unknown): WorkspaceCollabContext | null {
+export function parseWorkspaceCollabContext(
+  input: unknown,
+  env: NodeJS.ProcessEnv = process.env,
+): WorkspaceCollabContext | null {
   if (!input || typeof input !== 'object') return null;
   const raw = input as Record<string, unknown>;
   const workspaceMemberId = typeof raw.workspaceMemberId === 'string' ? raw.workspaceMemberId.trim() : '';
@@ -261,7 +265,11 @@ export function parseWorkspaceCollabContext(input: unknown): WorkspaceCollabCont
   const workspaceType = raw.workspaceType as WorkspaceType;
   const role = raw.role as CollabMemberRole;
   const memberStatus = raw.memberStatus as WorkspaceMemberStatus;
-  const lifecycleState = raw.lifecycleState as WorkspaceLifecycleState;
+  const profile = getBuildProfile(env);
+  // knowdesign: billing/lifecycle never gates workspace authority, so every
+  // downstream `lifecycleState === 'active'` check sees an active workspace.
+  const lifecycleState: WorkspaceLifecycleState =
+    profile === 'knowdesign' ? 'active' : (raw.lifecycleState as WorkspaceLifecycleState);
   const teamId = typeof raw.teamId === 'string' && raw.teamId.trim() ? raw.teamId.trim() : undefined;
   const workspaceId =
     typeof raw.workspaceId === 'string' && raw.workspaceId.trim()
@@ -270,9 +278,11 @@ export function parseWorkspaceCollabContext(input: unknown): WorkspaceCollabCont
   const providerMode = PROVIDER_MODES.has(raw.providerMode as WorkspaceProviderMode)
     ? (raw.providerMode as WorkspaceProviderMode)
     : 'platform_credits';
-  const billingState = BILLING_STATES.has(raw.billingState as WorkspaceBillingState)
-    ? (raw.billingState as WorkspaceBillingState)
-    : billingStateForLifecycle(lifecycleState);
+  const billingState: WorkspaceBillingState = profile === 'knowdesign'
+    ? 'active'
+    : BILLING_STATES.has(raw.billingState as WorkspaceBillingState)
+      ? (raw.billingState as WorkspaceBillingState)
+      : billingStateForLifecycle(lifecycleState);
   const planId = typeof raw.planId === 'string' && raw.planId.trim() ? raw.planId.trim() : null;
   const seatLimit = nonNegativeInt(raw.seatLimit, workspaceType === 'team' ? 5 : 1);
   const usedSeats = nonNegativeInt(raw.usedSeats, 1);
@@ -288,7 +298,7 @@ export function parseWorkspaceCollabContext(input: unknown): WorkspaceCollabCont
     planId,
     providerMode,
     seatSummary: buildWorkspaceSeatSummary({ seatLimit, usedSeats }),
-    permissions: buildWorkspacePermissions({ role, lifecycleState, memberStatus }),
+    permissions: buildWorkspacePermissions({ role, lifecycleState, memberStatus, profile }),
   };
   if (teamId) {
     context.teamId = teamId;

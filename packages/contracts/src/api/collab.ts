@@ -574,16 +574,32 @@ export function isWorkspaceLifecycleWritable(state: WorkspaceLifecycleState): bo
   return state === 'active';
 }
 
+/**
+ * Build profile of the running daemon. `knowdesign` decouples workspace write
+ * authority from billing/lifecycle state; `default` is the stock behaviour.
+ */
+export type BuildProfile = 'default' | 'knowdesign';
+
+/** Optional build-profile field carried by `/api/health` and `/api/version`. */
+export interface BuildProfileHealthField {
+  buildProfile?: BuildProfile;
+}
+
 export function buildWorkspacePermissions(input: {
   role: CollabMemberRole;
   lifecycleState: WorkspaceLifecycleState;
   memberStatus?: WorkspaceMemberStatus;
+  /** Optional; omitted or 'default' keeps the lifecycle-gated behaviour. */
+  profile?: BuildProfile;
 }): WorkspacePermissions {
   const memberStatus = input.memberStatus ?? 'active';
+  const decoupled = input.profile === 'knowdesign';
   const readable =
-    memberStatus === 'active' && isWorkspaceLifecycleReadable(input.lifecycleState);
+    memberStatus === 'active'
+    && (decoupled || isWorkspaceLifecycleReadable(input.lifecycleState));
   const writable =
-    memberStatus === 'active' && isWorkspaceLifecycleWritable(input.lifecycleState);
+    memberStatus === 'active'
+    && (decoupled || isWorkspaceLifecycleWritable(input.lifecycleState));
   const isOwner = input.role === 'owner';
   const isAdmin = input.role === 'admin';
   return {
