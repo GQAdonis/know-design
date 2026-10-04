@@ -99,7 +99,7 @@ describe('DeepSeek V4 Flash workbench campaign entry', () => {
     );
     expect(entryNavRailSource).not.toContain('ProductionCampaignBadge');
     expect(appSource).toMatch(
-      /\{route\.kind === 'home' && route\.view === 'home' && \([\s\S]*?<TestCampaignModal[\s\S]*?<ProductionCampaignModal/,
+      /\{route\.kind === 'home' && route\.view === 'home' && (?:knowdesignProfile !== 'knowdesign' && )?\([\s\S]*?<TestCampaignModal[\s\S]*?<ProductionCampaignModal/,
     );
   });
 
