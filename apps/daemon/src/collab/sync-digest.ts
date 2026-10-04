@@ -19,6 +19,7 @@
 // the same gate `startHubEventsSubscriber`'s endpoint resolver uses.
 
 import { readVelaControlApiContext } from '../integrations/vela.js';
+import { workspaceContextSourceCapabilities } from './workspace-context-source.js';
 
 /** The two faces whose payloads are big enough (and change rarely enough) to be
  *  worth reusing from a local snapshot. Workspace context and billing are
@@ -122,7 +123,7 @@ export function createSyncDigestReader(options: SyncDigestReaderOptions): SyncDi
 
   async function read(): Promise<SyncDigestReading | null> {
     // Same gate as the hub events subscriber: no vela source, no hub.
-    if (env.OD_WORKSPACE_CONTEXT_SOURCE?.trim() !== 'vela') return null;
+    if (!workspaceContextSourceCapabilities(env).hubEvents) return null;
     if (now() < cooldownUntil) return null;
     const session = readSession(env);
     if (!session?.controlKey || !session.apiUrl) return null;
