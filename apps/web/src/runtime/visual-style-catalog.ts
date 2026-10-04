@@ -1,3 +1,4 @@
+import { getWebBuildProfile } from '../collab/build-profile';
 /**
  * ⚠️ **休眠件 —— 设计风格选择这一整套的说明书,后来人先读这一段。**
  *
@@ -115,6 +116,7 @@ interface VisualStyleCatalogEntry {
   recommended?: boolean;
 }
 
+const INERT_PREVIEW_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
 const STYLE_CATALOG_ASSET_ORIGIN = 'https://repo-assets.open-design.ai';
 const STYLE_CATALOG_ASSET_PATH = '/style-catalog/v1';
 const STYLE_CATALOG_ASSET_BASE_URL = `${STYLE_CATALOG_ASSET_ORIGIN}${STYLE_CATALOG_ASSET_PATH}`;
@@ -834,6 +836,7 @@ const STYLE_CATALOGS: Readonly<Record<VisualStyleContext, VisualStyleCatalogEntr
 
 export function visualStyleCardsForContext(context: VisualStyleContext): VisualStyleCard[] {
   const catalog = STYLE_CATALOGS[context];
+  const knowdesign = getWebBuildProfile() === 'knowdesign';
   return catalog.map((style) => {
     const filename = `${context}-${style.slug}-v1.webp`;
     return {
@@ -843,8 +846,9 @@ export function visualStyleCardsForContext(context: VisualStyleContext): VisualS
       variant: style.variant,
       category: style.category,
       preview: {
-        src: `${STYLE_CATALOG_ASSET_BASE_URL}/${filename}`,
-        thumbnailSrc: styleCatalogThumbnailUrl(filename),
+        // knowdesign makes no request to the upstream asset host: an inert pixel stands in.
+        src: knowdesign ? INERT_PREVIEW_PIXEL : `${STYLE_CATALOG_ASSET_BASE_URL}/${filename}`,
+        thumbnailSrc: knowdesign ? INERT_PREVIEW_PIXEL : styleCatalogThumbnailUrl(filename),
         alt: `${style.title} ${context} style preview.`,
       },
       recommended: style.recommended,

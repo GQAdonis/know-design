@@ -1,3 +1,5 @@
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
+
 /**
  * Provider-kind selector for the workspace-context source.
  *
@@ -34,6 +36,8 @@ export function workspaceContextSourceCapabilities(
   env: NodeJS.ProcessEnv = process.env,
   registry: WorkspaceContextSourceRegistry = WORKSPACE_CONTEXT_SOURCE_REGISTRY,
 ): WorkspaceContextSourceCapabilities {
+  // knowdesign has no Vela backend: a leftover OD_WORKSPACE_CONTEXT_SOURCE must not revive it.
+  if (isKnowdesignProfile(env)) return DEFAULT_WORKSPACE_CONTEXT_SOURCE_CAPABILITIES;
   const kind = resolveWorkspaceContextSourceKind(env);
   return Object.hasOwn(registry, kind)
     ? registry[kind]!

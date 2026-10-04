@@ -3,6 +3,7 @@ import type {
   WorkspaceCollabContext,
   WorkspaceLifecycleState,
 } from '@open-design/contracts';
+import { profileLifecycleState } from '@open-design/contracts';
 import { getWebBuildProfile } from './build-profile';
 
 // The collaboration surface seam onto the B (workspace) + D (visibility) lanes. B owns the
@@ -44,8 +45,9 @@ export function resolveCollabSession(ctx: WorkspaceCollabContext | null): Collab
   if (ctx.memberStatus !== 'active') {
     return { enabled: false, reason: 'member-removed', member: null };
   }
-  // knowdesign: lifecycle (billing) never gates collab.
-  if (getWebBuildProfile() !== 'knowdesign' && !LIVE_LIFECYCLE.has(ctx.lifecycleState)) {
+  // knowdesign: billing-derived lifecycle states no longer gate collab; deleting and
+  // deleted still do.
+  if (!LIVE_LIFECYCLE.has(profileLifecycleState(ctx.lifecycleState, getWebBuildProfile()))) {
     return { enabled: false, reason: `lifecycle-${ctx.lifecycleState}`, member: null };
   }
   const member: CollabPresenceMember = { memberId: ctx.workspaceMemberId, role: ctx.role };

@@ -1,32 +1,50 @@
-import type { BuildProfile, BuildProfileHealthField } from '@open-design/contracts';
+import { useSyncExternalStore } from 'react';
+import type { BuildProfile } from '@open-design/contracts';
 
-// The web cannot read daemon env, so the profile is learned once from the
-// daemon's `/api/health` (optional `buildProfile` field). Until it lands, or if
-// the daemon omits it, the profile is 'default' (stock behaviour).
+// The web cannot read daemon env, so the profile is learned from responses the
+// app already receives: the boot-time `/api/health` liveness check and the
+// workspace-directory response, each carrying an optional `buildProfile` that the
+// daemon emits only under a non-default profile. Until one lands, or if the daemon
+// omits it, the profile is 'default' (stock behaviour). No request is added.
 let cachedProfile: BuildProfile = 'default';
-let inflight: Promise<BuildProfile> | null = null;
+const listeners = new Set<() => void>();
 
 export function getWebBuildProfile(): BuildProfile {
   return cachedProfile;
 }
 
-export function primeWebBuildProfile(): Promise<BuildProfile> {
-  if (inflight) return inflight;
-  inflight = (async () => {
-    try {
-      const response = await fetch('/api/health', { cache: 'no-store' });
-      if (!response || !response.ok) return cachedProfile;
-      const body = (await response.json()) as BuildProfileHealthField | null;
-      cachedProfile = body?.buildProfile === 'knowdesign' ? 'knowdesign' : 'default';
-    } catch {
-      // Keep the current profile; health is best-effort for this field.
+export function setWebBuildProfile(value: unknown): void {
+  const next: BuildProfile = value === 'knowdesign' ? 'knowdesign' : 'default';
+  if (next === cachedProfile) return;
+  cachedProfile = next;
+  for (const listener of [...listeners]) listener();
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+/** Re-renders the caller when the profile is learned after first render. */
+export function useWebBuildProfile(): BuildProfile {
+  return useSyncExternalStore(subscribe, getWebBuildProfile, getWebBuildProfile);
+}
+
+/** Best-effort: read an optional `buildProfile` from a health-shaped response. */
+export async function learnBuildProfileFromResponse(response: Response): Promise<void> {
+  try {
+    const body: unknown = await response.clone().json();
+    if (body && typeof body === 'object' && 'buildProfile' in body) {
+      setWebBuildProfile((body as { buildProfile?: unknown }).buildProfile);
     }
-    return cachedProfile;
-  })();
-  return inflight;
+  } catch {
+    // Not a JSON body (or a mocked response): the profile stays as it was.
+  }
 }
 
 export function resetWebBuildProfileForTests(): void {
   cachedProfile = 'default';
-  inflight = null;
+  listeners.clear();
 }

@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { getBuildProfile } from '../runtimes/build-profile.js';
 import {
   buildWorkspacePermissions,
+  profileLifecycleState,
   buildWorkspaceSeatSummary,
 } from '@open-design/contracts';
 import type {
@@ -136,10 +137,12 @@ export function mapVelaWorkspaceContext(
   const memberStatus = raw.memberStatus as WorkspaceMemberStatus;
   const profile = getBuildProfile();
   const decoupled = profile === 'knowdesign';
-  // knowdesign: billing/lifecycle never gates workspace authority.
-  const lifecycleState: WorkspaceLifecycleState = decoupled
-    ? 'active'
-    : raw.lifecycleState as WorkspaceLifecycleState;
+  // knowdesign: billing no longer gates workspace authority; `deleting` and
+  // `deleted` stay hard denials.
+  const lifecycleState: WorkspaceLifecycleState = profileLifecycleState(
+    raw.lifecycleState as WorkspaceLifecycleState,
+    profile,
+  );
   const billingState: WorkspaceBillingState = decoupled
     ? 'active'
     : BILLING_STATES.has(raw.billingState as WorkspaceBillingState)
@@ -222,9 +225,10 @@ function mapVelaWorkspaceDirectoryItem(input: unknown): WorkspaceDirectoryItem |
     workspaceMemberId,
     role: raw.role as CollabMemberRole,
     memberStatus: raw.memberStatus as WorkspaceMemberStatus,
-    lifecycleState: getBuildProfile() === 'knowdesign'
-      ? 'active'
-      : raw.lifecycleState as WorkspaceLifecycleState,
+    lifecycleState: profileLifecycleState(
+      raw.lifecycleState as WorkspaceLifecycleState,
+      getBuildProfile(),
+    ),
   };
   const workspaceIconKey = str(raw.workspaceIconKey);
   if (workspaceIconKey) item.workspaceIconKey = workspaceIconKey;
@@ -393,7 +397,7 @@ export function workspaceContextFromDirectoryItem(
     workspaceMemberId: item.workspaceMemberId,
     role: item.role,
     memberStatus: item.memberStatus,
-    lifecycleState: getBuildProfile() === 'knowdesign' ? 'active' : item.lifecycleState,
+    lifecycleState: profileLifecycleState(item.lifecycleState, getBuildProfile()),
     billingState: getBuildProfile() === 'knowdesign'
       ? 'active'
       : billingStateFromLifecycle(item.lifecycleState),

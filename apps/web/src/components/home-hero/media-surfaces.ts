@@ -1,10 +1,12 @@
 import type { InputFieldSpec, ProjectKind } from '@open-design/contracts';
+import { getWebBuildProfile } from '../../collab/build-profile';
 import type { AudioKind, ProjectMetadata, PromptTemplateSummary } from '../../types';
 import {
   AUDIO_DURATIONS_SEC,
   AUDIO_MODELS_BY_KIND,
   DEFAULT_AUDIO_MODEL,
   DEFAULT_IMAGE_MODEL,
+  defaultImageModelId,
   DEFAULT_VIDEO_MODEL,
   IMAGE_MODELS,
   MEDIA_ASPECTS,
@@ -95,7 +97,7 @@ export function normalizeHomeMediaInputs(
       aspect: ratio,
       template: validTemplateId(surface, stringValue(raw.template), promptTemplates),
       designSystem: stringValue(raw.designSystem) || 'the active project design system',
-      model: validOption(stringValue(raw.model), imageModels.map((m) => m.id), DEFAULT_IMAGE_MODEL),
+      model: validOption(stringValue(raw.model), imageModels.map((m) => m.id), defaultImageModelId(getWebBuildProfile())),
       ratio,
       resolution: validOption(stringValue(raw.resolution), MEDIA_RESOLUTIONS, DEFAULT_MEDIA_RESOLUTION),
     };
@@ -316,7 +318,7 @@ function defaultInputsForSurface(
     return {
       template: firstTemplateId(surface, promptTemplates),
       designSystem: 'the active project design system',
-      model: DEFAULT_IMAGE_MODEL,
+      model: defaultImageModelId(getWebBuildProfile()),
       ratio: '16:9',
       resolution: DEFAULT_MEDIA_RESOLUTION,
     };

@@ -1,3 +1,4 @@
+import { learnBuildProfileFromResponse } from '../collab/build-profile';
 import {
   PUBLIC_FILE_MANUAL_REVOKE_REQUIRED,
   workspaceContextHasTeamIdentity,
@@ -1289,6 +1290,7 @@ export async function daemonIsLive(): Promise<boolean> {
     async () => {
       try {
         const resp = await fetch('/api/health');
+        if (resp.ok) await learnBuildProfileFromResponse(resp);
         return resp.ok;
       } catch {
         return false;

@@ -669,6 +669,17 @@ export const AUDIO_DURATIONS_SEC: number[] = [5, 10, 15, 30, 60, 120];
 
 export const DEFAULT_IMAGE_MODEL =
   IMAGE_MODELS.find((m) => m.default)?.id ?? IMAGE_MODELS[0]!.id;
+/**
+ * The image model a fresh project starts on. Under the knowdesign profile the
+ * stock default (a Vela cloud model) is not offered, so the first usable
+ * non-Vela model stands in; with the default profile this is DEFAULT_IMAGE_MODEL.
+ */
+export function defaultImageModelId(profile: 'default' | 'knowdesign' = 'default'): string {
+  if (profile !== 'knowdesign') return DEFAULT_IMAGE_MODEL;
+  const usable = IMAGE_MODELS.filter((model) => model.provider !== 'vela');
+  return usable.find((model) => model.default)?.id ?? usable[0]?.id ?? DEFAULT_IMAGE_MODEL;
+}
+
 export const DEFAULT_VIDEO_MODEL =
   VIDEO_MODELS.find((m) => m.default)?.id ?? VIDEO_MODELS[0]!.id;
 export const DEFAULT_AUDIO_MODEL: Record<AudioKind, string> = {

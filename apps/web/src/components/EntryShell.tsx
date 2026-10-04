@@ -226,7 +226,7 @@ import {
   isAmrSessionAuthenticated,
   notifyAmrLoginStatusChanged,
 } from './amrLoginPolling';
-import { getWebBuildProfile } from '../collab/build-profile';
+import { useWebBuildProfile } from '../collab/build-profile';
 import { closeAmrActivationWindowBestEffort } from './AmrLoginPill';
 import { isMacPlatform } from '../utils/platform';
 import { smoothScrollToTop } from '../utils/smoothScrollToTop';
@@ -709,7 +709,7 @@ export function EntryShell({
     : workspaceContext;
   // knowdesign profile: no AMR identity exists, so none of the Cloud sign-in
   // gating below applies. Re-read on every render: the profile lands async.
-  const isKnowdesignProfile = getWebBuildProfile() === 'knowdesign';
+  const isKnowdesignProfile = useWebBuildProfile() === 'knowdesign';
   const usesOpenDesignCloud =
     !isKnowdesignProfile && config.mode === 'daemon' && config.agentId === 'amr';
   const amrProfile = config.agentCliEnv?.amr?.OPEN_DESIGN_AMR_PROFILE ?? null;
@@ -780,7 +780,7 @@ export function EntryShell({
   // The rail itself rides every entry view, so the home view — not the rail —
   // is what decides whether they may be on screen.
   // knowdesign profile: no CMS touchpoint hosts (D-010).
-  const homeCampaignHostsVisible = view === 'home' && getWebBuildProfile() !== 'knowdesign';
+  const homeCampaignHostsVisible = view === 'home' && !isKnowdesignProfile;
   const workspaceBalanceUsd = workspaceBillingBalanceUsd(
     workspaceBillingResponse,
     workspaceContext,

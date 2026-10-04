@@ -380,6 +380,8 @@ export interface WorkspaceDirectoryResponse {
    * member identity.
    */
   activeWorkspaceId: string | null;
+  /** Present only under a non-default build profile, so profile-off responses are unchanged. */
+  buildProfile?: BuildProfile;
 }
 
 /**
@@ -585,6 +587,19 @@ export interface BuildProfileHealthField {
   buildProfile?: BuildProfile;
 }
 
+/**
+ * Under the `knowdesign` profile only the BILLING-derived lifecycle states
+ * stop gating a workspace; `deleting` and `deleted` remain hard denials.
+ */
+export function profileLifecycleState(
+  state: WorkspaceLifecycleState,
+  profile: BuildProfile | undefined,
+): WorkspaceLifecycleState {
+  return profile === 'knowdesign' && (state === 'billing_past_due' || state === 'locked')
+    ? 'active'
+    : state;
+}
+
 export function buildWorkspacePermissions(input: {
   role: CollabMemberRole;
   lifecycleState: WorkspaceLifecycleState;
@@ -593,13 +608,11 @@ export function buildWorkspacePermissions(input: {
   profile?: BuildProfile;
 }): WorkspacePermissions {
   const memberStatus = input.memberStatus ?? 'active';
-  const decoupled = input.profile === 'knowdesign';
+  const lifecycleState = profileLifecycleState(input.lifecycleState, input.profile);
   const readable =
-    memberStatus === 'active'
-    && (decoupled || isWorkspaceLifecycleReadable(input.lifecycleState));
+    memberStatus === 'active' && isWorkspaceLifecycleReadable(lifecycleState);
   const writable =
-    memberStatus === 'active'
-    && (decoupled || isWorkspaceLifecycleWritable(input.lifecycleState));
+    memberStatus === 'active' && isWorkspaceLifecycleWritable(lifecycleState);
   const isOwner = input.role === 'owner';
   const isAdmin = input.role === 'admin';
   return {

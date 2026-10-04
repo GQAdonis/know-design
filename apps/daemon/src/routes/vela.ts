@@ -999,7 +999,9 @@ export function registerVelaRoutes(app: Express, deps: RegisterVelaRoutesDeps): 
   // Registered ahead of the real handlers (Express matches in order), so none of
   // them can reach the AMR cloud. Web fetchers treat a non-2xx as "unavailable".
   if (isKnowdesignProfile(env)) {
-    const notAvailable = { error: 'amr_not_available' };
+    // `amr-runtime-unavailable` is the code the web message-center client reads as
+    // "signed out, not an error", so the stubs answer with it.
+    const notAvailable = { error: 'amr-runtime-unavailable' };
     app.get('/api/amr/models', (_req, res) => res.status(503).json(notAvailable));
     app.get('/api/integrations/vela/status', (_req, res) => res.status(503).json(notAvailable));
     app.get('/api/integrations/vela/wallet', (_req, res) => res.status(503).json(notAvailable));
@@ -1009,6 +1011,8 @@ export function registerVelaRoutes(app: Express, deps: RegisterVelaRoutesDeps): 
     app.post('/api/integrations/vela/logout', (_req, res) => res.json({ ok: true }));
     app.post('/api/integrations/vela/analytics-entry', (_req, res) => res.status(202).json({ mirrored: false }));
     app.post('/api/integrations/vela/analytics-profile', (_req, res) => res.status(202).json({ mirrored: false }));
+    app.get('/api/integrations/vela/message-center-public/messages', (_req, res) => res.status(503).json(notAvailable));
+    app.all('/api/integrations/vela/message-center/*splat', (_req, res) => res.status(503).json(notAvailable));
   }
 
   app.get('/api/amr/models', async (_req, res) => {

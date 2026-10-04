@@ -33,4 +33,14 @@ describe('build profile and workspace context', () => {
     expect(ctx?.permissions.canWriteSyncedFiles).toBe(false);
     expect(ctx?.permissions.canShareProjects).toBe(false);
   });
+
+  it('keeps a deleted workspace denied under knowdesign', () => {
+    const ctx = parseWorkspaceCollabContext(
+      { ...lockedPayload, lifecycleState: 'deleted' },
+      { OD_BUILD_PROFILE: 'knowdesign' },
+    );
+    expect(ctx?.lifecycleState).toBe('deleted');
+    expect(ctx?.permissions.canWriteSyncedFiles).toBe(false);
+    expect(ctx?.permissions.canViewWorkspaceSettings).toBe(false);
+  });
 });

@@ -8214,7 +8214,7 @@ export async function startServer({
     res.json({
       ok: true,
       version: versionInfo.version,
-      buildProfile: getBuildProfile(),
+      ...(getBuildProfile() === 'knowdesign' ? { buildProfile: 'knowdesign' as const } : {}),
       amrTerminalReporter: {
         status: 'active',
         pending,

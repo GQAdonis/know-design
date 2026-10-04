@@ -1,3 +1,4 @@
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import { getDiagnosticsEvidence, recordDiagnosticFailure } from '../services/diagnostics-evidence.js';
 import type { Express, Request, Response } from 'express';
 import type {
@@ -589,7 +590,11 @@ export function registerCollabContextRoutes(app: Express, deps: RegisterCollabCo
     const currentWorkspaceIsVisible = workspaceIsVisible(currentWorkspaceId);
     let activeWorkspaceId = currentWorkspaceIsVisible ? currentWorkspaceId : null;
     if (claimed.ok) activeWorkspaceId = claimed.context.workspaceId;
-    const body: WorkspaceDirectoryResponse = { items, activeWorkspaceId };
+    const body: WorkspaceDirectoryResponse = {
+      items,
+      activeWorkspaceId,
+      ...(isKnowdesignProfile() ? { buildProfile: 'knowdesign' as const } : {}),
+    };
     res.json(body);
   });
 

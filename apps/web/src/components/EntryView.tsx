@@ -1,3 +1,4 @@
+import { getWebBuildProfile } from '../collab/build-profile';
 import {
   useCallback,
   useEffect,
@@ -11,6 +12,7 @@ import type { OpenDesignHostProjectImportSuccess } from '@open-design/host';
 import {
   DEFAULT_AUDIO_MODEL,
   DEFAULT_IMAGE_MODEL,
+  defaultImageModelId,
   DEFAULT_VIDEO_MODEL,
 } from '../media/models';
 import type {
@@ -480,7 +482,7 @@ export function metadataForSkill(skill: SkillSummary): ProjectMetadata {
     };
   }
   if (kind === 'image') {
-    return { kind, imageModel: DEFAULT_IMAGE_MODEL, imageAspect: '1:1' };
+    return { kind, imageModel: defaultImageModelId(getWebBuildProfile()), imageAspect: '1:1' };
   }
   if (kind === 'video') {
     return { kind, videoModel: DEFAULT_VIDEO_MODEL, videoAspect: '16:9', videoLength: 5 };

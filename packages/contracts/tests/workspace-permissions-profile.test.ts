@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildWorkspacePermissions,
   isWorkspaceLifecycleWritable,
+  profileLifecycleState,
 } from '../src/api/collab';
 import type {
   CollabMemberRole,
@@ -20,8 +21,20 @@ const ROLES: CollabMemberRole[] = ['owner', 'admin', 'member'];
 const STATUSES: WorkspaceMemberStatus[] = ['active', 'removed'];
 
 describe('buildWorkspacePermissions build profile', () => {
-  it('grants write for every lifecycle state and role under knowdesign', () => {
-    for (const lifecycleState of LIFECYCLES) {
+  it('maps only the billing-derived lifecycle states to active under knowdesign', () => {
+    expect(profileLifecycleState('billing_past_due', 'knowdesign')).toBe('active');
+    expect(profileLifecycleState('locked', 'knowdesign')).toBe('active');
+    expect(profileLifecycleState('active', 'knowdesign')).toBe('active');
+    expect(profileLifecycleState('deleting', 'knowdesign')).toBe('deleting');
+    expect(profileLifecycleState('deleted', 'knowdesign')).toBe('deleted');
+    for (const state of LIFECYCLES) {
+      expect(profileLifecycleState(state, 'default')).toBe(state);
+      expect(profileLifecycleState(state, undefined)).toBe(state);
+    }
+  });
+
+  it('grants write for every billing lifecycle state and role under knowdesign', () => {
+    for (const lifecycleState of ['active', 'billing_past_due', 'locked'] as const) {
       for (const role of ROLES) {
         const p = buildWorkspacePermissions({
           role,
@@ -35,6 +48,30 @@ describe('buildWorkspacePermissions build profile', () => {
         expect(p.canManageMembers).toBe(role !== 'member');
         expect(p.canManageBilling).toBe(role === 'owner');
       }
+    }
+  });
+
+  it('keeps deleting and deleted workspaces denied under knowdesign', () => {
+    for (const role of ROLES) {
+      for (const lifecycleState of ['deleting', 'deleted'] as const) {
+        const p = buildWorkspacePermissions({
+          role,
+          lifecycleState,
+          memberStatus: 'active',
+          profile: 'knowdesign',
+        });
+        expect(p.canWriteSyncedFiles, `${lifecycleState}/${role}`).toBe(false);
+        expect(p.canShareProjects, `${lifecycleState}/${role}`).toBe(false);
+        expect(p.canManageMembers).toBe(false);
+      }
+      const deleted = buildWorkspacePermissions({
+        role,
+        lifecycleState: 'deleted',
+        memberStatus: 'active',
+        profile: 'knowdesign',
+      });
+      expect(deleted.canViewWorkspaceSettings).toBe(false);
+      expect(deleted.canManageBilling).toBe(false);
     }
   });
 

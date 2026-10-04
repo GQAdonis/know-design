@@ -1,5 +1,6 @@
 import {
   buildWorkspacePermissions,
+  profileLifecycleState,
   buildWorkspaceSeatSummary,
 } from '@open-design/contracts';
 import type {
@@ -266,10 +267,12 @@ export function parseWorkspaceCollabContext(
   const role = raw.role as CollabMemberRole;
   const memberStatus = raw.memberStatus as WorkspaceMemberStatus;
   const profile = getBuildProfile(env);
-  // knowdesign: billing/lifecycle never gates workspace authority, so every
-  // downstream `lifecycleState === 'active'` check sees an active workspace.
-  const lifecycleState: WorkspaceLifecycleState =
-    profile === 'knowdesign' ? 'active' : (raw.lifecycleState as WorkspaceLifecycleState);
+  // knowdesign: billing no longer gates workspace authority, so the billing-derived
+  // states read as active; `deleting` and `deleted` stay hard denials.
+  const lifecycleState: WorkspaceLifecycleState = profileLifecycleState(
+    raw.lifecycleState as WorkspaceLifecycleState,
+    profile,
+  );
   const teamId = typeof raw.teamId === 'string' && raw.teamId.trim() ? raw.teamId.trim() : undefined;
   const workspaceId =
     typeof raw.workspaceId === 'string' && raw.workspaceId.trim()

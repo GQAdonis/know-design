@@ -37,6 +37,7 @@ import type {
   WorkspaceProjectSummary,
 } from '@open-design/contracts';
 import { DEFAULT_UNSELECTED_SCENARIO_PLUGIN_ID } from '@open-design/contracts';
+import type { BuildProfile } from '@open-design/contracts';
 import { EntryView } from './components/EntryView';
 import type {
   OptimisticProjectCreationHandoff,
@@ -252,7 +253,7 @@ import {
 } from './state/project-display-cache';
 import { getOpenDesignHost, type OpenDesignHostProjectImportSuccess } from '@open-design/host';
 import { useI18n } from './i18n';
-import { getWebBuildProfile } from './collab/build-profile';
+import { getWebBuildProfile, useWebBuildProfile } from './collab/build-profile';
 import { liveArtifactTabId } from './types';
 import type {
   AgentInfo,
@@ -357,7 +358,10 @@ const AGENT_FOCUS_REFRESH_THROTTLE_MS = 10_000;
 export function shouldRouteToFirstRunOnboarding(
   config: AppConfig,
   pathname: string,
+  buildProfile: BuildProfile = 'default',
 ): boolean {
+  // knowdesign has no Cloud sign-in or credits to onboard into: land on home.
+  if (buildProfile === 'knowdesign') return false;
   if (config.onboardingCompleted === true) return false;
   if (
     pathname.startsWith('/projects/')
@@ -937,6 +941,8 @@ export function App() {
 }
 
 function AppInner() {
+  // Re-render when the daemon's build profile is learned after first render.
+  const knowdesignProfile = useWebBuildProfile();
   const { t } = useI18n();
   const iframeKeepAlivePool = useIframeKeepAlivePool();
   const clientType = useMemo(() => detectClientType(), []);
@@ -2312,7 +2318,7 @@ function AppInner() {
         // banner keys off `privacyDecisionAt`. They may coexist on the
         // first launch; the banner sits above the modal layer so it
         // stays actionable regardless of the active view.
-        if (shouldRouteToFirstRunOnboarding(next, window.location.pathname)) {
+        if (shouldRouteToFirstRunOnboarding(next, window.location.pathname, getWebBuildProfile())) {
           navigate({ kind: 'home', view: 'onboarding' }, { replace: true });
         }
         setDaemonConfigLoaded(true);
@@ -5787,7 +5793,7 @@ function AppInner() {
           (`opend.home.*`), so the home view is where they belong: not over a
           project workbench, not over another entry tab, and — since account
           restoration can finish while login is still up — not over onboarding. */}
-      {route.kind === 'home' && route.view === 'home' && getWebBuildProfile() !== 'knowdesign' && (
+      {route.kind === 'home' && route.view === 'home' && knowdesignProfile !== 'knowdesign' && (
         <>
           <TestCampaignModal
             authenticated={isAmrSessionAuthenticated(amrLoginStatus)}

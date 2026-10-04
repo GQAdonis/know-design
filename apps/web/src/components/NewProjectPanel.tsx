@@ -41,6 +41,7 @@ import {
   AUDIO_MODELS_BY_KIND,
   DEFAULT_AUDIO_MODEL,
   DEFAULT_IMAGE_MODEL,
+  defaultImageModelId,
   DEFAULT_VIDEO_MODEL,
   findProvider,
   imageModelIdForPromptTemplate,
@@ -362,7 +363,7 @@ export function NewProjectPanel({
   // Blank card: create routes through the tab's default skill. A template id
   // routes the project through that design template's SKILL.md instead.
   const [startTemplateId, setStartTemplateId] = useState<string | null>(null);
-  const [imageModel, setImageModel] = useState(DEFAULT_IMAGE_MODEL);
+  const [imageModel, setImageModel] = useState(() => defaultImageModelId(getWebBuildProfile()));
   const [imageAspect, setImageAspect] = useState<MediaAspect>('1:1');
   const [videoModel, setVideoModel] = useState(DEFAULT_VIDEO_MODEL);
   const [videoModelTouched, setVideoModelTouched] = useState(false);
