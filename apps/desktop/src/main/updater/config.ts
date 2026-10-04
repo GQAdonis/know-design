@@ -8,6 +8,7 @@ import {
   type DesktopUpdateMode,
   type SidecarSource,
 } from "@open-design/sidecar-proto";
+import { isKnowdesignBuildProfile } from "../build-profile.js";
 import { isReleaseChannel, releaseChannelFromVersion } from "@open-design/release";
 
 /**
@@ -163,7 +164,12 @@ export function resolveDesktopUpdaterConfig(input: DesktopUpdaterConfigInput): D
   const env = input.env ?? process.env;
   const mode = normalizeMode(env[DESKTOP_UPDATE_ENV.MODE], input.mode ?? DESKTOP_UPDATE_MODES.PACKAGE_LAUNCHER);
   const defaultEnabled = input.source === SIDECAR_SOURCES.PACKAGED;
-  const enabled = isTruthyEnv(env[DESKTOP_UPDATE_ENV.ENABLED]) ?? defaultEnabled;
+  // KnowDesign profile: the default release feed is upstream (open-design.ai),
+  // so the updater stays off unless a KnowDesign feed is configured through
+  // OD_UPDATE_METADATA_URL.
+  const upstreamFeedBlocked =
+    isKnowdesignBuildProfile(env) && normalizeOptionalNonEmpty(env[DESKTOP_UPDATE_ENV.METADATA_URL]) == null;
+  const enabled = !upstreamFeedBlocked && (isTruthyEnv(env[DESKTOP_UPDATE_ENV.ENABLED]) ?? defaultEnabled);
   const runtimeBase = resolve(input.runtimeBase == null ? process.cwd() : input.runtimeBase);
   const downloadRoot = normalizeDownloadRoot(
     env[DESKTOP_UPDATE_ENV.DOWNLOAD_ROOT] ??

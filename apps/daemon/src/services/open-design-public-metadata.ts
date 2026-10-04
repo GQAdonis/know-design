@@ -1,3 +1,5 @@
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
+
 export interface OpenDesignGithubRepoStats {
   stargazersCount: number;
   fetchedAt: number;
@@ -64,6 +66,7 @@ interface DiscordInvitePayload {
 export interface OpenDesignPublicMetadataServiceOptions {
   fetchImpl?: typeof fetch;
   now?: () => number;
+  env?: NodeJS.ProcessEnv;
 }
 
 const OPEN_DESIGN_GITHUB_REPO_API = 'https://api.github.com/repos/nexu-io/open-design';
@@ -96,6 +99,7 @@ function withFreshness<T extends { fetchedAt: number }>(
 export function createOpenDesignPublicMetadataService({
   fetchImpl = fetch,
   now = () => Date.now(),
+  env = process.env,
 }: OpenDesignPublicMetadataServiceOptions = {}): OpenDesignPublicMetadataService {
   let githubRepoCache: CachedGithubRepoStats | null = null;
   let githubRepoInflight: Promise<OpenDesignGithubRepoStats> | null = null;
@@ -245,6 +249,19 @@ export function createOpenDesignPublicMetadataService({
     })();
 
     return discordPresenceInflight;
+  }
+
+  if (isKnowdesignProfile(env)) {
+    // KnowDesign profile: never reach api.github.com / discord.com upstream.
+    // The routes already map a rejection to HTTP 502, which the web clients
+    // treat as "metadata unavailable".
+    const disabled = (): Promise<never> =>
+      Promise.reject(new Error('open-design public metadata is disabled in this build'));
+    return {
+      readGithubRepoStats: disabled,
+      readLatestReleaseInfo: disabled,
+      readDiscordPresence: disabled,
+    };
   }
 
   return {

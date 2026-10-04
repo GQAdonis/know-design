@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { AutomaticDiagnosticManifest } from '@open-design/diagnostics';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import { normalizeOpenDesignTelemetryRelayUrl } from './telemetry-relay.js';
 
 export interface DiagnosticDevice { device_id: string; device_token: string }
@@ -9,6 +10,7 @@ export class DiagnosticRelayError extends Error {
   constructor(readonly code: string, readonly retryAfterMs = 0, readonly permanent = false) { super(code); }
 }
 export function diagnosticRelayUrl(env: NodeJS.ProcessEnv): string | null {
+  if (isKnowdesignProfile(env)) return null;
   const raw = env.OPEN_DESIGN_OBJECT_RELAY_URL?.trim() || env.OPEN_DESIGN_TELEMETRY_RELAY_URL?.trim();
   if (!raw) return null;
   try {

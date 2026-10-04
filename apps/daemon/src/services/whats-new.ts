@@ -1,4 +1,5 @@
 import type { WhatsNewContent, WhatsNewLocaleContent } from '@open-design/contracts';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 
 // Fetches the post-update "what's new" highlight from a single hosted document
 // on a dedicated R2 bucket. Operators edit that one file after a release; the
@@ -52,6 +53,9 @@ const WHATS_NEW_TIMEOUT_MS = 4_000;
 export function whatsNewSourceUrl(env: NodeJS.ProcessEnv, channel: string): string | null {
   const override = env.OD_WHATS_NEW_URL?.trim();
   if (override) return override;
+  // KnowDesign profile: no upstream hosted document; only an explicit
+  // OD_WHATS_NEW_URL (a KnowDesign feed) may enable the card.
+  if (isKnowdesignProfile(env)) return null;
   return WHATS_NEW_RELEASE_CHANNELS.has(channel) ? DEFAULT_WHATS_NEW_URL : null;
 }
 

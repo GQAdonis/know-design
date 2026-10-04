@@ -76,6 +76,7 @@ import {
 import { findPackagedDeeplinkArg, launchPackagedPayloadDesktop } from "./payload-desktop-launch.js";
 import { packagedEntryUrl, registerOdProtocol } from "./protocol.js";
 import { startPackagedSidecars } from "./sidecars.js";
+import { isKnowdesignBuildProfile } from "./build-profile.js";
 import { reportStartupFailure, resolveStartupDistinctId } from "./startup-telemetry.js";
 import { resolvePackagedWindowTitle } from "./window-title.js";
 import { syncWindowsUninstallDisplayVersion } from "./windows-lifecycle.js";
@@ -263,8 +264,9 @@ async function main(): Promise<void> {
   // startPackagedSidecars call below is THE failure this covers (daemon/web
   // dying before reporting status, e.g. issue #4638's missing better-sqlite3).
   startupTelemetryContext = {
-    posthogKey: activeConfig.posthogKey,
-    posthogHost: activeConfig.posthogHost,
+    // KnowDesign profile: no PostHog key => reportStartupFailure is a no-op.
+    posthogKey: isKnowdesignBuildProfile(process.env) ? null : activeConfig.posthogKey,
+    posthogHost: isKnowdesignBuildProfile(process.env) ? null : activeConfig.posthogHost,
     appVersion: activeConfig.appVersion,
     namespace,
     source: convergedArgvStamp?.source ?? SIDECAR_SOURCES.PACKAGED,
