@@ -998,6 +998,7 @@ import {
   workspaceContextFromDirectoryItem,
 } from './collab/vela-workspace-context.js';
 import { verifyWorkspaceRequestContext } from './collab/request-workspace-context.js';
+import { workspaceContextSourceCapabilities } from './collab/workspace-context-source.js';
 import {
   createWorkspaceBillingRuntimeCoordinator,
   shouldEmitWorkspaceBillingRuntimeNudge,
@@ -3839,7 +3840,7 @@ export async function startServer({
     req: any;
     requireTeam?: boolean;
   }, options: { fresh?: boolean; backgroundFresh?: boolean } = {}) => {
-    if (process.env.OD_WORKSPACE_CONTEXT_SOURCE?.trim() === 'vela') {
+    if (workspaceContextSourceCapabilities().directoryAuthority) {
       let fetchDirectory = fetchFreshMutationWorkspaceDirectory;
       if (options.fresh === false) {
         fetchDirectory = fetchWorkspaceDirectory;
@@ -3902,7 +3903,7 @@ export async function startServer({
   const verifyWorkspaceRequestAuthority = (req: unknown) =>
     verifyExplicitWorkspaceRequestContext({ req });
   const verifyPersonalProjectDeleteLeaseAuthority =
-    process.env.OD_WORKSPACE_CONTEXT_SOURCE?.trim() === 'vela'
+    workspaceContextSourceCapabilities().directoryAuthority
       ? (req: unknown) => verifyWorkspaceRequestContext({
           req,
           // A miss is intentionally returned as unavailable. The project gate
@@ -3916,7 +3917,7 @@ export async function startServer({
   // Keep this separate from read-side directory fetches so an unconfigured
   // daemon never turns ordinary local creation into a network-dependent path.
   const fetchProjectCreationWorkspaceDirectory =
-    process.env.OD_WORKSPACE_CONTEXT_SOURCE?.trim() === 'vela'
+    workspaceContextSourceCapabilities().directoryAuthority
       ? fetchFreshMutationWorkspaceDirectory
       : undefined;
   const listWorkspaceDirectory = async () => {
@@ -6070,7 +6071,7 @@ export async function startServer({
     resolveEndpoint: async () => {
       // Same gating as the workspace-context provider: only the vela source
       // has a hub to subscribe to (dev daemons must not dial production).
-      if (process.env.OD_WORKSPACE_CONTEXT_SOURCE?.trim() !== 'vela') return null;
+      if (!workspaceContextSourceCapabilities().hubEvents) return null;
       return resolveVelaWorkspaceHubEventsEndpoint(
         subscribedWorkspaceId,
         process.env,
