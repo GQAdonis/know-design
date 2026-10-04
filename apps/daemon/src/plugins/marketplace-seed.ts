@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { safeExternalFetch } from './plugin-asset-cache.js';
 import path from 'node:path';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 
 export const OFFICIAL_MARKETPLACE_ID = 'official';
 export const OFFICIAL_PLUGIN_SOURCE_REPO = 'github:nexu-io/open-design@main';
@@ -89,6 +90,12 @@ export function createMarketplaceSeedHelpers(deps: MarketplaceSeedHelperDeps): M
           };
         }
       }
+      // knowdesign profile: no outbound registry fetches (bundled seeds above still resolve).
+      if (isKnowdesignProfile()) return {
+        ok: false,
+        status: 403,
+        text: async () => 'marketplace registry fetches are disabled in the knowdesign build profile',
+      };
       const response = await safeExternalFetch(url, {}, fetchImpl);
       return {
         ok: response.ok,

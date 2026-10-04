@@ -15,6 +15,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { safeExternalFetch } from './plugin-asset-cache.js';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import type Database from 'better-sqlite3';
 import {
   parseMarketplace,
@@ -394,6 +395,12 @@ export async function refreshMarketplace(
 }
 
 async function defaultFetcher(url: string) {
+  // knowdesign profile: no outbound registry fetches (bundled seeds still resolve).
+  if (isKnowdesignProfile()) return {
+    ok: false,
+    status: 403,
+    text: async () => 'marketplace registry fetches are disabled in the knowdesign build profile',
+  };
   const response = await safeExternalFetch(url);
   return {
     ok: response.ok,

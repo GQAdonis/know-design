@@ -3,6 +3,7 @@ import {
 	type TouchpointOfflineReplay,
 } from "@open-design/contracts/api/touchpointOffline";
 import type { TouchpointOfflineRecovery } from "./touchpoint-lifecycle";
+import { getWebBuildProfile } from "../collab/build-profile";
 
 export type ProductionRuntimeRevocationReceipt = Readonly<{
 	touchpointDecisionId: string;
@@ -76,6 +77,8 @@ function receipt(value: unknown): ProductionRuntimeRevocationReceipt | null {
 
 /** Loads a production decision; only a server-authenticated 410 receipt revokes an active lease. */
 export async function loadProductionTouchpointDecision(placementKey: string, locale: string, signal: AbortSignal, activeDecisionId?: string): Promise<ProductionTouchpointLoadResult> {
+	// knowdesign profile: touchpoints are dropped; never issue the request.
+	if (getWebBuildProfile() === "knowdesign") return { kind: "no-decision" };
 	let response: Response;
 	try {
 		const query = new URLSearchParams({ placementKey, locale });

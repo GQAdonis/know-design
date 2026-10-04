@@ -247,6 +247,7 @@ import {
 import { resolveByokModelPreference } from './byok/validation';
 import onboardingSourceStyles from './OnboardingModelSource.module.css';
 import onboardingWelcomeStyles from './OnboardingWelcome.module.css';
+import { getWebBuildProfile } from '../collab/build-profile';
 
 // Persist the entry nav-rail open/collapsed state so it survives both a
 // home -> project -> home navigation (EntryShell unmounts on the project
@@ -779,7 +780,8 @@ export function EntryShell({
   // The CMS touchpoints this rail hosts are home placements (`opend.home.*`).
   // The rail itself rides every entry view, so the home view — not the rail —
   // is what decides whether they may be on screen.
-  const homeCampaignHostsVisible = view === 'home';
+  // knowdesign profile: no CMS touchpoint hosts (D-010).
+  const homeCampaignHostsVisible = view === 'home' && getWebBuildProfile() !== 'knowdesign';
   const workspaceBalanceUsd = workspaceBillingBalanceUsd(
     workspaceBillingResponse,
     workspaceContext,

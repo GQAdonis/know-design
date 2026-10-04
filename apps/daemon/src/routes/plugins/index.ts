@@ -31,6 +31,7 @@ import type { PluginShareAction } from '../../services/plugin-share-tasks.js';
 import type { AuthorizeProjectRequest } from '../../collab/project-request-authority.js';
 import { workspaceTeamPluginBindingResourceId } from '../../plugins/registry.js';
 import { localPluginRegistryScope } from '../../plugins/local-source.js';
+import { isKnowdesignProfile } from '../../runtimes/build-profile.js';
 import {
   classifyPluginInstallError,
   type PluginInstallErrorCode,
@@ -967,10 +968,13 @@ export function registerProjectPluginRoutes(app: Express, deps: RegisterPluginRo
     if (!await authorizeWrite(req, res, req.params.id)) return;
     return helpers.handleProjectInstallFolder(req, res);
   });
-  app.post('/api/projects/:id/plugins/publish-github', async (req, res) => {
-    if (!await authorizeWrite(req, res, req.params.id)) return;
-    return helpers.handleProjectPluginCli(req, res, 'publish-github');
-  });
+  // knowdesign profile: no marketplace/registry publish route.
+  if (!isKnowdesignProfile()) {
+    app.post('/api/projects/:id/plugins/publish-github', async (req, res) => {
+      if (!await authorizeWrite(req, res, req.params.id)) return;
+      return helpers.handleProjectPluginCli(req, res, 'publish-github');
+    });
+  }
   app.get('/api/projects/:id/plugin-candidates', async (req, res) => {
     try {
       const project = helpers.getProject(db, req.params.id);

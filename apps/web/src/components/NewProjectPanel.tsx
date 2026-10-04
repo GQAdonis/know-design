@@ -63,6 +63,7 @@ import { Icon } from './Icon';
 import { Skeleton } from './Loading';
 import { Toast } from './Toast';
 import { useOpenFolderImport } from './useOpenFolderImport';
+import { getWebBuildProfile } from '../collab/build-profile';
 
 // Snapshot of a curated prompt template, captured at New Project time and
 // folded into ProjectMetadata.promptTemplate. The user may have edited the
@@ -2775,7 +2776,10 @@ export function supportedModels(surface: 'image' | 'video' | 'audio', models: Me
     video: new Set(['volcengine', 'hyperframes', 'grok', 'openrouter', 'imagerouter', 'aihubmix']),
     audio: new Set(['minimax', 'fishaudio', 'senseaudio', 'elevenlabs', 'openai', 'volcengine', 'aihubmix']),
   };
+  // knowdesign profile: the managed Vela provider (`vela/*` models) is dropped.
+  const dropVela = getWebBuildProfile() === 'knowdesign';
   return models.filter((model) => {
+    if (dropVela && model.provider === 'vela') return false;
     const provider = findProvider(model.provider);
     return provider?.integrated === true && supportedProviders[surface].has(model.provider);
   });
