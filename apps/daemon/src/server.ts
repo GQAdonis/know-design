@@ -3804,6 +3804,8 @@ export async function startServer({
   });
   const workspaceDirectoryAuthority = createWorkspaceDirectoryAuthorityBroker({
     fetchDirectory: async () => {
+      // knowdesign has no cloud workspace directory: nothing to ask AMR for.
+      if (getBuildProfile() === 'knowdesign') return { ok: true as const, items: [] };
       const result = await fetchVelaWorkspaceDirectory({
         configuredEnv: configuredAmrEnv(),
       });

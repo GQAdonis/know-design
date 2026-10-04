@@ -54,6 +54,7 @@ async function startRecordingProxy(): Promise<ProxyRecorder> {
   server.on('connect', (req, socket) => {
     seen.push(hostOf(req.url));
     sockets.add(socket);
+    socket.on('error', () => {}); // a client reset is expected when the daemon tears down
     socket.on('close', () => sockets.delete(socket));
     socket.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
   });

@@ -30,6 +30,7 @@ async function startProxyRecorder(): Promise<Recorder> {
   server.on('connect', (req, socket) => {
     hosts.push(req.url ?? '');
     sockets.add(socket);
+    socket.on('error', () => {}); // a client reset is expected when the daemon tears down
     socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');
   });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
