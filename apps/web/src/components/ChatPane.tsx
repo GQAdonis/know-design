@@ -96,6 +96,7 @@ import { copyToClipboard } from '../lib/copy-to-clipboard';
 import { useLiquidGlass } from '../hooks/useLiquidGlass';
 import { fetchProjectMediaTasks, projectRawUrl } from '../providers/registry';
 import { appendResourceQuery } from '../collab/workspace-identity';
+import { getWebBuildProfile } from '../collab/build-profile';
 import { useProjectCollabContext } from '../collab/collab-context';
 import { takeComposerSeedFor } from '../state/libraryHandoff';
 import {
@@ -1489,8 +1490,11 @@ export function ChatPane({
    * 有主的读数由锚点那一轮自己画(见上)。**没主**的那一档才落到流水末尾 ——
    * 拦截档那一轮已经被收回,没有轮次可挂,读数不摆在末尾就彻底没地方说了。
    */
+  // knowdesign profile: no balance cards (UpgradeCard) of any kind.
   const tailAmrBalanceCardUsd =
-    amrBalanceCardAnchorMessageId == null ? amrBalanceCardUsd : null;
+    getWebBuildProfile() !== 'knowdesign' && amrBalanceCardAnchorMessageId == null
+      ? amrBalanceCardUsd
+      : null;
   const trackedMediaRunKey = useMemo(
     () => mediaTaskRunKey(displayMessages, streaming),
     [displayMessages, streaming],
@@ -5402,7 +5406,8 @@ function ChatRows({
      * 位置由 DOM 顺序本身保证,新一轮追加在后面,它自然就留在原处 ——
      * 不需要任何「记住第几个位置」的计算,也就没有算错的可能。
      */
-    const turnBalanceUsd = lowBalanceTurnCards?.get(m.id);
+    const turnBalanceUsd =
+      getWebBuildProfile() === 'knowdesign' ? undefined : lowBalanceTurnCards?.get(m.id);
     const assistantRow = (
       <AssistantMessage
         message={m}

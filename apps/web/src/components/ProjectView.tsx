@@ -187,6 +187,7 @@ import {
   type AmrBalanceBlockedDialogKind,
 } from '../runtime/amr-balance-branch';
 import { AmrBalanceDialog } from './AmrBalanceDialog';
+import { getWebBuildProfile } from '../collab/build-profile';
 import { AmrOwnerTopUpDialog } from './chat/AmrOwnerTopUpDialog';
 import { markHistoryReplayLanded } from './chat/useCharReveal';
 import { workspaceAutoRechargeUrl, workspaceUpgradeUrl } from './EntryNavRail';
@@ -2335,7 +2336,9 @@ export function ProjectView({
     () => workspaceBillingAuthorityContext(projectRunPreflightContext, workspaceContext),
     [projectRunPreflightContext, workspaceContext],
   );
-  const cloudModelSelected = config.mode === 'daemon' && config.agentId === 'amr';
+  // knowdesign profile: there is no OpenDesign Cloud model to select.
+  const cloudModelSelected =
+    getWebBuildProfile() !== 'knowdesign' && config.mode === 'daemon' && config.agentId === 'amr';
   const projectRunRequiresWorkspaceScope = cloudModelSelected;
   // An OpenDesign Cloud run needs a wallet, and the ONLY client-side veto is
   // "there is no billing principal at all". Either witness suffices: the
@@ -8542,7 +8545,8 @@ export function ProjectView({
        * 并发窗口的守卫从 `try` 里提到了这里。
        */
       const amrGateApplies =
-        config.mode === 'daemon'
+        getWebBuildProfile() !== 'knowdesign'
+        && config.mode === 'daemon'
         && config.agentId === 'amr'
         && !meta?.amrGatePrechecked;
       // The gate's await opens a window where the conversation is not yet
