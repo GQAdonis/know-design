@@ -247,7 +247,6 @@ import {
 import { resolveByokModelPreference } from './byok/validation';
 import onboardingSourceStyles from './OnboardingModelSource.module.css';
 import onboardingWelcomeStyles from './OnboardingWelcome.module.css';
-import { getWebBuildProfile } from '../collab/build-profile';
 
 // Persist the entry nav-rail open/collapsed state so it survives both a
 // home -> project -> home navigation (EntryShell unmounts on the project

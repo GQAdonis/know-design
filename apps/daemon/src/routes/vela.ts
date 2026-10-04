@@ -69,7 +69,6 @@ import {
   type TouchpointContentCache,
   type TouchpointContentKey,
 } from './touchpoint-content-cache.js';
-import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import {
   touchpointStatusIsTransient,
   TOUCHPOINT_OFFLINE_REPLAY_HEADER,

@@ -1,7 +1,8 @@
 // @vitest-environment node
 
 import { createServer, type Server } from 'node:http';
-import type { AddressInfo, Socket } from 'node:net';
+import type { AddressInfo } from 'node:net';
+import type { Duplex } from 'node:stream';
 
 import { describe, expect, test } from 'vitest';
 
@@ -20,7 +21,7 @@ type Recorder = { hosts: string[]; close: () => Promise<void>; url: string };
 
 async function startProxyRecorder(): Promise<Recorder> {
   const hosts: string[] = [];
-  const sockets = new Set<Socket>();
+  const sockets = new Set<Duplex>();
   const server: Server = createServer((req, res) => {
     hosts.push(req.headers.host ?? req.url ?? '');
     res.statusCode = 403;

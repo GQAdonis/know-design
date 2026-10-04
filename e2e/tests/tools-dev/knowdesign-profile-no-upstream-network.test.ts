@@ -12,7 +12,8 @@
  */
 
 import { createServer, type IncomingMessage, type Server } from 'node:http';
-import type { AddressInfo, Socket } from 'node:net';
+import type { AddressInfo } from 'node:net';
+import type { Duplex } from 'node:stream';
 
 import { describe, expect, test } from 'vitest';
 
@@ -44,7 +45,7 @@ function hostOf(target: string | undefined): string {
 
 async function startRecordingProxy(): Promise<ProxyRecorder> {
   const seen: string[] = [];
-  const sockets = new Set<Socket>();
+  const sockets = new Set<Duplex>();
   const server: Server = createServer((req: IncomingMessage, res) => {
     seen.push(hostOf(req.url?.startsWith('http') ? req.url : req.headers.host));
     res.statusCode = 502;
