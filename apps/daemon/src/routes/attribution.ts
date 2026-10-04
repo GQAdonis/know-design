@@ -6,6 +6,7 @@ import {
 } from '@open-design/contracts';
 import type { AnalyticsService } from '../analytics.js';
 import type { AppConfigPrefs } from '../app-config.js';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import {
   readInstallationFile,
   resolveInstallationDir,
@@ -86,6 +87,7 @@ export function createAttributionService(deps: Omit<RegisterAttributionRoutesDep
       return processAttribution(installation.pendingAttribution, { persistBeforeReturn: false });
     },
     async bridgeUrl(url) {
+      if (isKnowdesignProfile(env)) return null;
       const target = trustedFirstPartyUrl(url);
       if (!target) return null;
       const appConfig = await deps.appConfig.readAppConfig(dataDir);
@@ -114,6 +116,8 @@ export function createAttributionService(deps: Omit<RegisterAttributionRoutesDep
     attribution: PendingAttribution,
     options: { persistBeforeReturn: boolean },
   ): Promise<AttributionClaimResponse> {
+    // KnowDesign profile: never contact the upstream download ledger.
+    if (isKnowdesignProfile(env)) return response('pending_consent', { found: true, pending: true });
     const appConfig = await deps.appConfig.readAppConfig(dataDir);
     const installation = await readInstallationFile(installationDir);
     const installationId = cleanString(appConfig.installationId) ?? cleanString(installation.installationId);

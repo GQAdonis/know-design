@@ -61,6 +61,7 @@ import {
 import type { RunFailureClassification } from './run-failure-classification.js';
 import { redactSecrets } from './redact.js';
 import { readTelemetryEnvironment } from './telemetry-environment.js';
+import { isKnowdesignProfile } from './runtimes/build-profile.js';
 
 // Langfuse US region: confirmed by an end-to-end smoke on 2026-05-07 — the
 // project's keys authenticate against `us.cloud.langfuse.com` only. EU host
@@ -434,6 +435,7 @@ export interface FeedbackReportContext {
 export function readLangfuseConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): LangfuseConfig | null {
+  if (isKnowdesignProfile(env)) return null;
   const publicKey = env.LANGFUSE_PUBLIC_KEY?.trim();
   const secretKey = env.LANGFUSE_SECRET_KEY?.trim();
   if (!publicKey || !secretKey) return null;
@@ -462,6 +464,7 @@ export function readLangfuseConfig(
 export function readTelemetrySinkConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): TelemetrySinkConfig | null {
+  if (isKnowdesignProfile(env)) return null;
   const relayUrl = env.OPEN_DESIGN_TELEMETRY_RELAY_URL?.trim();
   if (relayUrl) {
     return {
@@ -509,6 +512,7 @@ export function readRunTelemetrySinkConfig(
   env: NodeJS.ProcessEnv = process.env,
   configuredEnv: Record<string, string> = {},
 ): RunTelemetrySinkConfig | null {
+  if (isKnowdesignProfile(env)) return null;
   if (isVelaTelemetryEnabled(env)) {
     const context = readVelaControlApiContext(env, configuredEnv);
     const controlKey = context?.controlKey?.trim() ?? '';

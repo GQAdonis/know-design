@@ -14,6 +14,7 @@
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 
 export const PLUGIN_PREVIEWS_ROUTE = '/api/plugin-previews';
 
@@ -95,6 +96,9 @@ export function bakedPreviewBlock(id: string, dir: string): BakedPreviewBlock | 
   const envBase = process.env.OD_PLUGIN_PREVIEWS_BASE_URL?.replace(/\/+$/, '');
   const onDisk =
     existsSync(path.join(dir, entry.video)) && existsSync(path.join(dir, entry.poster));
+  // KnowDesign profile: never point clients at the upstream CDN; clips that are
+  // neither on disk nor under an explicit base fall back to the live preview.
+  if (!envBase && !onDisk && isKnowdesignProfile()) return null;
   const base = envBase || (onDisk ? PLUGIN_PREVIEWS_ROUTE : DEFAULT_PUBLIC_BASE);
   return {
     poster: `${base}/${entry.poster}`,

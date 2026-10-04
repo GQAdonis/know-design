@@ -39,6 +39,7 @@ import {
   resolveDaemonPrewarmTargets,
   resolveWebPrewarmTargets,
 } from "./prewarm.js";
+import { isKnowdesignBuildProfile } from "./build-profile.js";
 import { workspaceTeamTransportEnv } from "./workspace-team.js";
 
 const require = createRequire(import.meta.url);
@@ -61,6 +62,8 @@ const PACKAGED_CHILD_ENV_ALLOWLIST = [
   "https_proxy",
   "no_proxy",
   "OD_ALLOWED_INTERNAL_HOSTS",
+  // Lets the packaged daemon resolve the same build profile as the launcher.
+  "OD_BUILD_PROFILE",
 ] as const;
 
 // The daemon owns the historical-outer compatibility handoff. Preserve the
@@ -657,6 +660,8 @@ export function buildPackagedDaemonSpawnEnv(
   paths: PackagedNamespacePaths,
   options: PackagedDaemonSpawnEnvOptions,
 ): NodeJS.ProcessEnv {
+  // KnowDesign profile: never bake the upstream telemetry endpoints into the daemon.
+  const upstreamTelemetryOff = isKnowdesignBuildProfile(process.env);
   return {
     [SIDECAR_ENV.DAEMON_PORT]: "0",
     ...(options.daemonCliEntry == null ? {} : { [SIDECAR_ENV.DAEMON_CLI_PATH]: options.daemonCliEntry }),
@@ -692,7 +697,7 @@ export function buildPackagedDaemonSpawnEnv(
       ? {}
       : { OD_MCP_BOOTSTRAP_ARGS: JSON.stringify(options.mcpBootstrapArgs) }),
     ...pickPackagedDesktopHandoffEnv(options.desktopHandoffEnv ?? {}),
-    ...(options.telemetryRelayUrl == null || options.telemetryRelayUrl.length === 0
+    ...(upstreamTelemetryOff || options.telemetryRelayUrl == null || options.telemetryRelayUrl.length === 0
       ? {}
       : { OPEN_DESIGN_TELEMETRY_RELAY_URL: options.telemetryRelayUrl }),
     // OD_LEGACY_DATA_DIR is the one-shot recovery handle for users
@@ -709,10 +714,10 @@ export function buildPackagedDaemonSpawnEnv(
     // for fork builds without the CI secret — the daemon's analytics
     // module no-ops cleanly in that case, and /api/analytics/config
     // returns enabled=false regardless of user consent.
-    ...(options.posthogKey == null || options.posthogKey.length === 0
+    ...(upstreamTelemetryOff || options.posthogKey == null || options.posthogKey.length === 0
       ? {}
       : { POSTHOG_KEY: options.posthogKey }),
-    ...(options.posthogHost == null || options.posthogHost.length === 0
+    ...(upstreamTelemetryOff || options.posthogHost == null || options.posthogHost.length === 0
       ? {}
       : { POSTHOG_HOST: options.posthogHost }),
   };

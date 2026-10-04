@@ -20,6 +20,7 @@ import type { AmrSessionState } from '@open-design/contracts';
 
 import { resolveAgentLaunch } from '../runtimes/launch.js';
 import { spawnEnvForAgent } from '../runtimes/env.js';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import { getAgentDef } from '../runtimes/registry.js';
 import { resolveAmrProfile } from './vela-profile.js';
 import { resolveEffectiveVelaConsoleOrigin } from './vela-console-origin.js';
@@ -1780,6 +1781,8 @@ async function mirrorAmrAnalyticsEvent(
   const fetchImpl = deps.fetchImpl ?? (globalThis.fetch as unknown as FetchLike | undefined);
   if (!fetchImpl) return { mirrored: false };
   const env = deps.env ?? process.env;
+  // KnowDesign profile: never mirror analytics to the upstream AMR API.
+  if (isKnowdesignProfile(env)) return { mirrored: false };
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), AMR_ANALYTICS_TIMEOUT_MS);
   timeout.unref?.();
