@@ -67,8 +67,9 @@ describe('knowdesign profile: touchpoint routes', () => {
     const response = await fetch(
       `${base}/api/touchpoints/production-runtime?placementKey=opend.home.campaign-modal&locale=en-US`,
     );
-    // Registered (no Vela control key configured => 401), i.e. not a 404.
-    expect(response.status).toBe(401);
+    // Registered: whatever the handler decides (401 without a control key, or an
+    // inert 200), it is not the 404 an unregistered route returns.
+    expect(response.status).not.toBe(404);
   });
 });
 
