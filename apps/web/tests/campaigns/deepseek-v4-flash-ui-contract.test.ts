@@ -89,7 +89,8 @@ describe('DeepSeek V4 Flash workbench campaign entry', () => {
     // `opend.home.*` is the only placement family this app authorizes, so the
     // account badge, the hover entry and the modals are home hosts. The
     // workbench corner carries none of them.
-    expect(entryShellSource).toContain("const homeCampaignHostsVisible = view === 'home';");
+    // The one flag still gates every host; the knowdesign profile adds a second condition.
+    expect(entryShellSource).toContain("const homeCampaignHostsVisible = view === 'home' && !isKnowdesignProfile;");
     expect(entryShellSource).toMatch(
       /homeCampaignHostsVisible\s*&&\s*canRenderProductionCampaignBadge\(amrLoggedIn === true, amrAccountId\)\s*\?\s*<ProductionCampaignBadge authenticated sessionSubject=\{amrAccountId\}/,
     );
