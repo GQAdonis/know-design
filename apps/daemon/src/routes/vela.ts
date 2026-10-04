@@ -16,6 +16,7 @@ import {
   spawnEnvForAgent,
 } from '../agents.js';
 import { readAnalyticsContext } from '../analytics.js';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import { agentCliEnvForAgent, type AppConfigPrefs, writeAppConfig } from '../app-config.js';
 import {
   validateExternalPluginContext,
@@ -992,6 +993,22 @@ export function registerVelaRoutes(app: Express, deps: RegisterVelaRoutesDeps): 
       });
     inFlightVelaAccountFetches.set(accountCacheKey, pending);
     return pending;
+  }
+
+  // knowdesign profile: AMR login, wallet, billing and model discovery are inert.
+  // Registered ahead of the real handlers (Express matches in order), so none of
+  // them can reach the AMR cloud. Web fetchers treat a non-2xx as "unavailable".
+  if (isKnowdesignProfile(env)) {
+    const notAvailable = { error: 'amr_not_available' };
+    app.get('/api/amr/models', (_req, res) => res.status(503).json(notAvailable));
+    app.get('/api/integrations/vela/status', (_req, res) => res.status(503).json(notAvailable));
+    app.get('/api/integrations/vela/wallet', (_req, res) => res.status(503).json(notAvailable));
+    app.all('/api/integrations/vela/api-proxy/*splat', (_req, res) => res.status(503).json(notAvailable));
+    app.post('/api/integrations/vela/login', (_req, res) => res.status(503).json(notAvailable));
+    app.post('/api/integrations/vela/login/cancel', (_req, res) => res.status(503).json(notAvailable));
+    app.post('/api/integrations/vela/logout', (_req, res) => res.json({ ok: true }));
+    app.post('/api/integrations/vela/analytics-entry', (_req, res) => res.status(202).json({ mirrored: false }));
+    app.post('/api/integrations/vela/analytics-profile', (_req, res) => res.status(202).json({ mirrored: false }));
   }
 
   app.get('/api/amr/models', async (_req, res) => {

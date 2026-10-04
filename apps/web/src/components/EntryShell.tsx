@@ -226,6 +226,7 @@ import {
   isAmrSessionAuthenticated,
   notifyAmrLoginStatusChanged,
 } from './amrLoginPolling';
+import { getWebBuildProfile } from '../collab/build-profile';
 import { closeAmrActivationWindowBestEffort } from './AmrLoginPill';
 import { isMacPlatform } from '../utils/platform';
 import { smoothScrollToTop } from '../utils/smoothScrollToTop';
@@ -706,14 +707,18 @@ export function EntryShell({
   const railWorkspaceContext = accountFooterState === 'sign-in'
     ? null
     : workspaceContext;
-  const usesOpenDesignCloud = config.mode === 'daemon' && config.agentId === 'amr';
+  // knowdesign profile: no AMR identity exists, so none of the Cloud sign-in
+  // gating below applies. Re-read on every render: the profile lands async.
+  const isKnowdesignProfile = getWebBuildProfile() === 'knowdesign';
+  const usesOpenDesignCloud =
+    !isKnowdesignProfile && config.mode === 'daemon' && config.agentId === 'amr';
   const amrProfile = config.agentCliEnv?.amr?.OPEN_DESIGN_AMR_PROFILE ?? null;
   const amrAuthRequired =
-    workspaceContextState.failure === 'reauth-required'
+    !isKnowdesignProfile && (workspaceContextState.failure === 'reauth-required'
     || (
       usesOpenDesignCloud
       && requiresAmrReauthentication(amrSessionState, workspaceContextState.failure)
-    );
+    ));
   useEffect(() => {
     // The entry shell is an authenticated surface. Both an explicit signed-out
     // status and a definitive credential rejection return to the existing
@@ -728,7 +733,7 @@ export function EntryShell({
     accountFooterNotice = <RailAccountSyncTip />;
   } else if (accountFooterState === 'recovering') {
     accountFooterNotice = <RailAccountRecoveryTip />;
-  } else if (accountFooterState === 'sign-in') {
+  } else if (accountFooterState === 'sign-in' && !isKnowdesignProfile) {
     accountFooterNotice = <CloudSignInTip />;
   }
   const workspaceContextRef = useRef(workspaceContext);
@@ -1432,7 +1437,8 @@ export function EntryShell({
       return 'blocked' as const;
     }
     const createInput = pluginLoopCreateInput(payload);
-    const isAmrSend = config.mode === 'daemon' && config.agentId === 'amr';
+    const isAmrSend =
+      !isKnowdesignProfile && config.mode === 'daemon' && config.agentId === 'amr';
     const amrModelId = isAmrSend
       ? effectiveAgentModelId(
           agents.find((agent) => agent.id === 'amr'),

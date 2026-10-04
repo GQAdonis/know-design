@@ -25,6 +25,7 @@ import { codebuddyAgentDef } from './defs/codebuddy.js';
 import { reasonixAgentDef } from './defs/reasonix.js';
 import { mimoAgentDef } from './defs/mimo.js';
 import { atomcodeAgentDef } from './defs/atomcode.js';
+import { isKnowdesignProfile } from './build-profile.js';
 import { readLocalAgentProfileDefs as readLocalAgentProfileDefsFromFile } from './local-profiles.js';
 import type { RuntimeAgentDef } from './types.js';
 
@@ -38,7 +39,11 @@ import type { RuntimeAgentDef } from './types.js';
  * `createLocalAgentDef`), so it is always an id we have never heard of.
  */
 export const SHIPPED_AGENT_DEFS: RuntimeAgentDef[] = [
-  amrAgentDef,
+  // Under the knowdesign profile the `amr` (Open Design Cloud) agent is not
+  // shipped, which also disables every `agentId === 'amr'` gate downstream.
+  // Evaluated once at module load: `OD_BUILD_PROFILE` is process-start config,
+  // so tests that need the profile must set it before importing this module.
+  ...(isKnowdesignProfile() ? [] : [amrAgentDef]),
   claudeAgentDef,
   codexAgentDef,
   devinAgentDef,

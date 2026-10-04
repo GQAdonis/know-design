@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { runDaemonCliStartup, startDaemonRuntime } from './daemon-startup.js';
+import { isKnowdesignProfile } from './runtimes/build-profile.js';
 import { runLiveArtifactsMcpServer } from './mcp-live-artifacts-server.js';
 import { runArtifactsCli } from './artifacts-cli.js';
 import { runResource } from './resource-cli.js';
@@ -391,7 +392,8 @@ const SUBCOMMAND_MAP = {
   artifacts: runArtifacts,
   media: runMedia,
   mcp: runMcp,
-  amr: runAmr,
+  // knowdesign profile: `od amr` is absent from the map and from `od --help`.
+  ...(isKnowdesignProfile() ? {} : { amr: runAmr }),
   collab: runCollab,
   'message-center': runMessageCenter,
   research: runResearch,
@@ -1003,11 +1005,11 @@ function printRootHelp() {
       Read and acknowledge message-center inbox items through the same
       daemon endpoints the bell UI uses.
 
-  od amr <login|status> [args]
+${isKnowdesignProfile() ? '' : `  od amr <login|status> [args]
       Start Vela browser sign-in or inspect the current Vela account through
       the local OpenDesign daemon.
 
-  od memory tree <list|view|edit|move> [args]
+`}  od memory tree <list|view|edit|move> [args]
       Inspect and edit the memory tree that is injected into agent prompts.
 
   od share <open-design|url> [options]
@@ -7507,8 +7509,8 @@ async function runWorkspace(args) {
   od workspace projects batch-delete --workspace <id> --member <id> --project <id> [--project <id> ...] [--json]
   od workspace projects batch-move --workspace <id> --member <id> --visibility personal|team --project <id> [--project <id> ...] [--json]
   od workspace members list --workspace <id> --member <id> [--json]
-  od workspace billing [--workspace-type personal|team --workspace <id>] [--model <id>] [--json]
-
+${isKnowdesignProfile() ? '' : `  od workspace billing [--workspace-type personal|team --workspace <id>] [--model <id>] [--json]
+`}
 Common options:
   --daemon-url <url>   OpenDesign daemon HTTP base.
   --member <id>        Workspace member id for route-level authorization.
@@ -7519,7 +7521,10 @@ Common options:
     process.exit(args.length === 0 ? 2 : 0);
   }
   const area = args[0];
-  if (!['invite', 'projects', 'members', 'billing'].includes(area)) {
+  const workspaceAreas = isKnowdesignProfile()
+    ? ['invite', 'projects', 'members']
+    : ['invite', 'projects', 'members', 'billing'];
+  if (!workspaceAreas.includes(area)) {
     console.error(`unknown subcommand: od workspace ${area}`);
     process.exit(2);
   }
