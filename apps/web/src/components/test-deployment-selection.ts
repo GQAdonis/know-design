@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { emitWebTouchpointDiagnostic } from "./touchpoint-component";
 import type { TouchpointStaticAction } from "./touchpoint-static-actions";
+import { getWebBuildProfile } from "../collab/build-profile";
 
 export const TEST_CAMPAIGN_PLACEMENTS = [
 	"opend.home.account-badge",
@@ -135,7 +136,7 @@ export function useTestDeploymentSelection({
 	});
 	useEffect(() => {
 		setState({ owner, deployments: empty, selected: null });
-		if (!enabled) return;
+		if (!enabled || getWebBuildProfile() === "knowdesign") return;
 		let disposed = false;
 		let request: AbortController | null = null;
 		let timeout: ReturnType<typeof setTimeout> | undefined;

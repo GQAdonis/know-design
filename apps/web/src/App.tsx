@@ -252,6 +252,7 @@ import {
 } from './state/project-display-cache';
 import { getOpenDesignHost, type OpenDesignHostProjectImportSuccess } from '@open-design/host';
 import { useI18n } from './i18n';
+import { getWebBuildProfile } from './collab/build-profile';
 import { liveArtifactTabId } from './types';
 import type {
   AgentInfo,
@@ -5786,7 +5787,7 @@ function AppInner() {
           (`opend.home.*`), so the home view is where they belong: not over a
           project workbench, not over another entry tab, and — since account
           restoration can finish while login is still up — not over onboarding. */}
-      {route.kind === 'home' && route.view === 'home' && (
+      {route.kind === 'home' && route.view === 'home' && getWebBuildProfile() !== 'knowdesign' && (
         <>
           <TestCampaignModal
             authenticated={isAmrSessionAuthenticated(amrLoginStatus)}

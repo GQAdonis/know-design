@@ -68,6 +68,7 @@ import {
   type TouchpointContentCache,
   type TouchpointContentKey,
 } from './touchpoint-content-cache.js';
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
 import {
   touchpointStatusIsTransient,
   TOUCHPOINT_OFFLINE_REPLAY_HEADER,
@@ -1120,6 +1121,8 @@ export function registerVelaRoutes(app: Express, deps: RegisterVelaRoutesDeps): 
   // The helper is a strict method/path allowlist; register it for POST so the
   // authenticated Test context selection can reach Vela, while unknown paths
   // and methods remain default-deny.
+  // knowdesign profile: no touchpoint/campaign CMS runtime proxies (D-010).
+  if (!isKnowdesignProfile(env)) {
   app.all(
     ['/api/touchpoints/production-runtime', '/api/touchpoints/production-runtime/*splat'],
     async (req, res) => {
@@ -1195,6 +1198,8 @@ export function registerVelaRoutes(app: Express, deps: RegisterVelaRoutesDeps): 
       }
     },
   );
+
+  }
 
   app.get('/api/integrations/vela/message-center-public/messages', async (req, res) => {
     try {

@@ -5,6 +5,8 @@
 // the moment one side adds a model and the other doesn't, the build
 // fails with a precise diff.
 
+import { isKnowdesignProfile } from '../runtimes/build-profile.js';
+
 export type MediaSurface = 'image' | 'video' | 'audio';
 export type AudioKind = 'music' | 'speech' | 'sfx';
 
@@ -219,6 +221,25 @@ export const AUDIO_MODELS_BY_KIND: Record<AudioKind, MediaModel[]> = {
     { id: 'audiocraft', label: 'audiocraft', hint: 'Meta · open', provider: 'replicate', caps: ['sfx', 'music'] },
   ],
 };
+
+// knowdesign profile (OD_BUILD_PROFILE): drop the managed Vela ("OpenDesign
+// Cloud") provider and every `vela/*` model; non-Vela providers remain. The
+// registries stay plain `export const` literals above (scripts/verify-media-models.mjs
+// parses them), so the profile prunes them in place once at module load.
+if (isKnowdesignProfile()) {
+  const pruneVela = <T extends { id: string; provider?: string }>(list: T[], isProvider = false): void => {
+    for (let i = list.length - 1; i >= 0; i -= 1) {
+      const entry = list[i]!;
+      if ((isProvider ? entry.id : entry.provider) === 'vela') list.splice(i, 1);
+    }
+  };
+  pruneVela(MEDIA_PROVIDERS, true);
+  pruneVela(IMAGE_MODELS);
+  pruneVela(VIDEO_MODELS);
+  pruneVela(AUDIO_MODELS_BY_KIND.music);
+  pruneVela(AUDIO_MODELS_BY_KIND.speech);
+  pruneVela(AUDIO_MODELS_BY_KIND.sfx);
+}
 
 export const MEDIA_ASPECTS = ['1:1', '16:9', '9:16', '4:3', '3:4'];
 export const VIDEO_LENGTHS_SEC = [3, 5, 8, 10, 15, 30];

@@ -29,6 +29,7 @@ import { pluginCategoryLabel } from './categoryLabel';
 import { localizePluginDescription, localizePluginTitle } from './localization';
 import { inferPluginPreview } from './preview';
 import type { PluginUseAction } from './useActions';
+import { getWebBuildProfile } from '../../collab/build-profile';
 
 interface Props {
   record: InstalledPluginRecord;
@@ -374,6 +375,8 @@ export function PluginCard({
               className="plugins-home__share-actions"
               aria-label={t('pluginCard.shareAria', { title })}
             >
+              {/* knowdesign profile: no registry/GitHub publish entry. */}
+              {getWebBuildProfile() !== 'knowdesign' ? (
               <button
                 type="button"
                 className="plugins-home__action plugins-home__action--secondary plugins-home__action--compact"
@@ -390,6 +393,7 @@ export function PluginCard({
                 />
                 <span>{sharePendingAction === 'publish-github' ? t('pluginCard.starting') : t('pluginCard.publish')}</span>
               </button>
+              ) : null}
               <button
                 type="button"
                 className="plugins-home__action plugins-home__action--secondary plugins-home__action--compact"

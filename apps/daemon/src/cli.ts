@@ -16,6 +16,7 @@ import { runLiveArtifactsToolCli } from './tools-live-artifacts-cli.js';
 import { runDeliverableSyntaxToolCli } from './tools-deliverable-syntax-cli.js';
 import { splitResearchSubcommand } from './research/cli-args.js';
 import { resolveDaemonUrl } from './daemon-url.js';
+import { isKnowdesignProfile } from './runtimes/build-profile.js';
 import { SidecarFactory } from '@open-design/sidecar';
 import { APP_KEYS, SIDECAR_MESSAGES } from '@open-design/sidecar-proto';
 import { EXPORT_FORMATS, EXPORT_IMAGE_FORMATS, mediaFailureNextStep } from '@open-design/contracts';
@@ -988,9 +989,9 @@ function printRootHelp() {
 
   od plugin <list|info|install|uninstall|apply|doctor|replay|trust> [args]
       Discover, install, and apply plugins through the local daemon.
-  od plugin publish-repo <folder>
+${isKnowdesignProfile() ? '' : `  od plugin publish-repo <folder>
       Create/update the author's GitHub repo for a local plugin folder.
-  od plugin open-design-pr <folder>
+`}  od plugin open-design-pr <folder>
       Push a community-catalog branch and open the OpenDesign PR form.
 
   od automation <list|get|create|update|run|runs|pause|resume|delete> [args]
@@ -2777,18 +2778,22 @@ async function runPlugin(args) {
     case 'validate': return runPluginValidate(rest);
     case 'pack':     return runPluginPack(rest);
     case 'candidates': return runPluginCandidates(rest);
-    case 'login':    return runPluginLogin(rest);
+    case 'login':    if (isKnowdesignProfile()) return pluginUnknownSubcommand(sub); return runPluginLogin(rest);
     case 'whoami':   return runPluginWhoami(rest);
     case 'export':   return runPluginExport(rest);
-    case 'publish':  return runPluginPublish(rest);
-    case 'publish-repo': return runPluginPublishRepo(rest);
+    case 'publish':  if (isKnowdesignProfile()) return pluginUnknownSubcommand(sub); return runPluginPublish(rest);
+    case 'publish-repo': if (isKnowdesignProfile()) return pluginUnknownSubcommand(sub); return runPluginPublishRepo(rest);
     case 'open-design-pr': return runPluginOpenDesignPr(rest);
     case 'yank':     return runPluginYank(rest);
     default:
-      console.error(`unknown subcommand: od plugin ${sub}`);
-      printPluginHelp();
-      process.exit(2);
+      return pluginUnknownSubcommand(sub);
   }
+}
+
+function pluginUnknownSubcommand(sub) {
+  console.error(`unknown subcommand: od plugin ${sub}`);
+  printPluginHelp();
+  process.exit(2);
 }
 
 // Phase 4 / spec §14.1 — `od plugin scaffold` interactive starter.
@@ -3242,8 +3247,7 @@ async function runMarketplace(args) {
   od marketplace plugins <id> [--json]                        List cached plugin entries for one marketplace.
   od marketplace search  <query> [--json]                     Search cached marketplace entries.
   od marketplace doctor  [id] [--strict] [--json]             Validate cached marketplace entries.
-  od marketplace login   <id|url> [--host github.com]         Authenticate gh for private GitHub catalogs.
-  od marketplace refresh <id>                                 Re-fetch the manifest.
+${isKnowdesignProfile() ? '' : '  od marketplace login   <id|url> [--host github.com]         Authenticate gh for private GitHub catalogs.\n'}  od marketplace refresh <id>                                 Re-fetch the manifest.
   od marketplace remove  <id>                                 Forget a marketplace.
   od marketplace trust   <id> [--trust trusted|restricted|official]
                                                               Update the marketplace trust tier.
@@ -3387,6 +3391,10 @@ Common options:
       process.exit(ok ? 0 : 1);
     }
     case 'login': {
+      if (isKnowdesignProfile()) {
+        console.error('unknown subcommand: od marketplace login');
+        process.exit(2);
+      }
       const target = rest.find((a) => !a.startsWith('-'));
       const host = typeof flags.host === 'string'
         ? flags.host
@@ -6193,14 +6201,14 @@ function printPluginHelp() {
                                           folder for distribution.
   od plugin candidates list --project <id> [--workspace <id> --workspace-member <id>]
                                           List persisted skill-to-plugin candidates.
-  od plugin publish-repo <folder>         Create/update the author's public
+${isKnowdesignProfile() ? '' : `  od plugin publish-repo <folder>         Create/update the author's public
                                           GitHub repo for a plugin folder.
-  od plugin open-design-pr <folder>       Push a community-catalog branch and
+`}  od plugin open-design-pr <folder>       Push a community-catalog branch and
                                           open the nexu-io/open-design PR form.
-  od plugin publish <folder> --to open-design|anthropics-skills|awesome-agent-skills|clawhub|skills-sh
+${isKnowdesignProfile() ? '' : `  od plugin publish <folder> --to open-design|anthropics-skills|awesome-agent-skills|clawhub|skills-sh
                                           Prepare a registry submission link.
   od plugin login [--host github.com]      Authenticate registry publishing via gh.
-  od plugin whoami [--host github.com]     Show the gh account used for publishing.
+`}  od plugin whoami [--host github.com]     Show the gh account used for publishing.
 
 Common options:
   --daemon-url <url>   OpenDesign daemon HTTP base (default OD_DAEMON_URL, inherited sidecar discovery, or http://127.0.0.1:7456).
