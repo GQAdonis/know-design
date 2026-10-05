@@ -6,7 +6,12 @@ import {
   resetWebBuildProfileForTests,
   setWebBuildProfile,
 } from '../../src/collab/build-profile';
-import { IMAGE_MODELS, DEFAULT_IMAGE_MODEL, defaultImageModelId } from '../../src/media/models';
+import {
+  IMAGE_MODELS,
+  DEFAULT_IMAGE_MODEL,
+  defaultImageModelId,
+  imageModelForProfile,
+} from '../../src/media/models';
 import { daemonIsLive } from '../../src/providers/registry';
 import type { AppConfig } from '../../src/types';
 
@@ -52,5 +57,13 @@ describe('web build profile', () => {
     const model = IMAGE_MODELS.find((m) => m.id === defaultImageModelId('knowdesign'));
     expect(model).toBeDefined();
     expect(model?.provider).not.toBe('vela');
+  });
+
+  it('replaces a stale Vela image selection only under knowdesign', () => {
+    const vela = IMAGE_MODELS.find((m) => m.provider === 'vela')!.id;
+    const other = IMAGE_MODELS.find((m) => m.provider !== 'vela')!.id;
+    expect(imageModelForProfile(vela, 'default')).toBe(vela);
+    expect(imageModelForProfile(vela, 'knowdesign')).toBe(defaultImageModelId('knowdesign'));
+    expect(imageModelForProfile(other, 'knowdesign')).toBe(other);
   });
 });

@@ -680,6 +680,20 @@ export function defaultImageModelId(profile: 'default' | 'knowdesign' = 'default
   return usable.find((model) => model.default)?.id ?? usable[0]?.id ?? DEFAULT_IMAGE_MODEL;
 }
 
+/**
+ * Keeps an already-selected image model valid when the build profile is learned
+ * after a surface mounted: a Vela model is replaced by the knowdesign default,
+ * anything else (including a non-Vela choice the user made) is left alone.
+ */
+export function imageModelForProfile(
+  current: string,
+  profile: 'default' | 'knowdesign' = 'default',
+): string {
+  if (profile !== 'knowdesign') return current;
+  const selected = IMAGE_MODELS.find((model) => model.id === current);
+  return selected?.provider === 'vela' ? defaultImageModelId('knowdesign') : current;
+}
+
 export const DEFAULT_VIDEO_MODEL =
   VIDEO_MODELS.find((m) => m.default)?.id ?? VIDEO_MODELS[0]!.id;
 export const DEFAULT_AUDIO_MODEL: Record<AudioKind, string> = {

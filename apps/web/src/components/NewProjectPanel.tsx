@@ -42,6 +42,7 @@ import {
   DEFAULT_AUDIO_MODEL,
   DEFAULT_IMAGE_MODEL,
   defaultImageModelId,
+  imageModelForProfile,
   DEFAULT_VIDEO_MODEL,
   findProvider,
   imageModelIdForPromptTemplate,
@@ -64,7 +65,7 @@ import { Icon } from './Icon';
 import { Skeleton } from './Loading';
 import { Toast } from './Toast';
 import { useOpenFolderImport } from './useOpenFolderImport';
-import { getWebBuildProfile } from '../collab/build-profile';
+import { getWebBuildProfile, useWebBuildProfile } from '../collab/build-profile';
 
 // Snapshot of a curated prompt template, captured at New Project time and
 // folded into ProjectMetadata.promptTemplate. The user may have edited the
@@ -364,6 +365,11 @@ export function NewProjectPanel({
   // routes the project through that design template's SKILL.md instead.
   const [startTemplateId, setStartTemplateId] = useState<string | null>(null);
   const [imageModel, setImageModel] = useState(() => defaultImageModelId(getWebBuildProfile()));
+  // The profile can be learned after this panel mounted: drop a stale Vela selection.
+  const buildProfile = useWebBuildProfile();
+  useEffect(() => {
+    setImageModel((current) => imageModelForProfile(current, buildProfile));
+  }, [buildProfile]);
   const [imageAspect, setImageAspect] = useState<MediaAspect>('1:1');
   const [videoModel, setVideoModel] = useState(DEFAULT_VIDEO_MODEL);
   const [videoModelTouched, setVideoModelTouched] = useState(false);
