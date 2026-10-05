@@ -30,6 +30,17 @@ describe('web build profile', () => {
     expect(getWebBuildProfile()).toBe('knowdesign');
   });
 
+  it('returns to default when a later valid response omits the field', async () => {
+    await learnBuildProfileFromResponse(new Response(JSON.stringify({ buildProfile: 'knowdesign' }), { status: 200 }));
+    expect(getWebBuildProfile()).toBe('knowdesign');
+    await learnBuildProfileFromResponse(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    expect(getWebBuildProfile()).toBe('default');
+    // A body that is not JSON says nothing, so the profile is left alone.
+    setWebBuildProfile('knowdesign');
+    await learnBuildProfileFromResponse(new Response('not json', { status: 200 }));
+    expect(getWebBuildProfile()).toBe('knowdesign');
+  });
+
   it('learns the profile from the existing boot health check without an extra request', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true, buildProfile: 'knowdesign' }), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);

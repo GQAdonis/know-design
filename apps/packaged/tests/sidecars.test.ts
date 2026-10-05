@@ -575,6 +575,36 @@ describe('buildPackagedDaemonSpawnEnv', () => {
     expect(env.OD_LEGACY_DATA_DIR).toBeUndefined();
   });
 
+  it('never bakes the upstream telemetry endpoints into the daemon under the knowdesign profile', () => {
+    const options = {
+      appVersion: '1.2.3',
+      daemonCliEntry: null,
+      legacyDataDir: null,
+      posthogHost: 'https://us.i.posthog.com',
+      posthogKey: 'phc_test',
+      requireDesktopAuth: true,
+      telemetryRelayUrl: 'https://telemetry.open-design.ai/api/langfuse',
+    };
+    vi.stubEnv('OD_BUILD_PROFILE', 'knowdesign');
+    try {
+      const on = buildPackagedDaemonSpawnEnv(fakePaths(), options);
+      expect(on.POSTHOG_KEY).toBeUndefined();
+      expect(on.POSTHOG_HOST).toBeUndefined();
+      expect(on.OPEN_DESIGN_TELEMETRY_RELAY_URL).toBeUndefined();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+    const off = buildPackagedDaemonSpawnEnv(fakePaths(), options);
+    expect(off.POSTHOG_KEY).toBe('phc_test');
+    expect(off.POSTHOG_HOST).toBe('https://us.i.posthog.com');
+    expect(off.OPEN_DESIGN_TELEMETRY_RELAY_URL).toBe('https://telemetry.open-design.ai/api/langfuse');
+  });
+
+  it('forwards the build profile to packaged children so the daemon resolves the launcher profile', () => {
+    const env = resolvePackagedChildBaseEnv({ OD_BUILD_PROFILE: 'knowdesign' }, false, {}, false);
+    expect(env.OD_BUILD_PROFILE).toBe('knowdesign');
+  });
+
   it('forwards updater controls needed by a historical desktop handoff', () => {
     const env = buildPackagedDaemonSpawnEnv(fakePaths(), {
       appVersion: '1.2.3',

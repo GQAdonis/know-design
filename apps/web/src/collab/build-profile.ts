@@ -36,7 +36,10 @@ export function useWebBuildProfile(): BuildProfile {
 export async function learnBuildProfileFromResponse(response: Response): Promise<void> {
   try {
     const body: unknown = await response.clone().json();
-    if (body && typeof body === 'object' && 'buildProfile' in body) {
+    // A valid JSON object answers authoritatively: the daemon omits the field under the
+    // default profile, so an absent `buildProfile` means 'default' (a reconnect to a
+    // stock daemon must not keep the knowdesign UI).
+    if (body && typeof body === 'object') {
       setWebBuildProfile((body as { buildProfile?: unknown }).buildProfile);
     }
   } catch {

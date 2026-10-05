@@ -260,7 +260,7 @@ async function fetchWorkspaceDirectory(): Promise<WorkspaceDirectoryResponse> {
   }
   const body = (await response.json()) as WorkspaceDirectoryResponse;
   // Learn the build profile before any directory item is projected into a context.
-  if (body && 'buildProfile' in body) setWebBuildProfile(body.buildProfile);
+  if (body && typeof body === 'object') setWebBuildProfile(body.buildProfile);
   return body;
 }
 
