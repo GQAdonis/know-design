@@ -1,0 +1,49 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/collab/workspace-context-source.ts",
+      "line": 124,
+      "claim": "The context-provider factory still constructs the Vela backend under knowdesign when OD_WORKSPACE_CONTEXT_SOURCE=vela is inherited.",
+      "evidence": "workspaceContextSource() explicitly returns null for knowdesign, and fetchWorkspaceDirectoryFromSource() returns an empty directory for that profile, but createWorkspaceContextProviderFromEnv() bypasses that gate by calling registeredSource(env, registry). The registered Vela implementation then calls createVelaWorkspaceContextProvider(options). This leaves the runtime using an external context provider while directory authority and hub capabilities report no source, contrary to the profile's AMR/cloud removal and no-upstream-network requirements.",
+      "suggested_fix": "Select the factory's source through workspaceContextSource(env, registry), returning the local provider when knowdesign is active. Add a test with both OD_BUILD_PROFILE=knowdesign and OD_WORKSPACE_CONTEXT_SOURCE=vela that verifies the Vela provider is never constructed."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/cli.ts",
+      "line": 2786,
+      "claim": "Knowdesign still exposes a community-registry publishing path through od plugin open-design-pr.",
+      "evidence": "runPlugin() gates login, publish, and publish-repo but unconditionally dispatches 'open-design-pr' to runPluginOpenDesignPr(rest). Both help surfaces retain this command and describe it as pushing a community-catalog branch and opening the OpenDesign PR form. Criterion 3 requires removing marketplace publishing under the profile; this retained command performs catalog publishing rather than merely inspecting local plugins.",
+      "suggested_fix": "Gate open-design-pr under the same profile check as the other publishing commands, remove it from profile-on help, and test that invoking it returns the unknown-subcommand error without performing GitHub operations."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/collab/sync-digest.ts",
+      "line": 136,
+      "claim": "A malformed session API URL now rejects the optional sync-digest probe instead of falling back to the real fetch.",
+      "evidence": "The original new URL('/api/v1/collab/sync-digest', session.apiUrl) ran inside read()'s try block. The replacement invokes source.syncDigestRequest({ env, workspaceId, readSession }) before that try block; vela-workspace-context-source.ts constructs the same URL inside this invocation. An invalid non-empty apiUrl therefore throws outside the existing failure handler, changing profile-off error handling and defeating the probe's null-on-failure fallback.",
+      "suggested_fix": "Move syncDigestRequest construction inside the guarded failure-handling block, or catch request-construction failures and return null with the normal cooldown. Add a regression test using an invalid apiUrl."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

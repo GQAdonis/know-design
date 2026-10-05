@@ -1,0 +1,41 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "apps/web/src/collab/build-profile.ts",
+      "line": 40,
+      "claim": "The web retains the knowdesign profile when reconnecting to a default-profile daemon because responses without buildProfile never reset the cached value.",
+      "evidence": "learnBuildProfileFromResponse calls setWebBuildProfile only when 'buildProfile' is present, and fetchWorkspaceDirectory in useWorkspaceContext.ts uses the same condition. Both daemon health and directory responses deliberately omit that field under the default profile. Once cachedProfile becomes 'knowdesign', subsequent default responses therefore leave Cloud UI disabled and continue normalizing locked workspace lifecycle states to active, violating the profile-off invariant.",
+      "suggested_fix": "For successful, validated health and workspace-directory responses, interpret an omitted buildProfile as 'default' and update the store. Add a regression test that learns knowdesign, then receives a default daemon response without the field."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "e2e/ui/knowdesign-fresh-install.test.ts",
+      "line": 117,
+      "claim": "The fresh-install acceptance test does not exercise desktop startup or desktop egress, leaving the explicitly required desktop acceptance unverified.",
+      "evidence": "Criterion 2 requires a fresh install 'on desktop' to start a local agent run without Cloud surfaces or upstream network calls. startFreshRuntime instead calls runtime.startWeb(env) and browser.newContext with runtime.url.web(); it never launches Electron, apps/packaged, or apps/desktop. Its proxy consequently cannot witness the packaged startup telemetry, desktop updater, or packaged child-environment propagation changed by this diff.",
+      "suggested_fix": "Add a packaged/Electron fresh-install test with OD_BUILD_PROFILE=knowdesign, exercise a local run through its window, and record or deny outbound traffic from the launcher, desktop, daemon, and renderer. Keep the tools-dev test as separate web coverage."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}
