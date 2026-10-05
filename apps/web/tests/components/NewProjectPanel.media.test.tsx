@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { NewProjectPanel } from '../../src/components/NewProjectPanel';
+import { resetWebBuildProfileForTests, setWebBuildProfile } from '../../src/collab/build-profile';
 
 describe('NewProjectPanel media provider badges', () => {
   beforeEach(() => {
@@ -289,5 +290,77 @@ describe('NewProjectPanel media provider badges', () => {
         }),
       }),
     );
+  });
+});
+
+// Under the knowdesign profile the managed Vela image route is gone, so a new image project must
+// never be created with a `vela/*` model. The web learns the profile from the boot health response,
+// which can arrive after the panel has already mounted with the Vela default selected.
+describe('NewProjectPanel image default under the knowdesign profile', () => {
+  const panel = (onCreate: Mock<(input: unknown) => void>) => (
+    <NewProjectPanel
+      skills={[]}
+      designSystems={[]}
+      defaultDesignSystemId={null}
+      templates={[]}
+      onDeleteTemplate={vi.fn()}
+      promptTemplates={[]}
+      onCreate={onCreate}
+      mediaProviders={{}}
+    />
+  );
+
+  beforeEach(() => {
+    vi.stubGlobal('ResizeObserver', class {
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    });
+    Element.prototype.scrollIntoView = vi.fn();
+    resetWebBuildProfileForTests();
+  });
+
+  afterEach(() => {
+    cleanup();
+    resetWebBuildProfileForTests();
+    vi.unstubAllGlobals();
+  });
+
+  async function createImageProject(onCreate: Mock<(input: unknown) => void>) {
+    fireEvent.click(screen.getByRole('tab', { name: 'Media' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Image' }));
+    fireEvent.change(screen.getByTestId('new-project-name'), { target: { value: 'No Vela image' } });
+    fireEvent.click(screen.getByTestId('create-project'));
+    await waitFor(() => expect(onCreate).toHaveBeenCalled());
+    return onCreate.mock.calls[0]![0] as { metadata: { kind?: string; imageModel?: string } };
+  }
+
+  it('never creates a vela/* image project when the profile is set before mount', async () => {
+    setWebBuildProfile('knowdesign');
+    const onCreate = vi.fn<(input: unknown) => void>();
+    render(panel(onCreate));
+    const created = await createImageProject(onCreate);
+    // With no credentials and no Vela route there may be no usable model at all; what must never
+    // happen is a managed Vela model, which the profile-off test above shows this flow does pick.
+    expect(created.metadata.kind).toBe('image');
+    expect(String(created.metadata.imageModel ?? '').startsWith('vela/')).toBe(false);
+  });
+
+  it('switches off the Vela default when the profile is learned after the panel mounted', async () => {
+    const onCreate = vi.fn<(input: unknown) => void>();
+    render(panel(onCreate));
+    fireEvent.click(screen.getByRole('tab', { name: 'Media' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Image' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('model-picker-trigger').textContent).toContain('gpt-image-2 (Cloud)');
+    });
+
+    act(() => setWebBuildProfile('knowdesign'));
+
+    const created = await createImageProject(onCreate);
+    // With no credentials and no Vela route there may be no usable model at all; what must never
+    // happen is a managed Vela model, which the profile-off test above shows this flow does pick.
+    expect(created.metadata.kind).toBe('image');
+    expect(String(created.metadata.imageModel ?? '').startsWith('vela/')).toBe(false);
   });
 });
