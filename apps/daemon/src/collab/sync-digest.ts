@@ -18,8 +18,11 @@
 // pointed at anything else resolves to null rather than dialing production —
 // the same gate `startHubEventsSubscriber`'s endpoint resolver uses.
 
-import { readVelaControlApiContext } from '../integrations/vela.js';
-import { workspaceContextSourceCapabilities } from './workspace-context-source.js';
+import type { readVelaControlApiContext } from '../integrations/vela.js';
+import {
+  workspaceContextSource,
+  type WorkspaceContextSourceRegistry,
+} from './workspace-context-source.js';
 
 /** The two faces whose payloads are big enough (and change rarely enough) to be
  *  worth reusing from a local snapshot. Workspace context and billing are
@@ -55,6 +58,8 @@ export interface SyncDigestReaderOptions {
   env?: NodeJS.ProcessEnv;
   getWorkspaceId: () => string | null | undefined;
   fetchImpl?: typeof fetch;
+  /** Source registry override; defaults to the daemon's registry. */
+  sourceRegistry?: WorkspaceContextSourceRegistry;
   /** Injectable session read for tests; defaults to the vela control-key session. */
   readSession?: typeof readVelaControlApiContext;
   /** Abort a hung digest so it can never outlast the real fetch it is saving. */
@@ -114,7 +119,7 @@ export function parseSyncDigest(value: unknown): SyncDigest | null {
 export function createSyncDigestReader(options: SyncDigestReaderOptions): SyncDigestReader {
   const env = options.env ?? process.env;
   const fetchImpl = options.fetchImpl ?? fetch;
-  const readSession = options.readSession ?? readVelaControlApiContext;
+  const readSession = options.readSession;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const failureCooldownMs = options.failureCooldownMs ?? DEFAULT_FAILURE_COOLDOWN_MS;
   const now = options.now ?? Date.now;
@@ -122,32 +127,23 @@ export function createSyncDigestReader(options: SyncDigestReaderOptions): SyncDi
   let cooldownUntil = 0;
 
   async function read(): Promise<SyncDigestReading | null> {
-    // Same gate as the hub events subscriber: no vela source, no hub.
-    if (!workspaceContextSourceCapabilities(env).hubEvents) return null;
+    // Same gate as the hub events subscriber: no source with a hub, no digest.
+    const source = workspaceContextSource(env, options.sourceRegistry);
+    if (!source?.capabilities.hubEvents) return null;
     if (now() < cooldownUntil) return null;
-    const session = readSession(env);
-    if (!session?.controlKey || !session.apiUrl) return null;
-    const accountId = session.user?.id?.trim() ?? '';
     const workspaceId = options.getWorkspaceId()?.trim() ?? '';
-    // No account or no workspace means no safe cache key. Reporting null keeps
-    // the caller on a real fetch instead of letting it invent a shared key.
-    if (!accountId || !workspaceId) return null;
+    const request = source.syncDigestRequest({ env, workspaceId, readSession });
+    if (!request) return null;
+    const { accountId } = request;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     timer.unref?.();
     try {
-      const response = await fetchImpl(
-        new URL('/api/v1/collab/sync-digest', session.apiUrl).toString(),
-        {
-          headers: {
-            authorization: `Bearer ${session.controlKey}`,
-            'x-vela-workspace-id': workspaceId,
-            accept: 'application/json',
-          },
-          signal: controller.signal,
-        },
-      );
+      const response = await fetchImpl(request.url, {
+        headers: { ...request.headers },
+        signal: controller.signal,
+      });
       if (!response.ok) {
         cooldownUntil = now() + failureCooldownMs;
         return null;

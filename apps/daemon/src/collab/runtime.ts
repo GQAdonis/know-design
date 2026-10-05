@@ -28,7 +28,7 @@ import {
   shouldUseVelaCliResourceTransport,
 } from './vela-cli-resource-adapter.js';
 import type { WorkspaceContextProvider } from './workspace-context.js';
-import { createWorkspaceContextProviderFromEnv } from './vela-workspace-context.js';
+import { createWorkspaceContextProviderFromEnv } from './workspace-context-source.js';
 
 type TeamProjectCatalogSyncState = 'pending_upload' | 'synced' | 'failed';
 

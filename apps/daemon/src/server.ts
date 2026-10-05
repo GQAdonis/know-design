@@ -991,14 +991,16 @@ import {
 } from './runtimes/project-amr-trace-env.js';
 import {
   createWorkspaceDirectoryAuthorityBroker,
-  createWorkspaceContextProviderFromEnv,
-  fetchVelaWorkspaceDirectory,
-  resolveVelaWorkspaceHubEventsEndpoint,
   velaWorkspaceDirectoryIdentity,
   workspaceContextFromDirectoryItem,
 } from './collab/vela-workspace-context.js';
 import { verifyWorkspaceRequestContext } from './collab/request-workspace-context.js';
-import { workspaceContextSourceCapabilities } from './collab/workspace-context-source.js';
+import {
+  createWorkspaceContextProviderFromEnv,
+  fetchWorkspaceDirectoryFromSource,
+  workspaceContextSource,
+  workspaceContextSourceCapabilities,
+} from './collab/workspace-context-source.js';
 import {
   createWorkspaceBillingRuntimeCoordinator,
   shouldEmitWorkspaceBillingRuntimeNudge,
@@ -3804,9 +3806,7 @@ export async function startServer({
   });
   const workspaceDirectoryAuthority = createWorkspaceDirectoryAuthorityBroker({
     fetchDirectory: async () => {
-      // knowdesign has no cloud workspace directory: nothing to ask AMR for.
-      if (getBuildProfile() === 'knowdesign') return { ok: true as const, items: [] };
-      const result = await fetchVelaWorkspaceDirectory({
+      const result = await fetchWorkspaceDirectoryFromSource({
         configuredEnv: configuredAmrEnv(),
       });
       if (result.ok) workspaceTypes.learn(result.items);
@@ -6073,8 +6073,9 @@ export async function startServer({
     resolveEndpoint: async () => {
       // Same gating as the workspace-context provider: only the vela source
       // has a hub to subscribe to (dev daemons must not dial production).
-      if (!workspaceContextSourceCapabilities().hubEvents) return null;
-      return resolveVelaWorkspaceHubEventsEndpoint(
+      const source = workspaceContextSource();
+      if (!source?.capabilities.hubEvents) return null;
+      return source.resolveHubEventsEndpoint(
         subscribedWorkspaceId,
         process.env,
         configuredAmrEnv(),

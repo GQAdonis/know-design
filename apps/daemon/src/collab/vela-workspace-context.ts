@@ -26,7 +26,6 @@ import {
 } from '../integrations/vela.js';
 import type { HubEventsEndpoint } from './hub-events-subscriber.js';
 import {
-  createDevWorkspaceContextProvider,
   resolveWorkspaceSettingsUrl,
   type WorkspaceContextProvider,
   type WorkspaceContextRequest,
@@ -77,7 +76,7 @@ const BILLING_STATES = new Set<WorkspaceBillingState>([
 ]);
 const PROVIDER_MODES = new Set<WorkspaceProviderMode>(['platform_credits', 'personal_byok']);
 
-interface VelaWorkspaceContextOptions {
+export interface VelaWorkspaceContextOptions {
   /** Injectable for tests. */
   fetch?: typeof fetch;
   /** Reuse the daemon's account-scoped directory authority broker. */
@@ -932,28 +931,6 @@ export async function listVelaWorkspaceDirectory(
   options: VelaWorkspaceContextOptions = {},
 ): Promise<WorkspaceDirectoryItem[]> {
   return (await fetchVelaWorkspaceDirectory(options)).items;
-}
-
-/**
- * Select the workspace-context provider for this run. `OD_WORKSPACE_CONTEXT_SOURCE
- * =vela` opts into the real B-backed provider (production / e2e against a live
- * vela); every other value keeps the dev stub, so demo and tools-dev runs — which
- * have no B and drive the context via the dev PUT — are unaffected.
- */
-export function createWorkspaceContextProviderFromEnv(
-  env: NodeJS.ProcessEnv = process.env,
-  options: Pick<
-    VelaWorkspaceContextOptions,
-    | 'configuredEnv'
-    | 'fetchWorkspaceDirectory'
-    | 'getActiveWorkspaceId'
-    | 'replaceLocalSelection'
-  > = {},
-): WorkspaceContextProvider {
-  if (env.OD_WORKSPACE_CONTEXT_SOURCE?.trim() === 'vela') {
-    return createVelaWorkspaceContextProvider(options);
-  }
-  return createDevWorkspaceContextProvider();
 }
 
 function str(value: unknown): string {
