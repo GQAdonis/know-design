@@ -183,7 +183,7 @@ const AGENT_DETECTION_TIMEOUT_MS = 150_000;
 const RUN_TIMEOUT_MS = 120_000;
 test.describe.configure({ timeout: RUNTIME_CASE_TIMEOUT_MS });
 
-test('[P1] knowdesign fresh install lands on home and runs a local agent with no cloud sign-in, no balance dialog and no egress', async ({ browser }, testInfo) => {
+test('[P1] knowdesign fresh install lands on home and runs a local agent with no cloud sign-in, no balance dialog and no upstream egress', async ({ browser }, testInfo) => {
   const fresh = await startFreshRuntime(browser, testInfo, 'knowdesign');
   let failed = true;
   try {

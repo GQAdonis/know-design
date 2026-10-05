@@ -9,6 +9,7 @@ import { promisify } from 'node:util';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 import { createFakeAgentRuntimes, type FakeAgentRuntime } from '@/fake-agents';
+import { forbiddenUpstreamHits, startRecordingProxy } from '@/net/proxy-recorder';
 import { T } from '@/timeouts';
 import {
   capturePackagedFailureEvidence,
@@ -549,6 +550,131 @@ macDescribe('packaged mac runtime smoke', () => {
     // mid-cleanup, which is exactly how the earlier failures came back with
     // `logs: {skipped: true}` and nothing else.
   }, 300_000);
+
+  test('[P0] @electron-smoke knowdesign fresh install runs a local agent with no cloud sign-in, no balance dialog and no upstream egress', async () => {
+    // This case stops, uninstalls and wipes its namespace. Refuse anything but the
+    // dedicated one, so it can never touch a developer's own running instance.
+    expect(namespace, 'run with OD_PACKAGED_E2E_NAMESPACE=knowdesign-e2e').toBe(KNOWDESIGN_NAMESPACE);
+    const fakeAgentRoot = join(toolsPackDir, 'fixtures', `knowdesign-fresh-${namespace}`);
+    const proxy = await startRecordingProxy();
+    let installed = false;
+    let started = false;
+    let desktopLogPath: string | null = null;
+    let failure: unknown = null;
+    try {
+      await resetPackagedRuntimeState();
+      const fakeAgents = await createFakeAgentRuntimes({
+        root: fakeAgentRoot,
+        runtimeIds: ['codex'],
+        recordInvocations: true,
+      });
+      await runToolsPackJson<MacInstallResult>('install');
+      installed = true;
+      // A fresh install: onboarding is deliberately NOT marked completed, so a
+      // regression that routes to Cloud onboarding is visible. The agent is pinned
+      // because the packaged first-run driver needs one; choosing it through the
+      // Settings UI is covered by ui/knowdesign-fresh-install.test.ts.
+      await seedPackagedAppConfig({
+        mode: 'daemon',
+        apiKey: '',
+        baseUrl: 'https://api.anthropic.com',
+        model: 'claude-sonnet-4-5',
+        agentId: 'codex',
+        skillId: null,
+        designSystemId: null,
+        mediaProviders: {},
+        agentModels: { codex: { model: 'default', reasoning: 'default' } },
+        agentCliEnv: { codex: fakeAgents.codex.env },
+      });
+
+      const start = await runToolsPackJson<MacStartResult>(
+        'start',
+        [],
+        knowdesignLaunchEnv({ profile: 'knowdesign', proxyUrl: proxy.url }),
+      );
+      started = true;
+      desktopLogPath = start.logPath;
+      expect(start.source).toBe('installed');
+      const healthy = await waitForHealthyDesktop();
+      const health = asHealthEvalValue(healthy.eval?.value);
+      expect((health?.health as Record<string, unknown> | undefined)?.buildProfile).toBe('knowdesign');
+
+      const setup = await waitForPackagedHomeFirstRunSetup(async () => {
+        const inspect = await runToolsPackJson<MacInspectResult>('inspect', ['--expr', packagedHomeFirstRunExpression()]);
+        if (inspect.eval?.ok !== true) {
+          throw new Error(`packaged knowdesign first run setup failed: ${formatUnknown(inspect.eval)}`);
+        }
+        return inspect.eval.value;
+      });
+      expect(setup).toMatchObject({ inputTextBeforeSubmit: PACKAGED_HOME_FIRST_RUN_PROMPT, submitClicked: false });
+      // Home, not first-run onboarding: the Cloud sign-in wizard must never be routed to.
+      const home = await readKnowdesignSurfaces();
+      expect(home.pathname).not.toMatch(/^\/onboarding/);
+      expect(home.homeHero || home.composerPresent, 'Home surface did not render').toBe(true);
+
+      await waitForPackagedHomeFirstRunSubmit();
+      expect((await waitForPackagedHomeFirstRunStage('run-terminal')).terminalRunStatus).toBe('succeeded');
+      const firstRun = await waitForPackagedHomeFirstRunStage('assistant-output');
+      expect(firstRun.assistantText).toContain(PACKAGED_HOME_FIRST_RUN_OUTPUT);
+
+      // No Cloud sign-in or billing surface after the run either, and a settle window
+      // so a late, one-shot upstream call still lands before the egress read.
+      await delay(3_000);
+      const after = await readKnowdesignSurfaces();
+      expect(after.presentCloudSurfaces, 'cloud / billing surfaces on the page').toEqual([]);
+      expect(after.pathname).not.toMatch(/^\/onboarding/);
+      expect(after.nonLoopbackResources, 'renderer attempted non-loopback requests').toEqual([]);
+      // "Upstream" means the Open Design cloud, telemetry, GitHub and Discord hosts. The daemon's
+      // third-party calls (package registries, agent-CLI model discovery, MCP catalogs) are
+      // recorded in the report below but deliberately not asserted: whether a fresh knowdesign
+      // install should make them at all is a product decision, not this case's contract.
+      expect(forbiddenUpstreamHits(proxy.hosts()), 'daemon/web upstream egress').toEqual([]);
+      const { report } = await createPackagedSmokeReport('mac');
+      await report.json('knowdesign-fresh-install/result.json', {
+        buildProfile: 'knowdesign',
+        proxyHosts: proxy.hosts(),
+        surfaces: after,
+      });
+
+      // Control: the stock profile on the same install must route to Cloud onboarding
+      // AND be seen by the same recorder, otherwise the green result above could be a
+      // blind witness (a proxy variable the packaged runtime ignores).
+      await runToolsPackJson<MacStopResult>('stop');
+      started = false;
+      await rm(runtimeNamespaceRoot, { force: true, recursive: true });
+      const hostsBeforeControl = proxy.hosts().length;
+      const controlStart = await runToolsPackJson<MacStartResult>(
+        'start',
+        [],
+        knowdesignLaunchEnv({ profile: null, proxyUrl: proxy.url }),
+      );
+      started = true;
+      desktopLogPath = controlStart.logPath;
+      const controlHealthy = await waitForHealthyDesktop();
+      const controlHealth = asHealthEvalValue(controlHealthy.eval?.value);
+      expect((controlHealth?.health as Record<string, unknown> | undefined)?.buildProfile ?? 'default').not.toBe('knowdesign');
+      await runToolsPackJson<MacInspectResult>('inspect', ['--expr', KNOWDESIGN_CONTROL_UPSTREAM_EXPRESSION]);
+      // The same recorder must see upstream traffic, or the profile-on result proves nothing.
+      await waitFor(() => {
+        expect(
+          forbiddenUpstreamHits(proxy.hosts().slice(hostsBeforeControl)).length,
+          'the stock-profile control never reached the recording proxy',
+        ).toBeGreaterThan(0);
+      }, 60_000);
+    } catch (error) {
+      failure = error;
+      throw error;
+    } finally {
+      if (failure != null) await capturePackagedHomeFirstRunFailure(failure, desktopLogPath);
+      if (started || installed) {
+        await runToolsPackJson<MacUninstallResult>('uninstall').catch((error: unknown) => {
+          console.error('failed to uninstall the knowdesign packaged app during cleanup', error);
+        });
+      }
+      await proxy.close();
+      await rm(fakeAgentRoot, { force: true, recursive: true }).catch(() => undefined);
+    }
+  }, 600_000);
 
   test('installs, starts, inspects, stops, and uninstalls the built mac artifact', async () => {
     const report = await createPackagedSmokeReport('mac');
@@ -1782,7 +1908,108 @@ desktopMacDescribe('mac desktop settings smoke', () => {
   }, 45_000);
 });
 
-async function runToolsPackJson<T>(action: string, extraArgs: string[] = []): Promise<T> {
+const KNOWDESIGN_NAMESPACE = 'knowdesign-e2e';
+const KNOWDESIGN_LOOPBACK_HOSTS = ['127.0.0.1', 'localhost', '[::1]', '::1', ''];
+const KNOWDESIGN_CLOUD_TEST_IDS = [
+  'entry-cloud-signin-tip',
+  'entry-rail-account-sync-tip',
+  'entry-rail-account-recovery-tip',
+  'amr-balance-dialog',
+  'amr-artifact-upgrade-dialog',
+  'amr-artifact-upgrade-home-card',
+];
+
+type KnowdesignSurfaces = {
+  composerPresent: boolean;
+  homeHero: boolean;
+  nonLoopbackResources: string[];
+  pathname: string;
+  presentCloudSurfaces: string[];
+};
+
+/** The environment `tools-pack mac start` hands the app: profile (or none) plus egress through the recorder. */
+function knowdesignLaunchEnv(options: { profile: 'knowdesign' | null; proxyUrl: string }): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    // A developer's real ~/.amr login must never leak into a fresh install.
+    AMR_HOME: join(runtimeNamespaceRoot, 'amr-home'),
+    HTTP_PROXY: options.proxyUrl,
+    HTTPS_PROXY: options.proxyUrl,
+    http_proxy: options.proxyUrl,
+    https_proxy: options.proxyUrl,
+    NODE_USE_ENV_PROXY: '1',
+    NO_PROXY: '127.0.0.1,localhost,::1',
+    no_proxy: '127.0.0.1,localhost,::1',
+    OD_RELEASE_CHANNEL: 'stable',
+    POSTHOG_KEY: 'phc_e2e_recorder_key',
+    LANGFUSE_PUBLIC_KEY: 'pk-lf-e2e',
+    LANGFUSE_SECRET_KEY: 'sk-lf-e2e',
+    OPEN_DESIGN_TELEMETRY_RELAY_URL: 'https://telemetry.open-design.ai/api/langfuse',
+    OPEN_DESIGN_OBJECT_RELAY_URL: 'https://telemetry.open-design.ai/api/objects/batch',
+  };
+  if (options.profile == null) delete env.OD_BUILD_PROFILE;
+  else env.OD_BUILD_PROFILE = options.profile;
+  return env;
+}
+
+/** Evaluated in the renderer: which Cloud surfaces exist and which non-loopback URLs it requested. */
+function knowdesignSurfacesExpression(): string {
+  return `
+    (() => {
+      const local = (url) => {
+        try {
+          const parsed = new URL(url, location.href);
+          return ${JSON.stringify(KNOWDESIGN_LOOPBACK_HOSTS)}.includes(parsed.hostname)
+            || ['od:', 'data:', 'blob:', 'about:'].includes(parsed.protocol);
+        } catch { return true; }
+      };
+      const has = (selector) => document.querySelector(selector) != null;
+      const cloud = ${JSON.stringify(KNOWDESIGN_CLOUD_TEST_IDS)}
+        .filter((id) => has('[data-testid="' + id + '"]'));
+      if (has('.amr-account-control')) cloud.push('.amr-account-control');
+      if (has('.onboarding-cloud__primary')) cloud.push('.onboarding-cloud__primary');
+      if ([...document.querySelectorAll('button')].some((b) => /Sign in \\/ Sign up|登录 \\/ 注册/i.test(b.textContent || ''))) {
+        cloud.push('sign-in button');
+      }
+      if ([...document.querySelectorAll('[role="dialog"]')].some((d) =>
+        /balance|credits|upgrade|top.?up/i.test(d.getAttribute('aria-label') || d.textContent || ''))) {
+        cloud.push('balance dialog');
+      }
+      return {
+        composerPresent: has('[data-testid="chat-composer-input"]'),
+        homeHero: has('[data-testid="home-hero"]'),
+        nonLoopbackResources: performance.getEntriesByType('resource').map((entry) => entry.name).filter((name) => !local(name)),
+        pathname: location.pathname,
+        presentCloudSurfaces: cloud,
+      };
+    })()
+  `;
+}
+
+/** The stock-profile control pokes the upstream-bound daemon routes the profile must keep silent. */
+const KNOWDESIGN_CONTROL_UPSTREAM_EXPRESSION = `
+  Promise.all([
+    '/api/analytics/config',
+    '/api/whats-new',
+    '/api/github/open-design',
+    '/api/github/open-design/releases/latest',
+    '/api/community/discord',
+  ].map((path) => fetch(path).then((response) => response.status).catch(() => 0)))
+`;
+
+async function readKnowdesignSurfaces(): Promise<KnowdesignSurfaces> {
+  const inspect = await runToolsPackJson<MacInspectResult>('inspect', ['--expr', knowdesignSurfacesExpression()]);
+  if (inspect.eval?.ok !== true || !isRecord(inspect.eval.value)) {
+    throw new Error(`could not read the knowdesign surfaces: ${formatUnknown(inspect.eval)}`);
+  }
+  return inspect.eval.value as unknown as KnowdesignSurfaces;
+}
+
+async function runToolsPackJson<T>(
+  action: string,
+  extraArgs: string[] = [],
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<T> {
   const args = [
     'exec',
     'tools-pack',
@@ -1798,7 +2025,7 @@ async function runToolsPackJson<T>(action: string, extraArgs: string[] = []): Pr
   ];
   const result = await execFileAsync(pnpmCommand, args, {
     cwd: workspaceRoot,
-    env: process.env,
+    env,
     maxBuffer: 20 * 1024 * 1024,
   }).catch((error: unknown) => {
     if (isExecError(error)) {
