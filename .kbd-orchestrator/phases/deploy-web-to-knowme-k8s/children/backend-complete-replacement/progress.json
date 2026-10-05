@@ -2,16 +2,16 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 137,
-  "derivedRevision": 137,
+  "sourceRevision": 256,
+  "derivedRevision": 256,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 137
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 256
   },
   "conflictCount": 0,
   "phase": "backend-complete-replacement",
   "phaseId": "deploy-web-to-knowme-k8s::backend-complete-replacement",
   "parentPhase": "deploy-web-to-knowme-k8s",
-  "last_updated": "2026-10-03T13:20:33.907048Z",
+  "last_updated": "2026-10-05T16:48:30.612723Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 23,
   "changes_completed": 1,
@@ -49,7 +49,7 @@
     "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 1,
+      "completed": 7,
       "total": 47,
       "status": "IN_PROGRESS"
     },

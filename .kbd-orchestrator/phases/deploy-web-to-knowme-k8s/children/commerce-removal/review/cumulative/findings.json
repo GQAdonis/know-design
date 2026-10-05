@@ -1,18 +1,18 @@
 {
   "mode": "diff",
-  "verdict": "BLOCK",
+  "verdict": "PASS",
   "judge_model": "gpt-6.1-sol",
   "producer_model": "claude-sonnet-5-5",
   "isolation_mode": "rest-gateway:http://localhost:4000/v1",
   "cross_model_check": "verified-distinct",
   "findings": [
     {
-      "severity": "CRITICAL",
-      "file": "e2e/ui/knowdesign-fresh-install.test.ts",
-      "line": 81,
-      "claim": "The required desktop fresh-install acceptance test is still missing: the new test exercises a tools-dev web runtime, not the packaged Electron application.",
-      "evidence": "Criterion 2 requires a fresh install on desktop to start a local agent run without sign-in, balance dialogs, or upstream network calls, asserted by a network-denied e2e. This test constructs createToolsDevSuite(), calls runtime.startWeb(env), and opens browser.newContext(); it never launches Electron or the packaged launcher. The packet's Round-3 decision explicitly confirms that a packaged/Electron fresh-install e2e is NOT yet written. Consequently, the test does not exercise the changed packaged child-environment propagation, launcher telemetry configuration, or desktop updater in the required end-to-end flow.",
-      "suggested_fix": "Add a network-denied packaged/Electron fresh-install test that launches the actual desktop application under the knowdesign profile, selects and runs a local agent through its UI, and records browser and launcher/daemon egress; retain a profile-off control."
+      "severity": "WARNING",
+      "file": "e2e/tests/tools-dev/knowdesign-profile-no-upstream-network.test.ts",
+      "line": 23,
+      "claim": "The profile-off control does not explicitly clear OD_BUILD_PROFILE, so an inherited knowdesign environment can make the control run with the profile still enabled.",
+      "evidence": "upstreamEnv(proxyPort, null) uses `...(profile ? { OD_BUILD_PROFILE: profile } : {})`, omitting the variable rather than overriding it. The control passes that environment to toolsDev and expects upstream traffic. The same omission appears in e2e/ui/knowdesign-fresh-install.test.ts's startFreshRuntime environment, whose stock control expects Cloud onboarding. In contrast, knowdesignLaunchEnv in e2e/specs/mac.spec.ts explicitly deletes the inherited variable for its control.",
+      "suggested_fix": "Set OD_BUILD_PROFILE to an empty string for profile-off runtime launches, including both tools-dev and UI controls, so they override any inherited value. Add coverage that runs the control environment construction with the parent OD_BUILD_PROFILE set to knowdesign."
     }
   ],
   "judge_identity": {

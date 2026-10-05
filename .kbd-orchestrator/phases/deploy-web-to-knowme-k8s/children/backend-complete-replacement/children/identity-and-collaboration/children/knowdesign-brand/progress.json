@@ -8,9 +8,9 @@
     "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 256
   },
   "conflictCount": 0,
-  "phase": "upstream-fixes-and-skill-integration",
-  "phaseId": "upstream-fixes-and-skill-integration",
-  "parentPhase": null,
+  "phase": "knowdesign-brand",
+  "phaseId": "deploy-web-to-knowme-k8s::backend-complete-replacement::identity-and-collaboration::knowdesign-brand",
+  "parentPhase": "deploy-web-to-knowme-k8s::backend-complete-replacement::identity-and-collaboration",
   "last_updated": "2026-10-05T16:48:30.612723Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 0,
@@ -70,6 +70,17 @@
     }
   },
   "changes": [],
-  "children": {},
+  "children": {
+    "uar-acp-runtime": {
+      "status": "SKIPPED",
+      "changes_completed": 0,
+      "changes_total": 0,
+      "implementation_completed": 0,
+      "implementation_total": 0,
+      "certification_status": "NOT_TRACKED",
+      "handoff": null,
+      "completed_at": null
+    }
+  },
   "migrationStatus": null
 }

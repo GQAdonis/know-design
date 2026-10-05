@@ -44,3 +44,31 @@
 - Plan acceptance for change 1 said write permission for *every* lifecycle input; implemented as every *billing* lifecycle state, with `deleting`/`deleted` kept denied (security).
 - Not fixed (logged): daemon `MEDIA_MODEL_ALIASES` still map legacy ids to `vela/*` (now "unknown model"); `telemetry-relay.ts` / `langfuse-bridge.ts` / four Vela CLI collab sites have no profile guard of their own; `od plugin open-design-pr` still allowed; web `AmrLoginPill` in `SettingsDialog` is hidden only by trigger gating; the network recorder only sees proxy-aware egress (`NODE_USE_ENV_PROXY=1`).
 - Known leftover: baseline classes A/B daemon failures (machine/environment dependent) unchanged and unrelated.
+
+## Execute completion — 2026-10-05 (HEAD `7bb2f27e8a`)
+
+**Review gate: SATISFIED.** Independent judge `gpt-6.1-sol` (`cross_model_check: verified-distinct` from producer `claude-sonnet-5-5`), cumulative diff `a80bfeded3..219bd70de8` over `apps/ packages/ e2e/`. Seven rounds (`review/cumulative/findings-round*.json`, final `findings.json`): rounds 1–6 each returned BLOCK on a real defect that was fixed (permission decoupling criterion amended as D-015; late-learned profile image default; provider dispatch; the missing packaged fresh-install e2e; a hand-written data dir in a fixture; the reader-level digest key). Round 7 returned **PASS**; its single WARNING (profile-off control inheriting the profile) was fixed in `87f58c0b05`. The stale `pending-review.json` from the first, judge-less attempt is superseded.
+
+**Plan amendment in force (not a deviation):** D-014(c) replaced "aliases + conditional route registration" with explicit profile checks. Round 6 flagged this because its packet quoted the original plan text; the packet was corrected and round 7 judged against the amended criterion.
+
+**Final integration gate, signed receipts via `prometheus kbd gate run` (scope `commerce-removal-final`, Node 24.21.0)**
+| Step | Kind | Result |
+|---|---|---|
+| `pnpm guard` | compiler-check | pass |
+| `pnpm typecheck` | compiler-check | pass (first run failed only because the gate's PATH resolved a broken `TheBoss/commands/node` shim; rerun with Node 24.21.0 first) |
+| contracts tests | integration | 73 files / 730 tests pass |
+| web tests | integration | 1253 files pass; 12778 tests, 0 failures (baseline had 1 expected fail) |
+| daemon, files touched by this phase | integration | 6 files / 57 tests pass. The full daemon suite (~99 min) was not rerun: its 33 baseline failures are pre-existing and classified in `baseline.md`; no new file was found failing by name |
+| tools-dev e2e (`amr/knowdesign-no-cloud`, `tools-dev/knowdesign-profile-no-upstream-network`) | integration | 3/3 pass |
+| **packaged mac e2e** (`specs/mac.spec.ts`, knowdesign fresh install, DMG-built app, namespace `knowdesign-e2e`) | integration | 1/1 pass, stock-profile control sees upstream traffic. A first attempt hit a cold-start launch timeout; rerun passed |
+
+A `certification`-kind gate was attempted for the packaged e2e and is blocked until every boundary receipt in the whole phase tree exists; that kind belongs to final tree certification, not to this phase.
+
+**verify / archive:** the six OpenSpec changes were placeholders with no spec deltas, so `openspec validate` failed. One capability spec per change was authored from behaviour proven by tests (`build-profile`, `amr-and-billing-removal`, `upstream-surfaces-removal`, `upstream-network-silence`, `workspace-context-source`, `test-baseline`); all six verify PASS and are archived (`openspec/changes/archive/2026-10-05-*`, specs merged into `openspec/specs/`). A stale OpenSpec `operation.lock` (dead PID 28164, an interrupted refresh from 08:37) was removed after confirming no process held it.
+
+**Declared limitations (carried into Reflect, not hidden)**
+- On a fresh knowdesign install the daemon still makes third-party calls with no user action (observed 274 requests to 10 hosts: pub.dev, api2.cursor.sh, api.osv.dev, registry.npmjs.org, mcp.typeui.sh, antigravity, dashscope, aihubmix, openrouter). They are recorded in the packaged report but not asserted; "upstream" means open-design.ai, telemetry, GitHub and Discord. Whether to silence them is a product decision.
+- `OD_BUILD_PROFILE` is read from the process environment at launch and is not baked into the packaged config, so an app launched by double-click from Finder runs the default profile.
+- Electron main-process Chromium traffic is not routed through the recording proxy; the renderer is witnessed by in-page resource entries and the daemon/web sidecars by the proxy.
+- The agent is pinned in app-config in the packaged e2e; picking one through Settings is covered by `ui/knowdesign-fresh-install.test.ts`. A fresh install still has no agent selected, so the user must pick one.
+- D-015 (billing-derived lifecycle states only) is an agent-recorded acceptance amendment awaiting operator ratification.

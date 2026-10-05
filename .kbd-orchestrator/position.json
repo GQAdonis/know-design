@@ -2,13 +2,13 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 235,
-  "derivedRevision": 235,
+  "sourceRevision": 258,
+  "derivedRevision": 258,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 235
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 258
   },
   "conflictCount": 0,
-  "updatedAt": "2026-10-05T05:27:36.641079Z",
+  "updatedAt": "2026-10-05T16:49:02.038623Z",
   "cursor": [
     "deploy-web-to-knowme-k8s",
     "commerce-removal",

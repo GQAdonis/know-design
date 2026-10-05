@@ -1,0 +1,33 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "e2e/ui/knowdesign-fresh-install.test.ts",
+      "line": 81,
+      "claim": "The required desktop fresh-install acceptance test is still missing: the new test exercises a tools-dev web runtime, not the packaged Electron application.",
+      "evidence": "Criterion 2 requires a fresh install on desktop to start a local agent run without sign-in, balance dialogs, or upstream network calls, asserted by a network-denied e2e. This test constructs createToolsDevSuite(), calls runtime.startWeb(env), and opens browser.newContext(); it never launches Electron or the packaged launcher. The packet's Round-3 decision explicitly confirms that a packaged/Electron fresh-install e2e is NOT yet written. Consequently, the test does not exercise the changed packaged child-environment propagation, launcher telemetry configuration, or desktop updater in the required end-to-end flow.",
+      "suggested_fix": "Add a network-denied packaged/Electron fresh-install test that launches the actual desktop application under the knowdesign profile, selects and runs a local agent through its UI, and records browser and launcher/daemon egress; retain a profile-off control."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

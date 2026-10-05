@@ -1,0 +1,40 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/collab/sync-digest.ts",
+      "line": 134,
+      "claim": "The provider-independent sync-digest reader no longer rejects an empty workspace ID, allowing a registered provider to fetch and return a digest without a safe workspace cache key.",
+      "evidence": "The previous read() rejected `!accountId || !workspaceId` before fetching. The new read() computes `options.getWorkspaceId()?.trim() ?? ''` and passes it directly to `source.syncDigestRequest`. Only vela-workspace-context-source.ts retains the workspace-ID check. The conforming third-provider fixture in collab-workspace-context-source.test.ts returns a request unconditionally, so selecting that source with a null or blank workspace now reaches fetch instead of returning null.",
+      "suggested_fix": "Restore `if (!workspaceId) return null` in the shared reader before building the request, and add a third-provider test proving that missing or blank workspace IDs neither build a request nor fetch a digest."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/runtimes/build-profile.ts",
+      "claim": "The change does not implement the explicitly required profile-dependent stub-module-swap mechanism.",
+      "evidence": "Acceptance criterion 1 requires introducing `OD_BUILD_PROFILE=knowdesign` and a 'stub-module-swap mechanism (aliases + conditional route registration)'. The cumulative diff adds environment predicates and conditional handlers but no module aliases or stub-module swaps. For example, runtimes/registry.ts still statically imports amrAgentDef, and workspace-context-source.ts still statically imports velaWorkspaceContextSource under both profiles.",
+      "suggested_fix": "Implement the required profile-dependent aliases and stub modules at the relevant build entrypoints, with profile-on and profile-off resolution tests, or explicitly amend the acceptance criterion to authorize runtime gating instead."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

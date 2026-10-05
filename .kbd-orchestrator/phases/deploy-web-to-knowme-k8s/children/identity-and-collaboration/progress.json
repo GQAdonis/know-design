@@ -2,16 +2,16 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 115,
-  "derivedRevision": 115,
+  "sourceRevision": 256,
+  "derivedRevision": 256,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 115
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 256
   },
   "conflictCount": 0,
   "phase": "identity-and-collaboration",
   "phaseId": "identity-and-collaboration",
   "parentPhase": "deploy-web-to-knowme-k8s",
-  "last_updated": "2026-10-03T13:20:11.078322Z",
+  "last_updated": "2026-10-05T16:48:30.612723Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 10,
   "changes_completed": 0,
@@ -49,7 +49,7 @@
     "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 1,
+      "completed": 7,
       "total": 47,
       "status": "IN_PROGRESS"
     },

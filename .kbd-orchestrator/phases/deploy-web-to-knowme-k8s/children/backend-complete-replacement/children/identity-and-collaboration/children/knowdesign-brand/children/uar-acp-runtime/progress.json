@@ -8,9 +8,9 @@
     "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 256
   },
   "conflictCount": 0,
-  "phase": "upstream-fixes-and-skill-integration",
-  "phaseId": "upstream-fixes-and-skill-integration",
-  "parentPhase": null,
+  "phase": "uar-acp-runtime",
+  "phaseId": "deploy-web-to-knowme-k8s::backend-complete-replacement::identity-and-collaboration::knowdesign-brand::uar-acp-runtime",
+  "parentPhase": "deploy-web-to-knowme-k8s::backend-complete-replacement::identity-and-collaboration::knowdesign-brand",
   "last_updated": "2026-10-05T16:48:30.612723Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 0,

@@ -1,0 +1,41 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "e2e/specs/mac.spec.ts",
+      "line": 556,
+      "claim": "The new KnowDesign test fails the existing packaged mac smoke suite whenever it runs with any namespace other than knowdesign-e2e.",
+      "evidence": "The test is registered unconditionally inside the existing macDescribe suite, but its first statement asserts `expect(namespace).toBe(KNOWDESIGN_NAMESPACE)`, where KNOWDESIGN_NAMESPACE is `knowdesign-e2e`. No test-level skip or separate suite gate restricts this destructive test to that namespace. Criterion 2 requires the e2e suites to pass versus baseline, and the profile-off invariant requires existing behavior to remain unchanged.",
+      "suggested_fix": "Register this case in a separately gated KnowDesign suite, or skip it unless OD_PACKAGED_E2E_NAMESPACE explicitly equals knowdesign-e2e; retain the assertion as an additional safety check inside the gated case."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/tests/amr-absent-under-profile.test.ts",
+      "line": 28,
+      "claim": "The route fixture introduces a concrete daemon data-directory path instead of deriving it from the runtime data-directory contract.",
+      "evidence": "The new fixture passes `paths: { RUNTIME_DATA_DIR: '/nonexistent-od-data' }`. The blocking constraint states: 'Daemon data paths derive from RUNTIME_DATA_DIR. Do not introduce concrete filesystem examples for the daemon data directory.'",
+      "suggested_fix": "Allocate an isolated temporary fixture directory and pass the resolved runtime data directory into registerVelaRoutes, with cleanup after the test, as the other new route fixture does."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

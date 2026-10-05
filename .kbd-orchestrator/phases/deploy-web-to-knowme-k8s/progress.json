@@ -2,16 +2,16 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 234,
-  "derivedRevision": 234,
+  "sourceRevision": 256,
+  "derivedRevision": 256,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 234
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 256
   },
   "conflictCount": 0,
   "phase": "deploy-web-to-knowme-k8s",
   "phaseId": "deploy-web-to-knowme-k8s",
   "parentPhase": null,
-  "last_updated": "2026-10-04T19:38:37.242526Z",
+  "last_updated": "2026-10-05T16:48:30.612723Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 1,
   "changes_completed": 0,
