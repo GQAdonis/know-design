@@ -150,6 +150,14 @@ describe('workspace context source dispatch', () => {
     expectVelaUntouched();
   });
 
+  it('never constructs the Vela provider under knowdesign, even with an inherited vela source', () => {
+    createWorkspaceContextProviderFromEnv({
+      OD_BUILD_PROFILE: 'knowdesign',
+      OD_WORKSPACE_CONTEXT_SOURCE: 'vela',
+    });
+    expectVelaUntouched();
+  });
+
   it('routes vela through the Vela implementation and dev/unset to the dev stub', () => {
     createWorkspaceContextProviderFromEnv({ OD_WORKSPACE_CONTEXT_SOURCE: 'vela' });
     expect(createVelaWorkspaceContextProvider).toHaveBeenCalledTimes(1);

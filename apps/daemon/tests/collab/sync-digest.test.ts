@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   createSyncDigestReader,
@@ -81,6 +81,28 @@ describe('createSyncDigestReader', () => {
     expect(seen[0]?.url).toBe('https://amr-api.example.test/api/v1/collab/sync-digest');
     expect(seen[0]?.headers.authorization).toBe('Bearer ck-1');
     expect(seen[0]?.headers['x-vela-workspace-id']).toBe('ws-1');
+  });
+
+  it('fails like any other probe failure on a malformed session URL', async () => {
+    const fetchImpl = vi.fn();
+    const onError = vi.fn();
+    let clock = 1_000;
+    const read = createSyncDigestReader({
+      env: { OD_WORKSPACE_CONTEXT_SOURCE: 'vela' },
+      getWorkspaceId: () => 'ws-1',
+      readSession: () => session({ apiUrl: 'http://' }),
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      failureCooldownMs: 5_000,
+      now: () => clock,
+      onError,
+    });
+    await expect(read()).resolves.toBeNull();
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(fetchImpl).not.toHaveBeenCalled();
+    // Inside the cooldown the probe stays quiet; it does not throw again.
+    clock += 1_000;
+    await expect(read()).resolves.toBeNull();
+    expect(onError).toHaveBeenCalledTimes(1);
   });
 
   it('stays off the wire unless the workspace source is vela', async () => {

@@ -132,14 +132,15 @@ export function createSyncDigestReader(options: SyncDigestReaderOptions): SyncDi
     if (!source?.capabilities.hubEvents) return null;
     if (now() < cooldownUntil) return null;
     const workspaceId = options.getWorkspaceId()?.trim() ?? '';
-    const request = source.syncDigestRequest({ env, workspaceId, readSession });
-    if (!request) return null;
-    const { accountId } = request;
-
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     timer.unref?.();
     try {
+      // Built inside the guarded block: a malformed session URL must fail like any
+      // other probe failure (null, normal cooldown), not escape as a throw.
+      const request = source.syncDigestRequest({ env, workspaceId, readSession });
+      if (!request) return null;
+      const { accountId } = request;
       const response = await fetchImpl(request.url, {
         headers: { ...request.headers },
         signal: controller.signal,

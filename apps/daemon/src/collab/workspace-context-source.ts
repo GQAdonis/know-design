@@ -116,15 +116,15 @@ export function workspaceContextSourceCapabilities(
  * Select the workspace-context provider for this run. A registered kind builds
  * its backed provider; every other value keeps the dev stub, so demo and
  * tools-dev runs — which have no backend and drive the context via the dev
- * PUT — are unaffected. Deliberately not profile-gated (unchanged behaviour:
- * the profile only decouples the provider's own decisions).
+ * PUT — are unaffected. Under knowdesign the dev stub is always used.
  */
 export function createWorkspaceContextProviderFromEnv(
   env: NodeJS.ProcessEnv = process.env,
   options: Parameters<WorkspaceContextSource['createContextProvider']>[0] = {},
   registry: WorkspaceContextSourceRegistry = WORKSPACE_CONTEXT_SOURCE_REGISTRY,
 ): WorkspaceContextProvider {
-  const source = registeredSource(env, registry);
+  // knowdesign has no external backend: a leftover OD_WORKSPACE_CONTEXT_SOURCE must not construct one.
+  const source = workspaceContextSource(env, registry);
   return source ? source.createContextProvider(options) : createDevWorkspaceContextProvider();
 }
 

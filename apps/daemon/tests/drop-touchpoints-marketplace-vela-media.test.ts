@@ -154,13 +154,15 @@ describe('knowdesign profile: CLI surface', () => {
     expect(on.stdout).not.toContain('od plugin login');
     expect(on.stdout).not.toContain('od plugin publish ');
     expect(on.stdout).not.toContain('od plugin publish-repo');
+    expect(on.stdout).not.toContain('od plugin open-design-pr');
     const off = await run(['plugin', '--help'], false);
     expect(off.stdout).toContain('od plugin login');
     expect(off.stdout).toContain('od plugin publish ');
+    expect(off.stdout).toContain('od plugin open-design-pr');
   });
 
   it('rejects plugin login/publish as unknown subcommands under the profile', async () => {
-    for (const sub of ['login', 'publish', 'publish-repo']) {
+    for (const sub of ['login', 'publish', 'publish-repo', 'open-design-pr']) {
       const result = await run(['plugin', sub], true);
       expect(result.code).toBe(2);
       expect(result.stderr).toContain(`unknown subcommand: od plugin ${sub}`);

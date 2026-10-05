@@ -992,9 +992,9 @@ function printRootHelp() {
       Discover, install, and apply plugins through the local daemon.
 ${isKnowdesignProfile() ? '' : `  od plugin publish-repo <folder>
       Create/update the author's GitHub repo for a local plugin folder.
-`}  od plugin open-design-pr <folder>
+`}${isKnowdesignProfile() ? '' : `  od plugin open-design-pr <folder>
       Push a community-catalog branch and open the OpenDesign PR form.
-
+`}
   od automation <list|get|create|update|run|runs|pause|resume|delete> [args]
       Drive the Automations surface headlessly. Same store as the UI's
       Automations tab, so an external agent (hermes, openclaw, ...) can
@@ -2784,7 +2784,7 @@ async function runPlugin(args) {
     case 'export':   return runPluginExport(rest);
     case 'publish':  if (isKnowdesignProfile()) return pluginUnknownSubcommand(sub); return runPluginPublish(rest);
     case 'publish-repo': if (isKnowdesignProfile()) return pluginUnknownSubcommand(sub); return runPluginPublishRepo(rest);
-    case 'open-design-pr': return runPluginOpenDesignPr(rest);
+    case 'open-design-pr': if (isKnowdesignProfile()) return pluginUnknownSubcommand(sub); return runPluginOpenDesignPr(rest);
     case 'yank':     return runPluginYank(rest);
     default:
       return pluginUnknownSubcommand(sub);
@@ -6204,9 +6204,9 @@ function printPluginHelp() {
                                           List persisted skill-to-plugin candidates.
 ${isKnowdesignProfile() ? '' : `  od plugin publish-repo <folder>         Create/update the author's public
                                           GitHub repo for a plugin folder.
-`}  od plugin open-design-pr <folder>       Push a community-catalog branch and
+`}${isKnowdesignProfile() ? '' : `  od plugin open-design-pr <folder>       Push a community-catalog branch and
                                           open the nexu-io/open-design PR form.
-${isKnowdesignProfile() ? '' : `  od plugin publish <folder> --to open-design|anthropics-skills|awesome-agent-skills|clawhub|skills-sh
+`}${isKnowdesignProfile() ? '' : `  od plugin publish <folder> --to open-design|anthropics-skills|awesome-agent-skills|clawhub|skills-sh
                                           Prepare a registry submission link.
   od plugin login [--host github.com]      Authenticate registry publishing via gh.
 `}  od plugin whoami [--host github.com]     Show the gh account used for publishing.
