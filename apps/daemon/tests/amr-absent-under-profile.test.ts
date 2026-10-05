@@ -2,8 +2,11 @@
 // surface must degrade to "unavailable" (non-2xx, which the web fetchers map to
 // null) instead of reaching the AMR cloud. Profile OFF keeps the stock registry.
 
+import { mkdtempSync, rmSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import express from 'express';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -21,10 +24,12 @@ async function loadRegistry(profile: string | undefined) {
 
 async function serveVelaRoutes(profile: string | undefined) {
   const { registerVelaRoutes } = await import('../src/routes/vela.js');
+  // A real temp dir, never a hand-written data-directory path (AGENTS.md: Daemon data directory contract).
+  const dataDir = mkdtempSync(path.join(tmpdir(), 'od-amr-absent-'));
   const app = express();
   app.use(express.json());
   registerVelaRoutes(app, {
-    paths: { RUNTIME_DATA_DIR: '/nonexistent-od-data' },
+    paths: { RUNTIME_DATA_DIR: dataDir },
     appConfig: { readAppConfig: async () => ({}) as never },
     http: {},
     env: profile ? { OD_BUILD_PROFILE: profile } : {},
@@ -33,7 +38,16 @@ async function serveVelaRoutes(profile: string | undefined) {
     const s = app.listen(0, '127.0.0.1', () => resolve(s));
   });
   const { port } = server.address() as AddressInfo;
-  return { base: `http://127.0.0.1:${port}`, close: () => new Promise<void>((r) => server.close(() => r())) };
+  return {
+    base: `http://127.0.0.1:${port}`,
+    close: () =>
+      new Promise<void>((r) =>
+        server.close(() => {
+          rmSync(dataDir, { force: true, recursive: true });
+          r();
+        }),
+      ),
+  };
 }
 
 describe('amr agent registry seam', () => {

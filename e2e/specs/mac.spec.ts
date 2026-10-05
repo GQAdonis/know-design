@@ -51,6 +51,8 @@ const e2eRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const workspaceRoot = dirname(e2eRoot);
 const toolsPackDir = resolveFromWorkspace(process.env.OD_PACKAGED_E2E_TOOLS_PACK_DIR ?? '.tmp/tools-pack');
 const namespace = resolvePackagedSmokeNamespace('mac');
+// The knowdesign fresh-install case wipes its namespace, so it runs only against this dedicated one.
+const KNOWDESIGN_NAMESPACE = 'knowdesign-e2e';
 const releaseChannel = process.env.OD_PACKAGED_E2E_RELEASE_CHANNEL;
 const releaseVersion = process.env.OD_PACKAGED_E2E_RELEASE_VERSION;
 const updateScenario = resolvePackagedUpdateScenario({ releaseChannel, releaseVersion });
@@ -551,9 +553,9 @@ macDescribe('packaged mac runtime smoke', () => {
     // `logs: {skipped: true}` and nothing else.
   }, 300_000);
 
-  test('[P0] @electron-smoke knowdesign fresh install runs a local agent with no cloud sign-in, no balance dialog and no upstream egress', async () => {
-    // This case stops, uninstalls and wipes its namespace. Refuse anything but the
-    // dedicated one, so it can never touch a developer's own running instance.
+  test.skipIf(namespace !== KNOWDESIGN_NAMESPACE)('[P0] @electron-smoke knowdesign fresh install runs a local agent with no cloud sign-in, no balance dialog and no upstream egress', async () => {
+    // Defence in depth behind skipIf: this case stops, uninstalls and wipes its namespace, so it
+    // must never run against a developer's own instance or another suite's namespace.
     expect(namespace, 'run with OD_PACKAGED_E2E_NAMESPACE=knowdesign-e2e').toBe(KNOWDESIGN_NAMESPACE);
     const fakeAgentRoot = join(toolsPackDir, 'fixtures', `knowdesign-fresh-${namespace}`);
     const proxy = await startRecordingProxy();
@@ -1908,7 +1910,6 @@ desktopMacDescribe('mac desktop settings smoke', () => {
   }, 45_000);
 });
 
-const KNOWDESIGN_NAMESPACE = 'knowdesign-e2e';
 const KNOWDESIGN_LOOPBACK_HOSTS = ['127.0.0.1', 'localhost', '[::1]', '::1', ''];
 const KNOWDESIGN_CLOUD_TEST_IDS = [
   'entry-cloud-signin-tip',
