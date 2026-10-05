@@ -11,64 +11,11 @@
  * traffic, so a green profile-on run is evidence and not a blind spot.
  */
 
-import { createServer, type IncomingMessage, type Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import type { Duplex } from 'node:stream';
-
 import { describe, expect, test } from 'vitest';
 
+import { forbiddenUpstreamHits as forbiddenHits, startRecordingProxy } from '@/net/proxy-recorder';
 import { requestJson } from '@/vitest/http';
 import { createSmokeSuite } from '@/vitest/suite';
-
-const FORBIDDEN_HOST_PATTERNS: readonly RegExp[] = [
-  /(^|\.)open-design\.ai$/i,
-  /^us\.i\.posthog\.com$/i,
-  /^us\.cloud\.langfuse\.com$/i,
-  /^api\.github\.com$/i,
-  /^discord\.com$/i,
-];
-
-type ProxyRecorder = {
-  hosts: () => string[];
-  port: number;
-  close: () => Promise<void>;
-};
-
-function hostOf(target: string | undefined): string {
-  if (!target) return '';
-  try {
-    return new URL(target.includes('://') ? target : `http://${target}`).hostname;
-  } catch {
-    return target;
-  }
-}
-
-async function startRecordingProxy(): Promise<ProxyRecorder> {
-  const seen: string[] = [];
-  const sockets = new Set<Duplex>();
-  const server: Server = createServer((req: IncomingMessage, res) => {
-    seen.push(hostOf(req.url?.startsWith('http') ? req.url : req.headers.host));
-    res.statusCode = 502;
-    res.end('recorded');
-  });
-  server.on('connect', (req, socket) => {
-    seen.push(hostOf(req.url));
-    sockets.add(socket);
-    socket.on('error', () => {}); // a client reset is expected when the daemon tears down
-    socket.on('close', () => sockets.delete(socket));
-    socket.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
-  });
-  await new Promise<void>((resolveListen) => server.listen(0, '127.0.0.1', resolveListen));
-  return {
-    hosts: () => [...seen],
-    port: (server.address() as AddressInfo).port,
-    close: () =>
-      new Promise<void>((resolveClose) => {
-        for (const socket of sockets) socket.destroy();
-        server.close(() => resolveClose());
-      }),
-  };
-}
 
 function upstreamEnv(proxyPort: number, profile: 'knowdesign' | null): Record<string, string | undefined> {
   const proxy = `http://127.0.0.1:${proxyPort}`;
@@ -114,10 +61,6 @@ async function exerciseUpstreamSurfaces(webUrl: string): Promise<void> {
   }
   // Give any fire-and-forget background work (telemetry flush, metadata prefetch) a window.
   await new Promise((resolveWait) => setTimeout(resolveWait, 3_000));
-}
-
-function forbiddenHits(hosts: readonly string[]): string[] {
-  return hosts.filter((host) => FORBIDDEN_HOST_PATTERNS.some((pattern) => pattern.test(host)));
 }
 
 describe('knowdesign build profile: no upstream network', () => {
