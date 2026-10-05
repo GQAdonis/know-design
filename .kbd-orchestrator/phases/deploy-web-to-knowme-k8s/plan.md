@@ -8,6 +8,16 @@
 
 ---
 
+## AMENDMENT 2026-10-02 — child phase `backend-complete-replacement`
+
+Operator direction of 2026-10-02 supersedes parts of this plan. Authoritative detail: `children/backend-complete-replacement/{analysis,plan}.md` and its `decision-log.md` (D-001…D-012). Original text below is left intact for history.
+
+- **Goal 6 (edge authentication only) is SUPERSEDED.** Users must not be forced to log in; the web surface gets per-device guests, Kratos members and invited external validators with viewer/commenter roles, and the desktop surface is fully local. Per-user data isolation, explicitly a non-goal below, is now **in scope** (child changes 7–8).
+- **Changes 10 `gate-authenticated-access` and 11 `surface-authenticated-identity` are REPLACED** by child changes 7 (`resolve-principal-and-trust-gate`), 9 (`guest-minter-and-gate-site`) and 10 (`external-validator-invites-and-share-links`). Do not execute 10/11 as written.
+- **Change 7 `expose-via-shared-gateway`** remains required and is a hard dependency of child change 9. Its temporary `open-design-direct` route must be deleted by child change 9.
+- **Changes 4, 5a, 5b, 6 (PostgreSQL) are unchanged and not duplicated**, but 5a must additionally (a) take the child's owner-scoped schema (child change 8) as input and (b) evaluate **Forge Quarry vs direct `pg`**. The "per-user data would be the first new schema" remark under Decision 2 is now live.
+- **Goals 1–5 (image, deploy, hostname, shared gateway, PostgreSQL) are unaffected.**
+
 ## Scope decisions made at plan time
 
 The assessment deliberately left two questions open. Plan owns them, so both are resolved here explicitly rather than silently.

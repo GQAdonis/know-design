@@ -1,0 +1,164 @@
+{
+  "phase": "deploy-web-to-knowme-k8s::backend-complete-replacement",
+  "generated_at": "2026-10-02T12:00:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": { "note": "Four parallel research tracks, each capped at 8 queries per source and ~15 min. Tier-1 (gh) and local-repo reads dominated; Tier-2 Context7 used only by the identity track; Tier-4 firecrawl used by the rebrand track (~4 calls). Budget was not exceeded; VSCodium/Ungoogled-Chromium pipelines were NOT verified (lowers confidence of cand-002)." }
+  },
+  "gaps_addressed": ["goal-1-remove-upstream-backend", "goal-2-replace-on-fabric", "goal-3-rebrand", "goal-4-uar-acp", "goal-5-zero-login"],
+  "candidates": [
+    {
+      "id": "cand-001", "name": "Brand seam + build-profile stub swap (overlay pattern, Brave-style)", "kind": "pattern",
+      "repo_url": "https://github.com/brave/brave-browser/wiki/Chromium-rebases",
+      "fit_for_gap": "goal-3 + goal-1 while staying mergeable (D-003/D-004)", "verdict": "adapt", "coverage_estimate": 0.7,
+      "evidence": [
+        { "tier": 4, "source_url": "https://github.com/brave/brave-browser/wiki/Chromium-rebases", "claim": "Brave keeps upstream pristine; divergences live in patches/ + chromium_src overrides and a re-run string-rewrite script, with over-matching as the known failure mode." }
+      ],
+      "risks": ["Full identifier rename (D-004 literal) is the worst case for merge cost; this pattern renames only the user/operator-visible surface and aliases the rest.", "pnpm guard / AGENTS.md boundary rules may constrain bundler aliasing (unverified)."],
+      "decision_rationale": "Only strategy that satisfies both 'stay mergeable' and a user-visible full rebrand. Requires operator confirmation of the D-003/D-004 reconciliation."
+    },
+    {
+      "id": "cand-002", "name": "git rerere + re-runnable idempotent codemod after each upstream merge", "kind": "pattern",
+      "repo_url": "https://git-scm.com/book/en/v2/Git-Tools-Rerere",
+      "fit_for_gap": "goal-3 residual rename surface", "verdict": "adopt", "coverage_estimate": 0.5,
+      "evidence": [
+        { "tier": 1, "source_url": "https://git-scm.com/book/en/v2/Git-Tools-Rerere", "claim": "rerere replays recorded conflict resolutions; helps only when the same hunk conflicts repeatedly." },
+        { "tier": 4, "claim": "VSCodium / Ungoogled-Chromium patch-and-substitute pipelines described from background knowledge only — NOT verified this session." }
+      ],
+      "risks": ["Low confidence on VSCodium/Ungoogled evidence.", "Codemod over-match (Brave's 'Google Lens -> Brave Lens' failure) needs an allowlist + verifier."],
+      "decision_rationale": "Cheap, additive, no downside."
+    },
+    {
+      "id": "cand-003", "name": "ast-grep / rg+sd codemod tooling", "kind": "library", "registry": "none",
+      "fit_for_gap": "goal-3 codemod implementation", "verdict": "reference", "coverage_estimate": 0.4,
+      "evidence": [ { "tier": 4, "claim": "Named by the rebrand track as candidate tooling; maintenance/licence NOT checked." } ],
+      "risks": ["Unverified maintenance and licence."],
+      "decision_rationale": "Choose and verify at spec time; the codemod must be a TypeScript script per AGENTS.md (TS-first)."
+    },
+    {
+      "id": "cand-004", "name": "sso-broker guest-minter extension", "kind": "service",
+      "repo_url": "flint-core-infra/services/sso-broker (local: Rust/axum, main.rs 472 lines)",
+      "fit_for_gap": "goal-5 no-login + external validators", "verdict": "adapt", "coverage_estimate": 0.6,
+      "evidence": [
+        { "tier": 1, "claim": "Verified in source: /exchange, /redeem, ES256 flint_session JWT cookie, Kratos-shaped /sessions/whoami (main.rs:341) already exist; no guest minting exists." },
+        { "tier": 1, "claim": "gate's anonymous provider (auth/mod.rs:89-108) yields one static subject — unusable for per-person identity." }
+      ],
+      "risks": ["Open minting endpoint needs per-IP rate limit + challenge + GC.", "Guest cookie is a bearer token.", "gate multi-provider fallback per route is inferred, not read."],
+      "decision_rationale": "Pattern exists; add /guest and /s/<token>, extend whoami with metadata_public."
+    },
+    {
+      "id": "cand-005", "name": "flint-gate as the edge in front of the KnowDesign daemon", "kind": "service",
+      "repo_url": "https://github.com/Know-Me-Tools/flint-gate",
+      "fit_for_gap": "goal-2 auth edge, header trust", "verdict": "adopt", "coverage_estimate": 0.8,
+      "evidence": [ { "tier": 1, "claim": "Verified: strips client x-flint-* headers, injects X-Flint-User-Id/-Tenant-Id/-Principal-Type/-Scope, ratelimit module present; live in flint-core ns." } ],
+      "risks": ["No design.know-me.tools site/route exists yet.", "Daemon must be reachable only via gate (NetworkPolicy)."],
+      "decision_rationale": "Already the platform's edge."
+    },
+    {
+      "id": "cand-006", "name": "Ory Kratos code (passwordless OTP) + passkey methods + admin recovery link/code", "kind": "service",
+      "repo_url": "https://github.com/ory/kratos",
+      "fit_for_gap": "goal-5 external validator invites", "verdict": "adopt", "coverage_estimate": 0.7,
+      "evidence": [ { "tier": 2, "claim": "Context7 /ory/docs: selfservice.methods.code.passwordless_enabled, passkey, admin POST /admin/identities and /admin/recovery/{code,link}." }, { "tier": 1, "claim": "Verified live config: v26.2.0, password only; identity schema change required to add code credentials." } ],
+      "risks": ["Identity-schema change affects existing identities — stage first.", "recovery/link may be deprecated in favour of /code; verify on live v26.2.0.", "Admin 'create session for identity' not confirmed."],
+      "decision_rationale": "No native anonymous identity exists; Kratos fits externals, not the silent main user."
+    },
+    {
+      "id": "cand-007", "name": "Keto relation tuples via FRF AuthzService for project#viewer/commenter/editor", "kind": "service",
+      "repo_url": "flint-realtime-fabric/proto/flint/v1/authz.proto",
+      "fit_for_gap": "goal-2 roles beyond owner/admin/member", "verdict": "adopt", "coverage_estimate": 0.8,
+      "evidence": [ { "tier": 1, "claim": "Verified: Check/WriteRelation/DeleteRelation on RelationTuple{tenant_id,subject,relation,object}." }, { "tier": 1, "claim": "Upstream roles are only owner|admin|member (collab.ts:18)." } ],
+      "risks": ["Tuple expiry job needed for time-boxed validator access."],
+      "decision_rationale": "Per-project scoped roles; server-side Check, never UI-only."
+    },
+    {
+      "id": "cand-008", "name": "Upstream CollabCloudClient wire contract (collab-cloud.ts) backed by FRF Iggy + Forge", "kind": "pattern",
+      "repo_url": "apps/daemon/src/integrations/collab-cloud.ts:78-179",
+      "fit_for_gap": "goal-2 keep team workspaces with zero upstream-file edits (comments + members)", "verdict": "adapt", "coverage_estimate": 0.4,
+      "evidence": [ { "tier": 1, "claim": "Verified: selected by env alone (OD_COLLAB_CLOUD_URL/TOKEN); GET/PUT /teams/:t/members, POST/GET comments with seq cursor + ETag. Maps to an Iggy stream." } ],
+      "risks": ["Covers comments + members only; presence, invites, resources, context remain on Vela paths.", "OD_COLLAB_STORE does not exist — do not plan around it."],
+      "decision_rationale": "Best zero-conflict seam, but only partial."
+    },
+    {
+      "id": "cand-009", "name": "ResourcePublishAdapter / WorkspaceContextProvider / TeamProjectCatalogSink seams (collab runtime)", "kind": "pattern",
+      "repo_url": "apps/daemon/src/collab/{publish-scheduler.ts,workspace-context.ts,vela-cli-team-projects.ts}",
+      "fit_for_gap": "goal-2 remaining collab surface", "verdict": "adapt", "coverage_estimate": 0.5,
+      "evidence": [ { "tier": 1, "claim": "Verified injectable via createCollabRuntime({adapter}); hardcoded === 'vela' checks at server.ts:3841,3904,3918,6072 and collab/sync-digest.ts:125 are conflict hotspots." } ],
+      "risks": ["WorkspaceCollabContext carries billing/seat fields; buildWorkspacePermissions locks writes on 'locked' lifecycle — must be stubbed to active BEFORE billing removal."],
+      "decision_rationale": "Add collab/frf-*.ts files; extend only the three selector functions."
+    },
+    {
+      "id": "cand-010", "name": "Vela-API-compatible gateway + vela CLI shim (alternative to cand-009)", "kind": "pattern",
+      "repo_url": "mocks/bin/vela, mocks/lib/vela-subcommands.mjs",
+      "fit_for_gap": "goal-2 lowest-merge-risk path", "verdict": "reference", "coverage_estimate": 0.6,
+      "evidence": [ { "tier": 1, "claim": "Inferred: keep OD_WORKSPACE_CONTEXT_SOURCE=vela and point VELA_API_URL at an FRF/Forge gateway speaking the /api/v1 subset; mocks are partial executable specs." } ],
+      "risks": ["Perpetuates 'vela' naming and a spawned CLI contract we would own forever.", "Conflicts with removing Vela per D-002."],
+      "decision_rationale": "Kept as a fallback if seam edits (cand-009) prove too conflict-prone; spike decides."
+    },
+    {
+      "id": "cand-011", "name": "FRF Spine/Iggy for comment stream, notification inbox and audit events; Forge Quarry for read-state/catalog", "kind": "service",
+      "repo_url": "https://github.com/Prometheus-AGS/flint-realtime-fabric",
+      "fit_for_gap": "goal-2 re-modeled message center, audit log", "verdict": "adopt", "coverage_estimate": 0.7,
+      "evidence": [ { "tier": 1, "claim": "Verified: SpineService Publish/Subscribe with offset resume; live in cluster. Message-center DTO (message-center-client.ts) is already generic." } ],
+      "risks": ["Per-member inbox topic design is inferred.", "CLI dual-track rule: every new surface needs HTTP + web + od subcommand together."],
+      "decision_rationale": "Matches existing infra; no new component."
+    },
+    {
+      "id": "cand-012", "name": "agent-client-protocol Rust crate (official)", "kind": "library", "registry": "crates",
+      "fit_for_gap": "goal-4 ACP wrapper around UAR", "verdict": "adopt", "coverage_estimate": 0.5,
+      "evidence": [ { "tier": 1, "claim": "Verified: openai-proxy/Cargo.toml uses agent-client-protocol = 1.2.0 with typed SessionNotification; schema constant is session/update. Versions 1.2.0–2.2.0 cached locally." } ],
+      "risks": ["Pick newest crate matching schema; keep protocolVersion 1 for open-design."],
+      "decision_rationale": "Official, already building in the workspace."
+    },
+    {
+      "id": "cand-013", "name": "openai-proxy src/acp.rs (prometheus-skill-pack) as wrapper skeleton", "kind": "skeleton",
+      "repo_url": "prometheus-skill-pack/tools/openai-proxy/src/acp.rs (238 lines)",
+      "fit_for_gap": "goal-4", "verdict": "adapt", "coverage_estimate": 0.2,
+      "evidence": [ { "tier": 1, "claim": "Verified: wire-compliant (session/update) though docs/acp.md is stale ('v0.11', session/notification); implements only initialize, session/new, session/prompt with text chunks." } ],
+      "risks": ["Lacks cancel, load, tool_call, permission, set_model, model list."],
+      "decision_rationale": "Skeleton only; ~80% of the wrapper is new."
+    },
+    {
+      "id": "cand-014", "name": "letta-ai/letta-acp and zed-industries/codex-acp", "kind": "framework",
+      "repo_url": "https://github.com/letta-ai/letta-acp",
+      "fit_for_gap": "goal-4 tool-call + permission mapping reference", "verdict": "reference", "coverage_estimate": 0.0,
+      "evidence": [ { "tier": 1, "claim": "Exist per gh search (letta-acp is TS + @agentclientprotocol/sdk; codex-acp is Rust). Contents NOT read." } ],
+      "risks": ["Not read; mapping fidelity unknown."],
+      "decision_rationale": "Read during spec for event/permission mapping ideas."
+    },
+    {
+      "id": "cand-015", "name": "KnowMe CSS design tokens (desktop/src/index.css) + brand logo library", "kind": "pattern",
+      "repo_url": "/Users/gqadonis/Projects/know-me/know-me-system/desktop/src/index.css",
+      "fit_for_gap": "goal-3 brand source (D-005)", "verdict": "adopt", "coverage_estimate": 0.6,
+      "evidence": [ { "tier": 1, "claim": "Verified: Tailwind-4 @theme tokens, ember #FF6A3D/#E04E28, canvas #0B0F14, Inter/Space Grotesk/JetBrains Mono; logos at know-me/branding/logos; Tauri icon set exists (needs Electron icns/ico)." } ],
+      "risks": ["No tokens.toml/DESIGN.md exists — create one derived from index.css.", "'Flat 2.0' (no borders/dividers) may conflict with open-design component styles and CSS-module conventions.", "Dart tokens drift (muted/faint/status) is resolved by D-005 in favour of CSS."],
+      "decision_rationale": "Operator-selected source of truth."
+    },
+    {
+      "id": "cand-016", "name": "Yjs / Automerge / Loro / Hocuspocus (CRDT stack)", "kind": "library", "registry": "npm",
+      "fit_for_gap": "multi-writer artifact editing (not currently required)", "verdict": "reject", "coverage_estimate": 0.0, "license": "MIT",
+      "maintenance": { "last_release": "Yjs 13.6.33 (2026-09-23); Automerge js 3.5.0 (2026-09-16); Loro 1.16.4 (2026-09-30); Hocuspocus 4.7.0 (2026-09-09)" },
+      "evidence": [ { "tier": 3, "claim": "Verified via GitHub API 2026-10-02: all actively maintained, MIT. Upstream collab is single-writer snapshot sync with no co-editing; presence-tracker states live cursors were cut." } ],
+      "risks": ["Revisit if multi-writer editing of one artifact becomes a requirement."],
+      "decision_rationale": "Not needed for the current collaboration model; FRF SyncService can carry comment/member streams."
+    },
+    {
+      "id": "cand-017", "name": "Novu (notifications)", "kind": "service", "registry": "npm",
+      "fit_for_gap": "notification fan-out", "verdict": "reject", "coverage_estimate": 0.0,
+      "maintenance": { "last_release": "@novu/framework 2.14.0 (2026-09-28)" },
+      "evidence": [ { "tier": 3, "claim": "Active; licence mixed/unconfirmed (enterprise directories)." } ],
+      "risks": ["Licence not confirmed."],
+      "decision_rationale": "Resend is already available; Iggy inbox + Resend digest suffices."
+    }
+  ],
+  "build_required": [
+    { "need": "Per-user identity keying across daemon tables/endpoints (owner on projects, runs, messages, conversations; trust X-Flint-* from gate only)", "why_no_candidate": "Daemon has no per-user primitive; estimated 1-2 weeks, estimate not based on reading daemon source.", "capability_gap_id": null },
+    { "need": "Guest minter (/guest, /s/<token>) + guest->identity upgrade/re-key transaction", "why_no_candidate": "No Kratos/gate/broker feature does per-device guests (verified).", "capability_gap_id": null },
+    { "need": "External validator invite service (Kratos admin identity + recovery link/code + Keto tuple + expiry job)", "why_no_candidate": "Composition of existing parts; no packaged flow.", "capability_gap_id": null },
+    { "need": "viewer/commenter roles + human review/approval decision record", "why_no_candidate": "Upstream roles are owner/admin/member; needs_review/resolved are agent-apply states.", "capability_gap_id": null },
+    { "need": "uar acp stdio wrapper (cancel, load, tool_call, request_permission, set_model, model list, keepalive) + file-materialisation bridge", "why_no_candidate": "No generic ACP-over-OpenAI-HTTP bridge exists; UAR executes tools server-side and cannot write the daemon's cwd.", "capability_gap_id": null },
+    { "need": "Object/file storage service", "why_no_candidate": "No dedicated storage API in forge; IPFS/MinIO exist in cluster but no app-facing API found.", "capability_gap_id": null },
+    { "need": "Audit log for membership/share/decision events", "why_no_candidate": "None in upstream code.", "capability_gap_id": null },
+    { "need": "UAR deployment to know-me cluster", "why_no_candidate": "Verified not deployed; k8s/base manifests exist but target a different cluster.", "capability_gap_id": null }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 234,
+  "derivedRevision": 234,
+  "frontier": {
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 234
+  },
+  "conflictCount": 0,
+  "phase": "commerce-removal",
+  "phaseId": "commerce-removal",
+  "parentPhase": "deploy-web-to-knowme-k8s",
+  "last_updated": "2026-10-04T19:38:37.242526Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 6,
+  "changes_completed": 6,
+  "implementation_total": 6,
+  "implementation_completed": 6,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 6,
+      "total": 6,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 7,
+      "total": 47,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "capture-test-baseline",
+      "title": "Capture daemon and web test baseline",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Write baseline.md",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "build-profile-seam-and-permission-decoupling",
+      "title": "Build-profile seam + decouple permissions from billing",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Add unit tests: contracts permissions, daemon mapper, profile-off parity",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "stub-amr-and-billing",
+      "title": "Remove AMR login and billing under the profile",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Edit incidental tests; delete only dedicated AMR and billing tests; add network-denied e2e",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "drop-touchpoints-marketplace-vela-media",
+      "title": "Drop touchpoints, marketplace, Vela media",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Edit incidental tests and add profile-on assertions",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "disable-telemetry-and-upstream-endpoints",
+      "title": "Disable telemetry and upstream endpoints",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Add network-recording e2e asserting zero requests to open-design.ai, PostHog and Langfuse",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "remove-vela-collab-hardcoding",
+      "title": "Replace hardcoded vela checks with provider selector",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Add unit test selecting a third provider kind",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

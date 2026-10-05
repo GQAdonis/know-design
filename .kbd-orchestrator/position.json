@@ -2,24 +2,25 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 4,
-  "derivedRevision": 4,
+  "sourceRevision": 235,
+  "derivedRevision": 235,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 4
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 235
   },
   "conflictCount": 0,
-  "updatedAt": "2026-09-14T12:28:58.917289Z",
+  "updatedAt": "2026-10-05T05:27:36.641079Z",
   "cursor": [
     "deploy-web-to-knowme-k8s",
-    "assess"
+    "commerce-removal",
+    "execute"
   ],
   "root": {
     "type": "phase",
     "id": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
     "status": "ready",
     "progress": {
-      "done": 0,
-      "total": 1
+      "done": 7,
+      "total": 47
     },
     "children": [
       {
@@ -32,6 +33,523 @@
           "total": 1
         },
         "children": [
+          {
+            "type": "phase",
+            "id": "commerce-removal",
+            "canonicalId": "commerce-removal",
+            "status": "PENDING",
+            "progress": {
+              "done": 6,
+              "total": 6
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "capture-test-baseline",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 6,
+                  "total": 6
+                }
+              },
+              {
+                "type": "change",
+                "id": "build-profile-seam-and-permission-decoupling",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 6,
+                  "total": 6
+                }
+              },
+              {
+                "type": "change",
+                "id": "stub-amr-and-billing",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 6,
+                  "total": 6
+                }
+              },
+              {
+                "type": "change",
+                "id": "drop-touchpoints-marketplace-vela-media",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 5,
+                  "total": 5
+                }
+              },
+              {
+                "type": "change",
+                "id": "disable-telemetry-and-upstream-endpoints",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 4,
+                  "total": 4
+                }
+              },
+              {
+                "type": "change",
+                "id": "remove-vela-collab-hardcoding",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 2,
+                  "total": 2
+                }
+              }
+            ],
+            "annotations": []
+          },
+          {
+            "type": "phase",
+            "id": "backend-complete-replacement",
+            "canonicalId": "deploy-web-to-knowme-k8s::backend-complete-replacement",
+            "status": "IN_PROGRESS",
+            "progress": {
+              "done": 1,
+              "total": 23
+            },
+            "children": [
+              {
+                "type": "phase",
+                "id": "identity-and-collaboration",
+                "canonicalId": "deploy-web-to-knowme-k8s::backend-complete-replacement::identity-and-collaboration",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                },
+                "children": [
+                  {
+                    "type": "phase",
+                    "id": "knowdesign-brand",
+                    "canonicalId": "deploy-web-to-knowme-k8s::backend-complete-replacement::identity-and-collaboration::knowdesign-brand",
+                    "status": "SKIPPED",
+                    "progress": {
+                      "done": 0,
+                      "total": 0
+                    },
+                    "children": [
+                      {
+                        "type": "phase",
+                        "id": "uar-acp-runtime",
+                        "canonicalId": "deploy-web-to-knowme-k8s::backend-complete-replacement::identity-and-collaboration::knowdesign-brand::uar-acp-runtime",
+                        "status": "SKIPPED",
+                        "progress": {
+                          "done": 0,
+                          "total": 0
+                        },
+                        "children": [],
+                        "annotations": []
+                      }
+                    ],
+                    "annotations": []
+                  }
+                ],
+                "annotations": []
+              },
+              {
+                "type": "change",
+                "id": "rebrand-merge-conflict-spike",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 11,
+                  "total": 11
+                }
+              },
+              {
+                "type": "change",
+                "id": "build-profile-seam-and-permission-decoupling",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "stub-amr-and-billing",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "drop-touchpoints-marketplace-vela-media",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "disable-telemetry-and-upstream-endpoints",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "remove-vela-collab-hardcoding",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "capability-policy-surface-matrix",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "resolve-principal-and-trust-gate",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "owner-scoping-core-tables",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "guest-minter-and-gate-site",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "external-validator-invites-and-share-links",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "collab-frf-comments-and-members",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "collab-frf-context-resources-presence",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "message-center-remodel",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "audit-log-events",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "web-agent-sandbox-and-limits",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "uar-acp-wrapper-core",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "uar-acp-tools-permissions-and-files",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "uar-runtime-registration-and-modes",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "brand-seam-and-rename-codemod",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "knowdesign-tokens-icons-and-app-identity",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "knowdesign-docs-locales-ci-and-repo-name",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "merge-rehearsal-and-runbook",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              }
+            ],
+            "annotations": []
+          },
+          {
+            "type": "phase",
+            "id": "identity-and-collaboration",
+            "canonicalId": "identity-and-collaboration",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 10
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "capability-policy-surface-matrix",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "resolve-principal-and-trust-gate",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "owner-scoping-core-tables",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "guest-minter-and-gate-site",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "external-validator-invites-and-share-links",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "collab-frf-comments-and-members",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "collab-frf-context-resources-presence",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "message-center-remodel",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "audit-log-events",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "web-agent-sandbox-and-limits",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              }
+            ],
+            "annotations": []
+          },
+          {
+            "type": "phase",
+            "id": "knowdesign-brand",
+            "canonicalId": "knowdesign-brand",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 4
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "brand-seam-and-rename-codemod",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "knowdesign-tokens-icons-and-app-identity",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "knowdesign-docs-locales-ci-and-repo-name",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "merge-rehearsal-and-runbook",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              }
+            ],
+            "annotations": []
+          },
+          {
+            "type": "phase",
+            "id": "uar-acp-runtime",
+            "canonicalId": "uar-acp-runtime",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 3
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "uar-acp-wrapper-core",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "uar-acp-tools-permissions-and-files",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "uar-runtime-registration-and-modes",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              }
+            ],
+            "annotations": []
+          },
           {
             "type": "change",
             "id": "publish-fork-container-image",

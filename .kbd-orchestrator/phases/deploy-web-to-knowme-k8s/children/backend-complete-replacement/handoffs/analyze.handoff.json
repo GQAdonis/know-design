@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-02T11:23:14Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "17 candidates (adopt: flint-gate, Kratos code/passkey, Keto, FRF/Iggy, Forge, KnowMe CSS tokens, agent-client-protocol crate, rerere; adapt: sso-broker guest-minter, collab seams, openai-proxy ACP skeleton, Brave-style overlay; reject: CRDT stack, Novu). Open questions: (1) D-003 stay-mergeable vs D-004 rename-everything irreconcilable under plain merge -> proposed rename-visible+alias-internals+re-runnable codemod, needs confirmation; (2) may guests run agents; (3) UAR filesystem option, UAR undeployed; (4) confirm touchpoints dropped; (5) scope of unrequested recs; (6) approve conflict-count spike. WARNING: adversarial review not run (preflight stale); VSCodium/Ungoogled evidence unverified; daemon per-user keying estimate not from daemon source.",
+  "skipped": false,
+  "skipReason": null
+}

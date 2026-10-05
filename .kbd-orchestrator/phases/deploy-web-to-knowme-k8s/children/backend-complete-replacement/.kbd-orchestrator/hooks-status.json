@@ -1,0 +1,1 @@
+{"totalRuns":2,"failedRuns":0,"lastRun":{"ts":"2026-10-02T11:22:47Z","kind":"analyze","edge":"after","name":"deploy-web-to-knowme-k8s::backend-complete-replacement","hookId":"kbd-memory-log","layer":"builtin","mode":"augment","status":0},"lastFailure":null}

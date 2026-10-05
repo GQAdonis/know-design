@@ -1,0 +1,8 @@
+{
+  "phase": "deploy-web-to-knowme-k8s::backend-complete-replacement",
+  "dispatchedAt": "2026-10-03T09:24:11Z",
+  "backend": "openspec",
+  "executor": "claude-code",
+  "assignedChanges": ["rebrand-merge-conflict-spike"],
+  "pendingChanges": ["build-profile-seam-and-permission-decoupling","stub-amr-and-billing","drop-touchpoints-marketplace-vela-media","disable-telemetry-and-upstream-endpoints","remove-vela-collab-hardcoding","capability-policy-surface-matrix","resolve-principal-and-trust-gate","owner-scoping-core-tables","guest-minter-and-gate-site","external-validator-invites-and-share-links","collab-frf-comments-and-members","collab-frf-context-resources-presence","message-center-remodel","audit-log-events","web-agent-sandbox-and-limits","uar-acp-wrapper-core","uar-acp-tools-permissions-and-files","uar-runtime-registration-and-modes","brand-seam-and-rename-codemod","knowdesign-tokens-icons-and-app-identity","knowdesign-docs-locales-ci-and-repo-name","merge-rehearsal-and-runbook"]
+}

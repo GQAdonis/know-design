@@ -109,3 +109,6 @@ deploy/agent-bins/
 # Python bytecode from workflow helper self-checks / local compile.
 __pycache__/
 *.py[cod]
+
+# KBD runtime lock files are machine-local; the rest of .kbd-orchestrator is tracked so work can continue on another machine
+.kbd-orchestrator/**/*.lock

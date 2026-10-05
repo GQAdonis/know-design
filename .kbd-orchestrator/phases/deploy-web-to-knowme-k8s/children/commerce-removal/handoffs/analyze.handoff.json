@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-03T13:24:02Z",
+  "outputs": [
+    "../backend-complete-replacement/analysis.md",
+    "../backend-complete-replacement/spike-report.md"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "Inherited from umbrella analysis + spike (GO). Stub-swap realised as explicit profile checks; AMR registry seam verified (27->26 agents); locale files must stay untouched (brand child).",
+  "skipped": false,
+  "skipReason": null
+}
