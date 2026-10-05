@@ -1,0 +1,57 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "packages/contracts/src/api/collab.ts",
+      "line": 593,
+      "claim": "The profile-on permission implementation does not grant write permission for every lifecycle input as criterion 1 requires.",
+      "evidence": "Criterion 1 explicitly requires \"buildWorkspacePermissions returns write permission for every lifecycle input\" with the profile on. profileLifecycleState only converts billing_past_due and locked to active, leaving deleting and deleted non-writable. packages/contracts/tests/workspace-permissions-profile.test.ts explicitly asserts false write permissions for those inputs.",
+      "suggested_fix": "Resolve the acceptance-contract discrepancy explicitly: either implement the specified lifecycle behavior or amend the criterion to preserve deletion-state denials before treating this gate as satisfied."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/web/src/components/NewProjectPanel.tsx",
+      "line": 366,
+      "claim": "A project panel mounted before profile discovery retains the removed Vela image default after the KnowDesign profile is learned.",
+      "evidence": "The new imageModel useState initializer calls defaultImageModelId(getWebBuildProfile()) only at mount. apps/web/src/collab/build-profile.ts initializes cachedProfile to default and learns the profile asynchronously. There is no added reconciliation of imageModel when that profile changes, while supportedModels subsequently removes Vela entries and the daemon prunes those models at module load. This can leave project creation configured with a model the daemon no longer supports.",
+      "suggested_fix": "Subscribe to profile changes and replace a selected Vela model with the non-Vela default when KnowDesign is discovered, or defer model-state initialization until profile discovery completes."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/server.ts",
+      "line": 3807,
+      "claim": "The provider-kind selector changes gates but leaves directory and hub operations bound to Vela, so a third provider cannot be integrated through an additive registry entry.",
+      "evidence": "Criterion 5 requires that \"a new context source needs only additive files.\" workspace-context-source.ts lets a third kind declare directoryAuthority and hubEvents, but server.ts still supplies fetchVelaWorkspaceDirectory to the directory broker and resolveVelaWorkspaceHubEventsEndpoint to the hub subscriber. collab/sync-digest.ts similarly keeps readVelaControlApiContext. The third-kind unit test checks only capability booleans, not selection of provider implementations.",
+      "suggested_fix": "Register provider implementations alongside capabilities and dispatch directory, hub endpoint, and digest/session operations through the selected provider; test that a third provider does not invoke Vela implementations."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "e2e/tests/amr/knowdesign-no-cloud.test.ts",
+      "line": 50,
+      "claim": "The added e2e does not assert the required fresh desktop local-agent run without sign-in or balance UI.",
+      "evidence": "Criterion 2 requires a fresh desktop install to start a local agent run with no sign-in prompt, no balance dialog, and no upstream network call, asserted by a network-denied e2e. This test starts toolsDev, checks agent listings and HTTP statuses, and never launches desktop, inspects UI, or starts a run. Its own comment also acknowledges that the daemon fetch is not proxy-aware, so the empty recorder is not a network-denied witness. The separate no-upstream test exercises metadata/config endpoints rather than a desktop agent run.",
+      "suggested_fix": "Add a fresh-data desktop UI test under e2e/ui that starts a local agent run, asserts absence of sign-in and balance surfaces, and uses effective egress interception or denial throughout startup and execution."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}
