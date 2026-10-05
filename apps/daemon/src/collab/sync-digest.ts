@@ -132,6 +132,10 @@ export function createSyncDigestReader(options: SyncDigestReaderOptions): SyncDi
     if (!source?.capabilities.hubEvents) return null;
     if (now() < cooldownUntil) return null;
     const workspaceId = options.getWorkspaceId()?.trim() ?? '';
+    // The reading is keyed by (account, workspace). With no workspace there is no safe key, and
+    // that must hold for EVERY source, not only the ones that remember to check, so the reader
+    // enforces it before any provider is asked.
+    if (!workspaceId) return null;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     timer.unref?.();
@@ -141,6 +145,7 @@ export function createSyncDigestReader(options: SyncDigestReaderOptions): SyncDi
       const request = source.syncDigestRequest({ env, workspaceId, readSession });
       if (!request) return null;
       const { accountId } = request;
+      if (!accountId) return null;
       const response = await fetchImpl(request.url, {
         headers: { ...request.headers },
         signal: controller.signal,

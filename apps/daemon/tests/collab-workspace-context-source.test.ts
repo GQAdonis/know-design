@@ -194,4 +194,28 @@ describe('workspace context source dispatch', () => {
       expect.objectContaining({ headers: { authorization: 'Bearer acme' } }),
     );
   });
+
+  it('refuses a digest reading without a workspace or an account for any source', async () => {
+    const fetchImpl = vi.fn(async () => new Response('{}', { status: 200 }));
+    const readerFor = (source: WorkspaceContextSource, workspaceId: string) =>
+      createSyncDigestReader({
+        env,
+        getWorkspaceId: () => workspaceId,
+        fetchImpl: fetchImpl as never,
+        readSession: vi.fn() as never,
+        sourceRegistry: { acme: source },
+      });
+
+    const { source } = acmeSource();
+    for (const blank of ['', '   ']) {
+      expect(await readerFor(source, blank)()).toBeNull();
+    }
+    expect(source.syncDigestRequest).not.toHaveBeenCalled();
+
+    const noAccount = acmeSource({
+      syncDigestRequest: vi.fn(() => ({ accountId: '', url: 'https://acme.example/digest', headers: {} })),
+    }).source;
+    expect(await readerFor(noAccount, 'ws-1')()).toBeNull();
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
 });
