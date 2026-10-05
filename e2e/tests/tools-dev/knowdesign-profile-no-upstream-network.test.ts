@@ -20,7 +20,8 @@ import { createSmokeSuite } from '@/vitest/suite';
 function upstreamEnv(proxyPort: number, profile: 'knowdesign' | null): Record<string, string | undefined> {
   const proxy = `http://127.0.0.1:${proxyPort}`;
   return {
-    ...(profile ? { OD_BUILD_PROFILE: profile } : {}),
+    // Explicitly unset for the control: an inherited knowdesign environment must not leak into it.
+    OD_BUILD_PROFILE: profile ?? undefined,
     // Route every outbound daemon request through the recorder; keep loopback direct.
     HTTP_PROXY: proxy,
     HTTPS_PROXY: proxy,
