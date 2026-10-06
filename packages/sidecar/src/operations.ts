@@ -13,7 +13,7 @@ import {
   stopProcesses,
 } from "@open-design/platform";
 
-import { requestJsonIpc } from "./json-ipc.js";
+import { requestJsonIpc, type JsonIpcRequestOptions } from "./json-ipc.js";
 import {
   prepareSidecarLaunchEnvironment,
   SIDECAR_SUPERVISOR_TARGET_ENV,
@@ -386,13 +386,13 @@ export async function findSidecarProcesses(stamp: SidecarStamp) {
 
 export async function getSidecarStatus<TResult = unknown>(
   stamp: SidecarStamp,
-  options?: { generationPid?: number; timeoutMs?: number },
+  options?: JsonIpcRequestOptions & { generationPid?: number },
 ): Promise<TResult> {
   const exact = normalizeSidecarStamp(stamp);
   return await requestJsonIpc<TResult>(
     resolvePrivateIpcPath(exact),
     { targetPid: options?.generationPid, type: sidecarProtocol.status },
-    options == null ? undefined : { timeoutMs: options.timeoutMs },
+    options == null ? undefined : { peer: options.peer, timeoutMs: options.timeoutMs },
   );
 }
 
@@ -400,7 +400,7 @@ export async function invokeSidecar<TResult = unknown>(
   stamp: SidecarStamp,
   action: string,
   input: unknown,
-  options?: { timeoutMs?: number },
+  options?: JsonIpcRequestOptions,
 ): Promise<TResult> {
   const exact = normalizeSidecarStamp(stamp);
   return await requestJsonIpc<TResult>(

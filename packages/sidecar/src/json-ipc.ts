@@ -35,6 +35,72 @@ async function removeOwnedUnixSocket(socketPath: string, owned: UnixSocketIdenti
   if (current?.dev === owned.dev && current.ino === owned.ino) await rm(socketPath, { force: true });
 }
 
+export type SidecarIpcErrorCode =
+  | "IPC_CLOSED"
+  | "IPC_PEER_EXITED"
+  | "IPC_REMOTE_ERROR"
+  | "IPC_TIMEOUT";
+
+/**
+ * Why a JSON IPC request ended without a result, as data a caller can branch on.
+ *
+ * `message` keeps the historical text for timeouts (`IPC request timed out: <socket>`) because
+ * callers match it; everything a diagnostic needs (which message, which action, which peer
+ * outcome) is carried as fields instead of being parsed back out of a string.
+ */
+export class SidecarIpcError extends Error {
+  readonly action: string | null;
+  readonly code: SidecarIpcErrorCode;
+  readonly exitCode: number | null;
+  readonly messageType: string | null;
+  readonly signal: NodeJS.Signals | null;
+  readonly socketPath: string;
+
+  constructor(
+    code: SidecarIpcErrorCode,
+    message: string,
+    details: {
+      action?: string | null;
+      exitCode?: number | null;
+      messageType?: string | null;
+      signal?: NodeJS.Signals | null;
+      socketPath: string;
+    },
+  ) {
+    super(message);
+    this.name = "SidecarIpcError";
+    this.code = code;
+    this.action = details.action ?? null;
+    this.exitCode = details.exitCode ?? null;
+    this.messageType = details.messageType ?? null;
+    this.signal = details.signal ?? null;
+    this.socketPath = details.socketPath;
+  }
+}
+
+/**
+ * The process on the other end of a request. When given, a request ends when this process exits
+ * (an event) instead of when a timer fires. A Node `ChildProcess` satisfies it.
+ */
+export type JsonIpcPeer = {
+  readonly exitCode: number | null;
+  readonly signalCode: NodeJS.Signals | null;
+  off(event: "exit", listener: (code: number | null, signal: NodeJS.Signals | null) => void): unknown;
+  once(event: "exit", listener: (code: number | null, signal: NodeJS.Signals | null) => void): unknown;
+};
+
+export type JsonIpcRequestOptions = {
+  /**
+   * Observe the process answering. With a peer there is NO request timer unless `timeoutMs` is also
+   * given explicitly; the request ends on a reply, the peer exiting, or the connection closing.
+   */
+  peer?: JsonIpcPeer;
+  /** Explicit wall-clock limit. Defaults to 1500 ms only when there is no peer to observe. */
+  timeoutMs?: number;
+};
+
+const DEFAULT_REQUEST_TIMEOUT_MS = 1500;
+
 let jsonIpcTraceSeq = 0;
 
 /**
@@ -67,6 +133,10 @@ function summarizeJsonIpcMessage(message: unknown): Record<string, unknown> {
   if (message == null || typeof message !== "object") return { type: typeof message };
   const input = message as { input?: unknown; type?: unknown };
   const summary: Record<string, unknown> = { type: typeof input.type === "string" ? input.type : typeof input.type };
+  // A business `sidecar:invoke` is only meaningful with its action (register-web-url vs
+  // register-desktop-auth ...); without it a trace cannot say what was being asked.
+  const action = (message as { action?: unknown }).action;
+  if (typeof action === "string") summary.action = action;
   if ("input" in input) {
     summary.hasInput = true;
     if (input.input != null && typeof input.input === "object") {
@@ -297,8 +367,9 @@ export async function createJsonIpcServer({
 export async function requestJsonIpc<T = any>(
   socketPath: string,
   payload: unknown,
-  { timeoutMs = 1500 }: { timeoutMs?: number } = {},
+  { peer, timeoutMs }: JsonIpcRequestOptions = {},
 ): Promise<T> {
+  const description = describeMessage(payload);
   return await new Promise<T>((resolveRequest, rejectRequest) => {
     const socket = createConnection(socketPath);
     const traceId = nextJsonIpcTraceId();
@@ -310,23 +381,46 @@ export async function requestJsonIpc<T = any>(
     const decoder = new StringDecoder("utf8");
     const messageSummary = summarizeJsonIpcMessage(payload);
     traceJsonIpc("client.connect_start", { message: messageSummary, socketPath, timeoutMs, traceId });
+    const onPeerExit = (code: number | null, signal: NodeJS.Signals | null) => {
+      traceJsonIpc("client.peer_exited", { code, message: messageSummary, signal, socketPath, traceId });
+      socket.destroy();
+      settle(() => rejectRequest(peerExitedError(description, socketPath, code, signal)));
+    };
     const settle = (callback: () => void) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timeout);
+      if (timeout != null) clearTimeout(timeout);
+      peer?.off("exit", onPeerExit);
       callback();
     };
-    const timeout = setTimeout(() => {
-      traceJsonIpc("client.timeout", {
-        durationMs: jsonIpcTraceDurationMs(startedAt),
-        message: messageSummary,
-        socketPath,
-        timeoutMs,
-        traceId,
-      });
-      socket.destroy();
-      settle(() => rejectRequest(new Error(`IPC request timed out: ${socketPath}`)));
-    }, timeoutMs);
+    // A timer exists only when the caller has nothing better to observe, or asked for one.
+    const effectiveTimeoutMs = timeoutMs ?? (peer == null ? DEFAULT_REQUEST_TIMEOUT_MS : null);
+    const timeout =
+      effectiveTimeoutMs == null
+        ? null
+        : setTimeout(() => {
+            traceJsonIpc("client.timeout", {
+              durationMs: jsonIpcTraceDurationMs(startedAt),
+              message: messageSummary,
+              socketPath,
+              timeoutMs: effectiveTimeoutMs,
+              traceId,
+            });
+            socket.destroy();
+            settle(() =>
+              rejectRequest(
+                new SidecarIpcError("IPC_TIMEOUT", `IPC request timed out: ${socketPath}`, { ...description, socketPath }),
+              ),
+            );
+          }, effectiveTimeoutMs);
+    if (peer != null) {
+      if (peer.exitCode != null || peer.signalCode != null) {
+        socket.destroy();
+        settle(() => rejectRequest(peerExitedError(description, socketPath, peer.exitCode, peer.signalCode)));
+        return;
+      }
+      peer.once("exit", onPeerExit);
+    }
 
     socket.on("connect", () => {
       traceJsonIpc("client.connected", {
@@ -384,7 +478,12 @@ export async function requestJsonIpc<T = any>(
             socketPath,
             traceId,
           });
-          rejectRequest(new Error(response.error?.message ?? "IPC request failed"));
+          rejectRequest(
+            new SidecarIpcError("IPC_REMOTE_ERROR", response.error?.message ?? "IPC request failed", {
+              ...description,
+              socketPath,
+            }),
+          );
           return;
         }
         traceJsonIpc("client.response_success", {
@@ -413,6 +512,39 @@ export async function requestJsonIpc<T = any>(
         socketPath,
         traceId,
       });
+      // The connection ended and nothing answered: that is an event, so say so now. `settle` is a
+      // no-op when a reply (or an error) already won, which is the normal order of events.
+      settle(() =>
+        rejectRequest(
+          new SidecarIpcError("IPC_CLOSED", `IPC connection closed before a response: ${socketPath}`, {
+            ...description,
+            socketPath,
+          }),
+        ),
+      );
     });
   });
+}
+
+function describeMessage(payload: unknown): { action: string | null; messageType: string | null } {
+  if (payload == null || typeof payload !== "object") return { action: null, messageType: null };
+  const { action, type } = payload as { action?: unknown; type?: unknown };
+  return {
+    action: typeof action === "string" ? action : null,
+    messageType: typeof type === "string" ? type : null,
+  };
+}
+
+function peerExitedError(
+  description: { action: string | null; messageType: string | null },
+  socketPath: string,
+  exitCode: number | null,
+  signal: NodeJS.Signals | null,
+): SidecarIpcError {
+  const what = description.action ?? description.messageType ?? "request";
+  return new SidecarIpcError(
+    "IPC_PEER_EXITED",
+    `${what} failed: the receiving process exited (code=${exitCode ?? "null"} signal=${signal ?? "null"}) before it replied: ${socketPath}`,
+    { ...description, exitCode, signal, socketPath },
+  );
 }

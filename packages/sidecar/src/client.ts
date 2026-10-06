@@ -1,4 +1,4 @@
-import { createJsonIpcServer, requestJsonIpc } from "./json-ipc.js";
+import { createJsonIpcServer, requestJsonIpc, type JsonIpcRequestOptions } from "./json-ipc.js";
 import {
   isCurrentSidecarLauncher,
   normalizeSidecarStamp,
@@ -134,9 +134,9 @@ export const sidecarSupervisorProtocol = Object.freeze({
 });
 
 export type SidecarConnection = {
-  invoke<TResult = unknown>(app: string, action: string, input: unknown, options?: { timeoutMs?: number }): Promise<TResult>;
-  requestStop(app: string, options?: { timeoutMs?: number }): Promise<{ accepted?: unknown }>;
-  status<TResult = unknown>(app: string, options?: { timeoutMs?: number }): Promise<TResult>;
+  invoke<TResult = unknown>(app: string, action: string, input: unknown, options?: JsonIpcRequestOptions): Promise<TResult>;
+  requestStop(app: string, options?: JsonIpcRequestOptions): Promise<{ accepted?: unknown }>;
+  status<TResult = unknown>(app: string, options?: JsonIpcRequestOptions): Promise<TResult>;
 };
 
 export type SidecarDescription = Readonly<{
@@ -354,7 +354,7 @@ export class SidecarClient<TRuntime> {
     return this.#stopped;
   }
 
-  async invoke<TResult = unknown>(app: string, action: string, input: unknown, options?: { timeoutMs?: number }): Promise<TResult> {
+  async invoke<TResult = unknown>(app: string, action: string, input: unknown, options?: JsonIpcRequestOptions): Promise<TResult> {
     const target = normalizeSidecarStamp({ ...this.stamp, app });
     return await requestJsonIpc<TResult>(
       resolvePrivateIpcPath(target),
@@ -363,12 +363,12 @@ export class SidecarClient<TRuntime> {
     );
   }
 
-  async status<TResult = unknown>(app: string, options?: { timeoutMs?: number }): Promise<TResult> {
+  async status<TResult = unknown>(app: string, options?: JsonIpcRequestOptions): Promise<TResult> {
     const target = normalizeSidecarStamp({ ...this.stamp, app });
     return await requestJsonIpc<TResult>(resolvePrivateIpcPath(target), { type: CONTROL_STATUS }, options);
   }
 
-  async requestStop(app: string, options?: { timeoutMs?: number }): Promise<{ accepted?: unknown }> {
+  async requestStop(app: string, options?: JsonIpcRequestOptions): Promise<{ accepted?: unknown }> {
     const target = normalizeSidecarStamp({ ...this.stamp, app });
     return await requestJsonIpc(resolvePrivateIpcPath(target), { type: CONTROL_STOP }, options);
   }
@@ -379,13 +379,13 @@ export const SidecarFactory = Object.freeze({
     const endpoint = env[INHERITED_ENDPOINT_ENV];
     if (endpoint == null || endpoint.length === 0) return null;
     return {
-      async invoke<TResult = unknown>(app: string, action: string, input: unknown, options?: { timeoutMs?: number }) {
+      async invoke<TResult = unknown>(app: string, action: string, input: unknown, options?: JsonIpcRequestOptions) {
         return await requestJsonIpc<TResult>(endpoint, { action, app, input, type: BUSINESS_INVOKE }, options);
       },
-      async requestStop(_app: string, options?: { timeoutMs?: number }) {
+      async requestStop(_app: string, options?: JsonIpcRequestOptions) {
         return await requestJsonIpc<{ accepted?: unknown }>(endpoint, { type: CONTROL_STOP }, options);
       },
-      async status<TResult = unknown>(_app: string, options?: { timeoutMs?: number }) {
+      async status<TResult = unknown>(_app: string, options?: JsonIpcRequestOptions) {
         return await requestJsonIpc<TResult>(endpoint, { type: CONTROL_STATUS }, options);
       },
     };
