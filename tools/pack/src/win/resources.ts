@@ -3,7 +3,8 @@ import { dirname, join } from "node:path";
 
 import { hashJson, hashPath, ToolPackCache } from "../cache/index.js";
 import type { ToolPackConfig } from "../config/index.js";
-import { copyBundledResourceTrees, packBundledDshRuntime, winResources } from "../resources/index.js";
+import { copyBundledResourceTrees, packBundledDshRuntime, winResources, winResourcesForBrand } from "../resources/index.js";
+import { brandOf, type BrandedConfig } from "../brand.js";
 import {
   copyOptionalVelaCliBinary,
   resolveOptionalVelaCliBinary,
@@ -97,7 +98,7 @@ export async function prepareResourceTree(
   };
 }
 
-export async function copyWinIcon(paths: WinPaths): Promise<void> {
+export async function copyWinIcon(paths: WinPaths, config?: BrandedConfig): Promise<void> {
   await mkdir(dirname(paths.winIconPath), { recursive: true });
-  await cp(winResources.icon, paths.winIconPath);
+  await cp(winResourcesForBrand(brandOf(config).id).icon, paths.winIconPath);
 }

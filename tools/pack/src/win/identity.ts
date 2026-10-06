@@ -1,16 +1,11 @@
 import {
-  SIDECAR_DEFAULTS,
   resolveWindowsReleaseNamespaceToken,
   resolveWindowsUninstallRegistryKey,
 } from "@open-design/sidecar-proto";
-import {
-  releaseChannelFromNamespace,
-  releaseChannelFromVersion,
-  releaseInstallIdentity,
-} from "@open-design/release";
+import { releaseInstallIdentity } from "@open-design/release";
 
+import { brandExecutableFileName, brandOf, releaseChannelForConfig, type BrandedConfig } from "../brand.js";
 import type { ToolPackConfig } from "../config/index.js";
-import { PRODUCT_NAME } from "./constants.js";
 
 export type WinInstallIdentity = {
   appPathsKey: string;
@@ -21,17 +16,21 @@ export type WinInstallIdentity = {
   uninstallerName: string;
 };
 
-export function resolveWinInstallIdentity(config: Pick<ToolPackConfig, "namespace" | "appVersion">): WinInstallIdentity {
+export function resolveWinInstallIdentity(
+  config: Pick<ToolPackConfig, "namespace" | "appVersion"> & BrandedConfig,
+): WinInstallIdentity {
+  const brand = brandOf(config);
   const namespaceToken = resolveWindowsReleaseNamespaceToken(config.namespace);
-  const channel = releaseChannelFromVersion(config.appVersion)
-    ?? releaseChannelFromNamespace(config.namespace, SIDECAR_DEFAULTS.namespace);
-  const displayName = channel == null ? `${PRODUCT_NAME} ${namespaceToken}` : releaseInstallIdentity(channel).productName;
+  const channel = releaseChannelForConfig(config);
+  const displayName = channel == null
+    ? `${brand.productName} ${namespaceToken}`
+    : releaseInstallIdentity(channel, brand).productName;
 
   return {
     appPathsKey: `Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${displayName}.exe`,
     displayName,
-    exeName: `${PRODUCT_NAME}.exe`,
-    registryKey: resolveWindowsUninstallRegistryKey(config.namespace),
+    exeName: brandExecutableFileName(brand),
+    registryKey: resolveWindowsUninstallRegistryKey(config.namespace, brand.productName),
     shortcutName: `${displayName}.lnk`,
     uninstallerName: `Uninstall ${displayName}.exe`,
   };

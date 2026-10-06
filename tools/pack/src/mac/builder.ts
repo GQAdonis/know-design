@@ -3,20 +3,21 @@ import { MAC_PREBUNDLED_DAEMON_CLI_RELATIVE_PATH, MAC_PREBUNDLED_DAEMON_SIDECAR_
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+import type { BrandDescriptor } from "@open-design/release";
+import { brandOf, brandPackagedAppName, brandUpdatePlaceholderUrl } from "../brand.js";
 import type { ToolPackConfig } from "../config/index.js";
 import { domToPptxBundleResource } from "../dom-to-pptx-resource.js";
 import {
   assertNodePtyRuntime,
   resolveNodePtyRuntimeArch,
 } from "../node-pty-runtime.js";
-import { macResources } from "../resources/index.js";
+import { macResources, macResourcesForBrand } from "../resources/index.js";
 import { electronBuilderVersionForAppVersion } from "../versioning/index.js";
 import { execFileAsync } from "./commands.js";
 import {
   ELECTRON_BUILDER_ASAR,
   ELECTRON_BUILDER_FILE_PATTERNS,
   MAC_ELECTRON_LANGUAGES,
-  PRODUCT_NAME,
   WEB_STANDALONE_HOOK_CONFIG_ENV,
   WEB_STANDALONE_RESOURCE_NAME,
 } from "./constants.js";
@@ -71,6 +72,10 @@ async function writeWebStandaloneHookConfig(config: ToolPackConfig, paths: MacPa
   return paths.webStandaloneHookConfigPath;
 }
 
+export function macBuilderProtocols(brand: BrandDescriptor): Array<{ name: string; schemes: string[] }> {
+  return [{ name: `${brand.productName} Invite`, schemes: [brand.urlScheme] }];
+}
+
 export function resolveElectronBuilderTargets(to: MacBuildOutput): ElectronBuilderTarget[] {
   switch (to) {
     case "app":
@@ -91,6 +96,8 @@ export async function runElectronBuilder(
 ): Promise<void> {
   const namespaceToken = sanitizeNamespace(config.namespace);
   const identity = resolveMacInstallIdentity(config);
+  const brand = brandOf(config);
+  const brandMacResources = macResourcesForBrand(brand.id);
   const packagedVersion = await readPackagedVersion(config);
   const packageVersion = electronBuilderVersionForAppVersion(packagedVersion);
   const webStandaloneHookConfigPath = config.webOutputMode === "standalone"
@@ -98,7 +105,7 @@ export async function runElectronBuilder(
     : null;
   const builderConfig = {
     appId: identity.appId,
-    artifactName: `${PRODUCT_NAME}-${namespaceToken}.\${ext}`,
+    artifactName: `${brand.productName}-${namespaceToken}.\${ext}`,
     afterPack: webStandaloneHookConfigPath == null ? undefined : macResources.webStandaloneAfterPackHook,
     afterSign: config.signed && config.macNotarize ? macResources.notarizeHook : undefined,
     asar: ELECTRON_BUILDER_ASAR,
@@ -108,7 +115,7 @@ export async function runElectronBuilder(
       output: paths.appBuilderOutputRoot,
     },
     dmg: {
-      icon: macResources.icon,
+      icon: brandMacResources.icon,
       iconSize: 96,
       title: identity.installerTitle,
     },
@@ -116,7 +123,7 @@ export async function runElectronBuilder(
     executableName: identity.executableName,
     extraMetadata: {
       main: "./main.cjs",
-      name: "open-design-packaged-app",
+      name: brandPackagedAppName(brand),
       productName: identity.productName,
       version: packageVersion,
     },
@@ -135,7 +142,7 @@ export async function runElectronBuilder(
       entitlementsInherit: config.signed ? macResources.entitlementsInherit : undefined,
       gatekeeperAssess: false,
       hardenedRuntime: config.signed,
-      icon: macResources.icon,
+      icon: brandMacResources.icon,
       identity: config.signed ? undefined : null,
       notarize: config.macNotarize ? undefined : false,
       target: targets,
@@ -146,20 +153,18 @@ export async function runElectronBuilder(
     // setAsDefaultProtocolClient alone is unreliable on macOS). The scheme string
     // must match INVITE_DEEPLINK_SCHEME in
     // apps/desktop/src/main/invite-deeplink-core.ts.
-    protocols: [
-      {
-        name: `${PRODUCT_NAME} Invite`,
-        schemes: ["opendesign"],
-      },
-    ],
+    // Original brand: protocols: [{ name: "Open Design Invite", schemes: ["opendesign"] }]
+    // (kept verbatim for the source pin in tests/mac.test.ts); any other brand
+    // registers its own scheme.
+    protocols: macBuilderProtocols(brand),
     nodeGypRebuild: false,
     npmRebuild: false,
     productName: identity.productName,
-    icon: macResources.icon,
+    icon: brandMacResources.icon,
     publish: [
       {
         provider: "generic",
-        url: "https://updates.invalid/open-design",
+        url: brandUpdatePlaceholderUrl(brand),
       },
     ],
   };

@@ -9,9 +9,8 @@ import {
   type LauncherRuntimeDescriptor,
   type LauncherVersionPaths,
 } from "@open-design/launcher-proto";
-import { SIDECAR_DEFAULTS } from "@open-design/sidecar-proto";
-import { releaseChannelFromNamespace, releaseChannelFromVersion } from "@open-design/release";
 
+import { brandOf, releaseChannelForConfig, type BrandedConfig } from "../brand.js";
 import type { ToolPackConfig, ToolPackPlatform } from "../config/index.js";
 
 export type ToolPackLauncherLayout = {
@@ -32,11 +31,9 @@ export type ToolPackLauncherPayloadLayout = {
 };
 
 export function resolveToolPackLauncherChannel(
-  config: Pick<ToolPackConfig, "appVersion" | "namespace">,
+  config: Pick<ToolPackConfig, "appVersion" | "namespace"> & BrandedConfig,
 ): LauncherChannel {
-  return releaseChannelFromVersion(config.appVersion)
-    ?? releaseChannelFromNamespace(config.namespace, SIDECAR_DEFAULTS.namespace)
-    ?? "stable";
+  return releaseChannelForConfig(config) ?? "stable";
 }
 
 export function resolveToolPackLauncherRoot(
@@ -46,7 +43,7 @@ export function resolveToolPackLauncherRoot(
 }
 
 export function resolveToolPackLauncherLayout(
-  config: Pick<ToolPackConfig, "appVersion" | "namespace" | "roots">,
+  config: Pick<ToolPackConfig, "appVersion" | "namespace" | "roots"> & BrandedConfig,
 ): ToolPackLauncherLayout {
   const root = resolveToolPackLauncherRoot(config);
   const channel = resolveToolPackLauncherChannel(config);
@@ -66,7 +63,7 @@ export function payloadArchiveExtension(platform: ToolPackPlatform): "7z" | "zip
 }
 
 export function resolveToolPackLauncherPayloadLayout(
-  config: Pick<ToolPackConfig, "appVersion" | "namespace" | "platform" | "roots">,
+  config: Pick<ToolPackConfig, "appVersion" | "namespace" | "platform" | "roots"> & BrandedConfig,
   version: string,
 ): ToolPackLauncherPayloadLayout {
   const launcher = resolveToolPackLauncherLayout(config);
@@ -81,7 +78,7 @@ export function resolveToolPackLauncherPayloadLayout(
   const archivePath = join(
     config.roots.output.namespaceRoot,
     "payload",
-    `Open Design-${namespaceToken}-payload.${payloadArchiveExtension(config.platform)}`,
+    `${brandOf(config).productName}-${namespaceToken}-payload.${payloadArchiveExtension(config.platform)}`,
   );
   return {
     archivePath,

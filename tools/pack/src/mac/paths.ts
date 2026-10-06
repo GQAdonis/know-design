@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { APP_KEYS } from "@open-design/sidecar-proto";
 
 import type { ToolPackConfig } from "../config/index.js";
+import { brandOf, type BrandedConfig } from "../brand.js";
 import { PRODUCT_NAME } from "./constants.js";
 import {
   MAC_PREBUNDLE_ENTRYPOINTS_DIR_NAME,
@@ -21,8 +22,8 @@ export function sanitizeNamespace(value: string): string {
   return value.replace(/[^A-Za-z0-9._-]+/g, "-");
 }
 
-export function macAppBundleName(namespace: string): string {
-  return `${PRODUCT_NAME}.${sanitizeNamespace(namespace)}.app`;
+export function macAppBundleName(namespace: string, config?: BrandedConfig): string {
+  return `${brandOf(config).productName}.${sanitizeNamespace(namespace)}.app`;
 }
 
 export function macAppExecutablePath(appPath: string, executableName = PRODUCT_NAME): string {
@@ -38,6 +39,7 @@ export function resolveMacPaths(config: ToolPackConfig): MacPaths {
   const appBuilderOutputRoot = config.roots.output.appBuilderRoot;
   const namespaceToken = sanitizeNamespace(config.namespace);
   const identity = resolveMacInstallIdentity(config);
+  const productName = brandOf(config).productName;
   const appPath = join(
     appBuilderOutputRoot,
     resolveMacAppOutputDirectoryName(),
@@ -60,7 +62,7 @@ export function resolveMacPaths(config: ToolPackConfig): MacPaths {
     daemonPrebundleRoot: join(namespaceRoot, "assembled", "app", MAC_PREBUNDLED_APP_DIR_NAME, "daemon"),
     daemonSidecarPrebundleEntrypointPath: join(namespaceRoot, MAC_PREBUNDLE_ENTRYPOINTS_DIR_NAME, "daemon-sidecar.js"),
     daemonSidecarPrebundlePath: join(namespaceRoot, "assembled", MAC_PREBUNDLED_DAEMON_SIDECAR_RELATIVE_PATH),
-    dmgPath: join(namespaceRoot, "dmg", `${PRODUCT_NAME}-${namespaceToken}.dmg`),
+    dmgPath: join(namespaceRoot, "dmg", `${productName}-${namespaceToken}.dmg`),
     installApplicationsRoot,
     installedAppPath,
     latestMacYmlPath: join(namespaceRoot, "zip", "latest-mac.yml"),
@@ -69,7 +71,7 @@ export function resolveMacPaths(config: ToolPackConfig): MacPaths {
     packagedMainPrebundlePath: join(namespaceRoot, "assembled", MAC_PREBUNDLED_PACKAGED_MAIN_RELATIVE_PATH),
     packagedConfigPath: join(namespaceRoot, "open-design-config.json"),
     resourceRoot: join(namespaceRoot, "resources", "open-design"),
-    payloadZipPath: join(namespaceRoot, "payload", `${PRODUCT_NAME}-${namespaceToken}-payload.zip`),
+    payloadZipPath: join(namespaceRoot, "payload", `${productName}-${namespaceToken}-payload.zip`),
     systemApplicationsAppPath: join("/Applications", identity.systemAppBundleName),
     tarballsRoot: join(namespaceRoot, "tarballs"),
     userApplicationsAppPath: join(homedir(), "Applications", identity.systemAppBundleName),
@@ -77,7 +79,7 @@ export function resolveMacPaths(config: ToolPackConfig): MacPaths {
     webStandaloneHookConfigPath: join(namespaceRoot, "web-standalone-after-pack-config.json"),
     webSidecarPrebundleMetaPath: join(namespaceRoot, MAC_PREBUNDLE_META_DIR_NAME, "web-sidecar.meta.json"),
     webSidecarPrebundlePath: join(namespaceRoot, "assembled", MAC_PREBUNDLED_WEB_SIDECAR_RELATIVE_PATH),
-    zipPath: join(namespaceRoot, "zip", `${PRODUCT_NAME}-${namespaceToken}.zip`),
+    zipPath: join(namespaceRoot, "zip", `${productName}-${namespaceToken}.zip`),
   };
 }
 

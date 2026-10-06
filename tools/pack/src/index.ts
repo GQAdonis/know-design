@@ -213,6 +213,7 @@ addWinLifecycleOptions(
         throw new Error("win validate-payload requires --expected-version");
       }
       printJson(await validateWinLauncherPayloadArchive({
+        buildProfile: config.buildProfile,
         expectedVersion: options.expectedVersion,
         namespace: config.namespace,
         payloadPath: options.payloadPath,

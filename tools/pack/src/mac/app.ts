@@ -6,6 +6,7 @@ import { dirname, join, relative } from "node:path";
 import { rebuild, type RebuildOptions } from "@electron/rebuild";
 
 import { pinAssembledAppToNpmCollector } from "../assembled-app-package-manager.js";
+import { brandOf, brandPackagedAppName } from "../brand.js";
 import type { ToolPackConfig } from "../config/index.js";
 import {
   MAC_DAEMON_PREBUNDLE_ESM_REQUIRE_BANNER,
@@ -354,9 +355,9 @@ export async function writeAssembledApp(
     `${JSON.stringify(
       {
         dependencies,
-        description: "Open Design packaged runtime",
+        description: `${brandOf(config).productName} packaged runtime`,
         main: "./main.cjs",
-        name: "open-design-packaged-app",
+        name: brandPackagedAppName(brandOf(config)),
         ...(optionalDependencies == null ? {} : { optionalDependencies }),
         private: true,
         productName: identity.productName,
@@ -372,7 +373,7 @@ export async function writeAssembledApp(
   }
   await writeFile(
     paths.assembledMainEntryPath,
-    renderMacPackagedMainEntry(usePrebundledStandaloneWeb),
+    renderMacPackagedMainEntry(usePrebundledStandaloneWeb, brandOf(config).productName),
     "utf8",
   );
   await writeFile(
