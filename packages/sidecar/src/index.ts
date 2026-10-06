@@ -35,6 +35,8 @@ export {
 } from "./paths.js";
 export { allocatePort } from "./port.js";
 export { SidecarIpcError } from "./json-ipc.js";
+export { SidecarPhaseTracker, parseSidecarPhase } from "./phase.js";
+export type { SidecarPhase } from "./phase.js";
 export type { JsonIpcPeer, JsonIpcRequestOptions, SidecarIpcErrorCode } from "./json-ipc.js";
 export type {
   SidecarClientOptions,

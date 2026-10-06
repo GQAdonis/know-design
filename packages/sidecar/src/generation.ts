@@ -9,6 +9,7 @@ import {
 } from "@open-design/platform";
 
 import { type SidecarDescription, sidecarProtocol } from "./client.js";
+import { parseSidecarPhase } from "./phase.js";
 import { requestJsonIpc } from "./json-ipc.js";
 import {
   captureSidecarGenerationSetSnapshot,
@@ -110,6 +111,7 @@ export async function describeSidecarGeneration(
     throw new Error("sidecar endpoint described an invalid port");
   }
   if (typeof description.ready !== "boolean") throw new Error("sidecar endpoint described invalid readiness");
+  parseSidecarPhase(description.phase);
   return description;
 }
 

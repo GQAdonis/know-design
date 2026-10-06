@@ -1,4 +1,5 @@
 import { createJsonIpcServer, requestJsonIpc, type JsonIpcRequestOptions } from "./json-ipc.js";
+import { SidecarPhaseTracker, type SidecarPhase } from "./phase.js";
 import {
   isCurrentSidecarLauncher,
   normalizeSidecarStamp,
@@ -58,8 +59,14 @@ function newSidecarGenerationEnvironment(env: NodeJS.ProcessEnv): NodeJS.Process
 export type SidecarHandler = (input: unknown) => unknown | Promise<unknown>;
 export type SidecarHandlers = Readonly<Record<string, SidecarHandler>>;
 
+/** What a lifecycle may use while it starts. */
+export type SidecarStartContext = Readonly<{
+  /** Announce a named startup phase; visible to callers through `describe` before the runtime is ready. */
+  reportPhase(name: string): void;
+}>;
+
 export type SidecarLifecycle<TRuntime> = {
-  start(resources: SidecarResources): Promise<TRuntime>;
+  start(resources: SidecarResources, context?: SidecarStartContext): Promise<TRuntime>;
   status(runtime: TRuntime): unknown | Promise<unknown>;
   stop(runtime: TRuntime): Promise<void>;
 };
@@ -140,6 +147,8 @@ export type SidecarConnection = {
 };
 
 export type SidecarDescription = Readonly<{
+  /** Latest announced startup phase; absent from sidecars that predate phases. */
+  phase?: SidecarPhase | null;
   ready: boolean;
   resources: SidecarResources;
   stamp: SidecarStamp;
@@ -221,6 +230,7 @@ export class SidecarClient<TRuntime> {
 
   readonly #handlers: SidecarHandlers;
   readonly #lifecycle: SidecarLifecycle<TRuntime>;
+  readonly #phases = new SidecarPhaseTracker();
   #ipcServer: Awaited<ReturnType<typeof createJsonIpcServer>> | null = null;
   #runtime: TRuntime | null = null;
   #startPromise: Promise<void> | null = null;
@@ -229,6 +239,11 @@ export class SidecarClient<TRuntime> {
   readonly #signalHandler = () => { this.#stopAndExit(); };
   #resolveStopped!: () => void;
   readonly #stopped = new Promise<void>((resolve) => { this.#resolveStopped = resolve; });
+
+  /** Observe phase transitions in order (for diagnostics such as a startup event log). */
+  onPhase(listener: (phase: SidecarPhase) => void): () => void {
+    return this.#phases.onChange(listener);
+  }
 
   constructor(options: SidecarClientOptions<TRuntime>) {
     const context = readSupervisedSidecarContext();
@@ -262,7 +277,12 @@ export class SidecarClient<TRuntime> {
         handler: async (message) => {
           const request = assertEnvelope(message);
           if (request.type === CONTROL_DESCRIBE) {
-            return { ready: runtimeStarted, resources: this.resources, stamp: this.stamp } satisfies SidecarDescription;
+            return {
+              phase: this.#phases.current(),
+              ready: runtimeStarted,
+              resources: this.resources,
+              stamp: this.stamp,
+            } satisfies SidecarDescription;
           }
           if (!runtimeStarted) throw new Error("sidecar runtime is starting");
           if (request.type === CONTROL_STATUS) {
@@ -287,7 +307,9 @@ export class SidecarClient<TRuntime> {
           return await handler(request.input);
         },
       });
-      runtime = await this.#lifecycle.start(this.resources);
+      // The server answers `describe` from here on, so this is the first phase a caller can see.
+      this.#phases.report("ipc-bound");
+      runtime = await this.#lifecycle.start(this.resources, { reportPhase: (name) => { this.#phases.report(name); } });
       runtimeStarted = true;
       this.#runtime = runtime;
       for (const signal of ["SIGINT", "SIGTERM"] as const) process.on(signal, this.#signalHandler);
