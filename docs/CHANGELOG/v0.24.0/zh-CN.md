@@ -1,5 +1,5 @@
 ---
-title: Open Design 0.24.0 — 每一次运行都完整留存
+title: KnowDesign 0.24.0 — 每一次运行都完整留存
 description: 重新加载和补充问题后对话不断线，你选中的预览会一直保持，丰富回复以内容呈现而不是泄漏标记，Windows 全新安装第一次启动就能进入 App，Novita AI 也进入了 BYOK 选择器。
 ---
 
@@ -11,11 +11,11 @@ description: 重新加载和补充问题后对话不断线，你选中的预览�
 
 - 🧵 **对话会跟着工作继续向前，而不会断线。** 规划回复、实时任务续接、被阻塞任务的结论和恢复后的输出都会留在产生它们的任务中——即使重新加载或补充问题也一样。分支对话从干净状态开始，不再继承另一段对话的工作。仅作规划的回复现在会以你收到的答案结束，不会再被误标成红色失败运行。 (#8322, #8195, #8008, #8007, #8172, #8029, #8158) 感谢 @itscheems、@lefarcen。
 - 🖼️ **你正在看的预览，会一直是你选中的那个。** 真实页面不再变成空白快照；查看内容时，过期的文件读取也不会抢走聊天预览。 (#7125, #8067) 感谢 @huynextlevel。
-- 🃏 **丰富回复以内容呈现，而不是以标记泄漏。** Open Design 会在思考流中解码卡片；卡片格式损坏时也会安全忽略，而不会把原始数据铺进对话。 (#8258, #8264) 感谢 @lefarcen。
+- 🃏 **丰富回复以内容呈现，而不是以标记泄漏。** KnowDesign 会在思考流中解码卡片；卡片格式损坏时也会安全忽略，而不会把原始数据铺进对话。 (#8258, #8264) 感谢 @lefarcen。
 - 🪟 **Windows 全新安装，第一次启动就能进到 App。** 打包 App 不再把初始 payload 状态误判为交接失败，因此首次启动时 Web 界面可以连上本地引擎。 (#7520) 感谢 @lorenzozanee。
 - 🔑 **Novita AI 已进入 BYOK 选择器。** 选择 Novita AI、填入自己的 key，即可从当前的 DeepSeek、MiniMax、Qwen、GLM、Kimi 与 GPT-OSS 模型中选择，无需手动搭建提供商配置。 (#6327) 感谢 @jax-novita。
 
-> 📥 **下载：**[Open Design 0.24.0](https://github.com/nexu-io/open-design/releases/tag/open-design-v0.24.0)。
+> 📥 **下载：**[KnowDesign 0.24.0](https://github.com/GQAdonis/knowdesign/releases/tag/open-design-v0.24.0)。
 
 ## ✨ 新增
 

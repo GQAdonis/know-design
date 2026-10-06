@@ -1,5 +1,5 @@
 ---
-title: "Open Design 0.24.1 — A Steadier Handoff"
+title: "KnowDesign 0.24.1 — A Steadier Handoff"
 description: "A focused reliability patch that preserves diagnostic evidence, makes desktop update restarts safer, keeps successful blocked runs honest, restores the fullscreen exit control in every theme, and improves OD Next and MCP failure handling."
 ---
 
@@ -19,7 +19,7 @@ description: "A focused reliability patch that preserves diagnostic evidence, ma
 - **Updating the desktop app no longer races its own shutdown.** Renderer traffic is stopped before the packaged runtime retires, making the restart handoff safer. (#8348) Thanks @PerishCode.
 - **The fullscreen exit button belongs to the theme you chose.** Its colors, hover state and keyboard focus now remain readable in both light and dark presentations. (#7272) Thanks @dennytosp.
 
-> 📥 **Download:** [Open Design 0.24.1](https://github.com/nexu-io/open-design/releases/tag/open-design-v0.24.1).
+> 📥 **Download:** [KnowDesign 0.24.1](https://github.com/GQAdonis/knowdesign/releases/tag/open-design-v0.24.1).
 
 ## 🙏 Thanks to everyone who shipped 0.24.1
 

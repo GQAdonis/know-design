@@ -1,5 +1,5 @@
 ---
-title: "Open Design 0.24.1 — 更稳的交接"
+title: "KnowDesign 0.24.1 — 更稳的交接"
 description: "一个聚焦可靠性的补丁：保留诊断证据，让桌面端更新重启更稳，正确呈现已成功结束的受阻运行，在所有主题下恢复全屏退出控件，并改进 OD Next 与 MCP 的故障处理。"
 ---
 
@@ -19,7 +19,7 @@ description: "一个聚焦可靠性的补丁：保留诊断证据，让桌面端
 - **桌面端更新不再与自身关闭过程竞争。** 打包 runtime 退出前会先停止渲染器流量，让重启交接更可靠。 (#8348) 感谢 @PerishCode。
 - **全屏退出按钮终于属于你选择的主题。** 它的颜色、悬停和键盘焦点状态会在浅色与深色演示中保持清晰。 (#7272) 感谢 @dennytosp。
 
-> 📥 **下载：** [Open Design 0.24.1](https://github.com/nexu-io/open-design/releases/tag/open-design-v0.24.1)。
+> 📥 **下载：** [KnowDesign 0.24.1](https://github.com/GQAdonis/knowdesign/releases/tag/open-design-v0.24.1)。
 
 ## 🙏 感谢所有参与 0.24.1 的贡献者
 

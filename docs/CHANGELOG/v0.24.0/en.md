@@ -1,5 +1,5 @@
 ---
-title: Open Design 0.24.0 — Every Run, Kept Intact
+title: KnowDesign 0.24.0 — Every Run, Kept Intact
 description: Conversations keep their thread across reloads and follow-ups, the preview you chose stays put, rich answers arrive as content instead of markup, a fresh Windows install reaches the app on the first try, and Novita AI joins the BYOK picker.
 ---
 
@@ -22,7 +22,7 @@ run. (#8322, #8195, #8008, #8007, #8172, #8029, #8158) Thanks @itscheems,
 - 🖼️ **Your current preview stays the preview you chose.** Real pages no longer  
 turn into blank snapshots, and a stale file read cannot steal the chat preview  
 while you are inspecting something else. (#7125, #8067) Thanks @huynextlevel.
-- 🃏 **Rich answers arrive as answers, not markup.** Open Design decodes cards  
+- 🃏 **Rich answers arrive as answers, not markup.** KnowDesign decodes cards  
 in the thinking stream and safely drops a malformed card instead of spilling  
 its raw data into the conversation. (#8258, #8264) Thanks @lefarcen.
 - 🪟 **A fresh Windows install gets to the app, first time.** The packaged app  
@@ -33,7 +33,7 @@ interface can connect to its local engine on first launch. (#7520) Thanks
 key, and pick from its current DeepSeek, MiniMax, Qwen, GLM, Kimi and GPT-OSS  
 models without hand-building the provider setup. (#6327) Thanks @jax-novita.
 
-> 📥 **Download:**[Open Design 0.24.0](https://github.com/nexu-io/open-design/releases/tag/open-design-v0.24.0).
+> 📥 **Download:**[KnowDesign 0.24.0](https://github.com/GQAdonis/knowdesign/releases/tag/open-design-v0.24.0).
 
 ## ✨ Added
 

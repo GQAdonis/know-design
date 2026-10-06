@@ -1,16 +1,16 @@
 ---
-title: Open Design 0.22.1 — Smoother design runs and recovery
+title: KnowDesign 0.22.1 — Smoother design runs and recovery
 description: OD Next becomes the default for supported design tasks, while clearer failures, reliable retries, steadier chat scrolling, and final syntax checks help you keep creating.
 ---
 
-Open Design 0.22.1 builds on 0.22.0 with a simpler start for supported design tasks and clearer ways to recover when a run goes wrong.
+KnowDesign 0.22.1 builds on 0.22.0 with a simpler start for supported design tasks and clearer ways to recover when a run goes wrong.
 
 ## 🔁 Changed
 
 - 🧭 **Start supported design tasks with OD Next.** Prototypes, slide decks, marketing designs, and Hyperframes videos use OD Next by default on supported agents. Settings → Labs → Design Harness still lets you turn it off, and an existing choice to disable it stays respected. (#7876)
 - 🧰 **Keep design work focused.** OD Next uses more concise tool guidance, clearer completion instructions, and the active run's workspace when loading media skills. (#7804)
 
-> 📥 **Download:** [Open Design downloads](https://open-design.ai/download/).
+> 📥 **Download:** [KnowDesign downloads](https://open-design.ai/download/).
 
 ## 🐛 Fixed
 

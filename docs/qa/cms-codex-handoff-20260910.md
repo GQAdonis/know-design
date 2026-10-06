@@ -4,7 +4,7 @@
 
 本交接覆盖本 PR 的已完成代码、可复跑验收和剩余阻断项；它**不**授权合并、部署、生产操作、Plane 更新或自动关闭任何工单。认证、部署状态、远端 CI、合并和已部署版本均为 **UNKNOWN**，除非接手者以自己的安全登录态重新读取并记录。不得读取凭据、不得静默改指向生产、不得接管其他运行时。
 
-依赖顺序：既有 Vela #1963 的分支 `codex/cms-content-selection` → 本 Vela 后续 PR；既有 Open Design #7986 的分支 `codex/fix-cms-shared-manifest`（其原有 base `codex/cms-admin-hosts-e2e` 保持不变）→ 本 OD 后续 PR。两仓库不可合为一个 PR。
+依赖顺序：既有 Vela #1963 的分支 `codex/cms-content-selection` → 本 Vela 后续 PR；既有 KnowDesign #7986 的分支 `codex/fix-cms-shared-manifest`（其原有 base `codex/cms-admin-hosts-e2e` 保持不变）→ 本 OD 后续 PR。两仓库不可合为一个 PR。
 
 ## 状态矩阵
 
@@ -35,7 +35,7 @@
 ## 安全运行手册
 
 1. 以两个隔离 checkout 加载候选；先确认显示的 source/build runtime 属于候选 SHA，绝不复用或重启用户拥有的 `17686/17687`、`agent-cms-operator-da21`。
-2. Open Design 仅按 scoped docs 启动：`OD_DATA_DIR=<candidate>/.tmp/joint-validation-browser/data corepack pnpm@10.33.2 tools-dev run web --namespace cms-joint-validation-browser --daemon-port 19786 --web-port 19787`。端口 `19786/19787` 及 fixture `19788` 为本次 owned 约定；如占用，停止并记录，不接管。
+2. KnowDesign 仅按 scoped docs 启动：`OD_DATA_DIR=<candidate>/.tmp/joint-validation-browser/data corepack pnpm@10.33.2 tools-dev run web --namespace cms-joint-validation-browser --daemon-port 19786 --web-port 19787`。端口 `19786/19787` 及 fixture `19788` 为本次 owned 约定；如占用，停止并记录，不接管。
 3. Vela 仅用其 scoped docs 的 `pnpm dev` / `with-env` 隔离命令和自己的 sandbox；不自行编造认证、fixture 或环境变量。需要登录时请测试者通过安全用户登录完成，不读 secret。
 4. 固定源归档：`/Users/alche/Downloads/deepseek-v4.1-flash-五点位测试组件.zip`，SHA-256 `690d897450e4a53af269ffcd40cb4ab393652f58b5856cfd8abf9f6185028ad6`。每次还要记录**新编译包**的身份/fingerprint；历史活动 `wobpnxd7ptplgjjzevqx9xyd` 与 deployment `gbaa211ukd9duci6c66prrgy` 不是当前已验证身份。
 5. 每条证据使用：`ID / 步骤 / 期望 / 实际 / PASS|FAIL|UNKNOWN / build SHA / 环境 / 包 SHA / 时间 / 截图或网络或 receipt / 回归影响`。Codex 返回报告与 defect；不得宣称获得 merge/deploy 授权。

@@ -94,6 +94,26 @@ describe("findStrayBrandStrings", () => {
   });
 });
 
+describe("default configuration", () => {
+  const docs = "README.md";
+  const code = "apps/daemon/src/plugins/marketplaces.ts";
+
+  test("rebrands repository links and image names in prose only", () => {
+    const text = "see https://github.com/nexu-io/open-design and ghcr.io/nexu-io/od:latest";
+    assert.equal(
+      applyBrandToText(text, docs, DEFAULT_BRAND_CONFIG),
+      "see https://github.com/GQAdonis/knowdesign and ghcr.io/gqadonis/knowdesign:latest",
+    );
+    // In code the upstream slug is data (update/metadata sources), never branding.
+    assert.equal(applyBrandToText(text, code, DEFAULT_BRAND_CONFIG), text);
+  });
+
+  test("still protects package scopes and upstream hosts", () => {
+    const text = "@open-design/web talks to releases.open-design.ai";
+    assert.equal(applyBrandToText(text, docs, DEFAULT_BRAND_CONFIG), text);
+  });
+});
+
 describe("validateBrandConfig", () => {
   test("rejects a rule whose replacement still contains its source, which would break idempotence", () => {
     assert.throws(

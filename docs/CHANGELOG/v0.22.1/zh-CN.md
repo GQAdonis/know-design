@@ -1,16 +1,16 @@
 ---
-title: Open Design 0.22.1 — 设计更顺畅，失败后更好恢复
+title: KnowDesign 0.22.1 — 设计更顺畅，失败后更好恢复
 description: 支持的设计任务默认使用 OD Next，并改进失败提示、重试、聊天自动跟随和交付前语法检查，让创作更顺畅。
 ---
 
-Open Design 0.22.1 在 0.22.0 的基础上，让支持的设计任务更容易开始，也让运行出错后的恢复路径更清楚。
+KnowDesign 0.22.1 在 0.22.0 的基础上，让支持的设计任务更容易开始，也让运行出错后的恢复路径更清楚。
 
 ## 🔁 改进
 
-- 🧭 **支持的设计任务默认使用 OD Next。** 使用支持的 Agent 创建原型、幻灯片、营销设计和 Hyperframes 视频时，默认启用 OD Next。你仍可在「设置 → Open Design 实验室 → Design Harness」中关闭，之前明确关闭的选择也会保留。（#7876）
+- 🧭 **支持的设计任务默认使用 OD Next。** 使用支持的 Agent 创建原型、幻灯片、营销设计和 Hyperframes 视频时，默认启用 OD Next。你仍可在「设置 → KnowDesign 实验室 → Design Harness」中关闭，之前明确关闭的选择也会保留。（#7876）
 - 🧰 **让设计过程更专注。** OD Next 精简工具使用指引，明确完成任务的要求，并按当前运行所属的工作区加载媒体技能。（#7804）
 
-> 📥 **下载：**[Open Design 下载页面](https://open-design.ai/download/)。
+> 📥 **下载：**[KnowDesign 下载页面](https://open-design.ai/download/)。
 
 ## 🐛 修复
 

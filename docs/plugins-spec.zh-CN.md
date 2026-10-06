@@ -1612,7 +1612,7 @@ OD 以单个 multi-arch Docker image 发布，使完整 plugin/marketplace syste
 
 ### 15.1 Image shape
 
-- **Tag**：`ghcr.io/nexu-io/od:<version>`，以及 moving `:latest`。
+- **Tag**：`ghcr.io/gqadonis/knowdesign:<version>`，以及 moving `:latest`。
 - **Architectures**：`linux/amd64` 与 `linux/arm64`（single manifest list）。
 - **Contents**：
   - Node 24 runtime + daemon `dist/` bundle。
@@ -1655,7 +1655,7 @@ TAVILY_API_KEY=...
 本地 laptop：
 
 ```bash
-docker run --rm -p 17456:17456 ghcr.io/nexu-io/od:latest
+docker run --rm -p 17456:17456 ghcr.io/gqadonis/knowdesign:latest
 open http://localhost:17456
 ```
 

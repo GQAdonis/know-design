@@ -106,7 +106,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/od
+          # `od` stays as a compatibility alias of the same image for existing pullers.
+          images: |
+            ghcr.io/${{ github.repository_owner }}/knowdesign
+            ghcr.io/${{ github.repository_owner }}/od
           # spec §15.1 tag scheme:
           #   - vX.Y.Z push             → :X.Y.Z + :latest
           #   - workflow_call (stable)  → :<release_version> + optional :latest

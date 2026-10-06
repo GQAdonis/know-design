@@ -1617,7 +1617,7 @@ OD ships as a single multi-arch Docker image so the full plugin/marketplace syst
 
 ### 15.1 Image shape
 
-- **Tag**: `ghcr.io/nexu-io/od:<version>` plus moving `:latest`.
+- **Tag**: `ghcr.io/gqadonis/knowdesign:<version>` plus moving `:latest`.
 - **Architectures**: `linux/amd64` and `linux/arm64` (single manifest list).
 - **Contents**:
   - Node 24 runtime + the daemon `dist/` bundle.
@@ -1666,7 +1666,7 @@ Anything settable via the desktop UI is also settable via `docker exec od od con
 Local laptop:
 
 ```bash
-docker run --rm -p 17456:17456 ghcr.io/nexu-io/od:latest
+docker run --rm -p 17456:17456 ghcr.io/gqadonis/knowdesign:latest
 open http://localhost:17456
 ```
 

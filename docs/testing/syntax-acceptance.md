@@ -255,7 +255,7 @@ generation latency, 1.3 MB original-file timing, production p95 or online repair
 coverage. No real-model batch, remote deployment or telemetry ingestion test ran.
 
 The nine saved physical Run JSON records from the quote receipt were also passed
-through the current Open Design bridge, strict safe telemetry schema and flat
+through the current KnowDesign bridge, strict safe telemetry schema and flat
 metadata helper, and separately through the local ODEval projector and Case
 rollup. Both paths agreed on all nine records: three recovered deliveries, three
 clean deliveries, three warning deliveries and zero blocked deliveries. Each

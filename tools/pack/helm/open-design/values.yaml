@@ -1,4 +1,4 @@
-# Open Design daemon — Helm chart values. Spec §15.5.
+# KnowDesign daemon — Helm chart values. Spec §15.5.
 #
 # Override the image / persistence / secret pattern per cloud:
 #   AWS:    persistence.backend=efs    secrets.backend=secrets-manager
@@ -14,7 +14,7 @@
 # persistence and secret-backend choices.
 
 image:
-  repository: ghcr.io/nexu-io/od
+  repository: ghcr.io/gqadonis/knowdesign
   tag: edge
   pullPolicy: IfNotPresent
 

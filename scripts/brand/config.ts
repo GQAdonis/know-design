@@ -11,6 +11,9 @@
 import { KNOWDESIGN_BRAND, OPEN_DESIGN_BRAND } from "../../packages/release/src/brand.ts";
 import type { BrandConfig } from "./lib.ts";
 
+/** Prose files where clickable repository links and image names are rebranded. */
+export const DOC_FILES = ["README.md", "QUICKSTART.md", "CONTRIBUTING.md", "docs/**/*.md"] as const;
+
 export const DEFAULT_BRAND_CONFIG: BrandConfig = {
   exclude: [
     "apps/web/src/i18n/locales/**",
@@ -41,12 +44,15 @@ export const DEFAULT_BRAND_CONFIG: BrandConfig = {
   protect: [
     "@open-design/[a-z0-9-]+",
     "[a-z0-9.-]*open-design\\.ai",
-    "nexu-io/open-design",
     "Open Design contributors",
     "Open Design Authors",
   ],
   rules: [
     { from: OPEN_DESIGN_BRAND.productName, to: KNOWDESIGN_BRAND.productName },
+    // Links and image names in prose follow the fork. In code the upstream slug is DATA (update and
+    // metadata sources, switched off by the knowdesign profile), so these rules never apply there.
+    { files: DOC_FILES, from: OPEN_DESIGN_BRAND.githubRepo, to: KNOWDESIGN_BRAND.githubRepo },
+    { files: DOC_FILES, from: OPEN_DESIGN_BRAND.imageRepo, to: KNOWDESIGN_BRAND.imageRepo },
     // The no-space spelling also occurs in real identifiers, so it is applied only to the files
     // known to carry it as a window or page title.
     {

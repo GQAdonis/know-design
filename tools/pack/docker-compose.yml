@@ -7,11 +7,11 @@
 #
 # Build the image first (from the repo root):
 #
-#   docker build -f deploy/Dockerfile -t open-design/od:dev .
+#   docker build -f deploy/Dockerfile -t knowdesign/knowdesign:dev .
 #
 # Or pull a published tag:
 #
-#   docker pull ghcr.io/nexu-io/od:latest
+#   docker pull ghcr.io/gqadonis/knowdesign:latest
 #
 # Then `docker compose -f tools/pack/docker-compose.yml up -d`.
 
@@ -20,10 +20,11 @@ version: "3.9"
 services:
   od:
     # The image tag the operator wants. Spec §15.5 expects multi-arch
-    # ghcr.io/nexu-io/od:<tag>; the build path above produces
-    # `open-design/od:dev` locally.
-    image: ${OD_IMAGE:-ghcr.io/nexu-io/od:latest}
-    container_name: od
+    # ghcr.io/gqadonis/knowdesign:<tag>; the build path above produces
+    # `knowdesign/knowdesign:dev` locally. A distinct container name, volumes and
+    # host port let this stack run beside a stack of the original Open Design.
+    image: ${OD_IMAGE:-ghcr.io/gqadonis/knowdesign:latest}
+    container_name: knowdesign
 
     # Spec §15.3 — every dimension the daemon respects in headless
     # mode. OD_BIND_HOST=0.0.0.0 + OD_API_TOKEN is the canonical
@@ -32,7 +33,7 @@ services:
     # gates access.
     environment:
       OD_BIND_HOST: ${OD_BIND_HOST:-0.0.0.0}
-      OD_PORT: ${OD_PORT:-7456}
+      OD_PORT: ${OD_PORT:-7556}
       OD_DATA_DIR: /data/od
       OD_MEDIA_CONFIG_DIR: /data/config
       # Set to a generated random hex (`openssl rand -hex 32`) before
@@ -52,21 +53,21 @@ services:
     # separately lets the operator rotate provider credentials on a
     # different lifecycle than the project data.
     volumes:
-      - od-data:/data/od
-      - od-config:/data/config
+      - knowdesign-data:/data/od
+      - knowdesign-config:/data/config
 
     ports:
-      - "${OD_PORT:-7456}:${OD_PORT:-7456}"
+      - "${OD_PORT:-7556}:${OD_PORT:-7556}"
 
     restart: unless-stopped
 
     healthcheck:
       # /api/daemon/status is the canonical lifecycle probe (Phase 1.5).
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${OD_PORT:-7456}/api/daemon/status >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${OD_PORT:-7556}/api/daemon/status >/dev/null 2>&1 || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
 
 volumes:
-  od-data: {}
-  od-config: {}
+  knowdesign-data: {}
+  knowdesign-config: {}

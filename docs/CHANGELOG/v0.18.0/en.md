@@ -11,7 +11,7 @@ description: OpenDesign 0.18.0 introduces Team Workspace—a shared home where d
 
 - 🤝 **Team workspaces — your team gets a home.** *Collaboration used to mean leaving OpenDesign: export the file, paste the screenshot, chase the latest copy.* Now a **Team workspace** lives right next to your personal one. Create it, switch into it, and invite colleagues with a role through a seat-aware invite flow — everyone lands in the same place, signed in through one OpenDesign Cloud account. (#6142, #6459)
 
-- 🚀 **OpenDesign for Codex — in case you missed 0.17.0.** *The last release lived for exactly two days, so its headline rides again:* Codex Desktop and CLI can call OpenDesign as a complete creative engine. Confirm a visual brief, choose OpenDesign Cloud or a supported local runtime, and receive a real Preview or Studio result. The signed OpenDesign runtime starts headlessly when needed, so there is no second app to keep open and no stack to wire together by hand. Upgrading from 0.16.x? This one is new to you too. (#6055, #6273, #6362 — shipped in [0.17.0](https://github.com/nexu-io/open-design/releases/tag/open-design-v0.17.0))
+- 🚀 **OpenDesign for Codex — in case you missed 0.17.0.** *The last release lived for exactly two days, so its headline rides again:* Codex Desktop and CLI can call OpenDesign as a complete creative engine. Confirm a visual brief, choose OpenDesign Cloud or a supported local runtime, and receive a real Preview or Studio result. The signed OpenDesign runtime starts headlessly when needed, so there is no second app to keep open and no stack to wire together by hand. Upgrading from 0.16.x? This one is new to you too. (#6055, #6273, #6362 — shipped in [0.17.0](https://github.com/GQAdonis/knowdesign/releases/tag/open-design-v0.17.0))
 
 - 🔌 **And Codex doesn't lose OpenDesign anymore.** External MCP hosts — Codex and friends — used to go dark if OpenDesign's local service came back on a different port after a restart. The connection now finds its way home on its own, so `@open-design` keeps working across restarts without re-setup. (#6391)
 
@@ -33,9 +33,9 @@ description: OpenDesign 0.18.0 introduces Team Workspace—a shared home where d
 >
 > | Platform | Architecture | Asset |
 > |---|---|---|
-> | macOS | Apple Silicon (arm64) | [open-design-0.18.0-mac-arm64.dmg](https://github.com/nexu-io/open-design/releases/download/open-design-v0.18.0/open-design-0.18.0-mac-arm64.dmg) |
-> | macOS | Intel (x64) | [open-design-0.18.0-mac-x64.dmg](https://github.com/nexu-io/open-design/releases/download/open-design-v0.18.0/open-design-0.18.0-mac-x64.dmg) |
-> | Windows | x64 | [open-design-0.18.0-win-x64-setup.exe](https://github.com/nexu-io/open-design/releases/download/open-design-v0.18.0/open-design-0.18.0-win-x64-setup.exe) |
+> | macOS | Apple Silicon (arm64) | [open-design-0.18.0-mac-arm64.dmg](https://github.com/GQAdonis/knowdesign/releases/download/open-design-v0.18.0/open-design-0.18.0-mac-arm64.dmg) |
+> | macOS | Intel (x64) | [open-design-0.18.0-mac-x64.dmg](https://github.com/GQAdonis/knowdesign/releases/download/open-design-v0.18.0/open-design-0.18.0-mac-x64.dmg) |
+> | Windows | x64 | [open-design-0.18.0-win-x64-setup.exe](https://github.com/GQAdonis/knowdesign/releases/download/open-design-v0.18.0/open-design-0.18.0-win-x64-setup.exe) |
 
 ## ✨ Added
 

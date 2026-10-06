@@ -120,7 +120,7 @@ az deployment group create \
     odApiToken="$OD_API_TOKEN" \
     dnsNameLabel="$DNS_LABEL" \
     allowedOrigins="$BROWSER_ORIGIN" \
-    image="ghcr.io/nexu-io/od:latest" \
+    image="ghcr.io/gqadonis/knowdesign:latest" \
     cpuCores=1 \
     memoryInGB=1 \
     fileShareQuotaGB=10

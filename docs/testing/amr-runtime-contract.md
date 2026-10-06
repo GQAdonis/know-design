@@ -137,13 +137,13 @@ The fork tag and self-reported `--version` string are separate identifiers.
   the measured commit above. The seven-scenario result remains tied to that
   measured binary, rather than claiming a new combined-package validation.
   The host cancellation notification companion is
-  [OpenDesign #7959](https://github.com/nexu-io/open-design/pull/7959), commit
+  [OpenDesign #7959](https://github.com/GQAdonis/knowdesign/pull/7959), commit
   `65fa5dced1`; it has not been included in this PR's combined-package acceptance.
 - [Vela PR #1952](https://github.com/powerformer/vela/pull/1952), commit
   `1acdf79feaf88837763eb3afeb291421603ab76f`: locally built `0.0.1-test`, SHA-256
   `487a9cb1882aa0cc9badb170a51ecf7a86f14c40e0de19694ac57e665cf95cc1`, passed
   all eight continuation-profile scenarios. Related production changes are
-  [OpenDesign #7958](https://github.com/nexu-io/open-design/pull/7958) and
+  [OpenDesign #7958](https://github.com/GQAdonis/knowdesign/pull/7958) and
   [OpenCode #16](https://github.com/powerformer/opencode/pull/16). This is still
   an unpublished, separate candidate; a combined version needs verification.
 

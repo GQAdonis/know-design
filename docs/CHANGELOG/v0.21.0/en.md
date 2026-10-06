@@ -1,12 +1,12 @@
 ---
-title: Open Design 0.21.0 — Reliable, Start to Finish
-description: From Agent connections to live HTML previews and app relaunches, Open Design 0.21.0 makes the entire creation experience more reliable—and easier to recover when something goes wrong.
+title: KnowDesign 0.21.0 — Reliable, Start to Finish
+description: From Agent connections to live HTML previews and app relaunches, KnowDesign 0.21.0 makes the entire creation experience more reliable—and easier to recover when something goes wrong.
 ---
 
 ### 🌟 Codename: *Reliable, Start to Finish*
 
 🛡️ **42 PRs · 13 contributors · 4 days** — **From Agent connections to live
-HTML previews and app relaunches, Open Design 0.21.0 makes the entire creation
+HTML previews and app relaunches, KnowDesign 0.21.0 makes the entire creation
 experience more reliable—and easier to recover when something goes wrong.** 🚀
 
 ## 🔥 Highlights

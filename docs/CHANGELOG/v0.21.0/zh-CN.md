@@ -1,12 +1,12 @@
 ---
-title: Open Design 0.21.0 — Reliable, Start to Finish
-description: 从 Agent 连接、实时 HTML 预览到 App 重新启动，Open Design 0.21.0 让整个创作体验更加可靠；遇到问题时，也更容易恢复。
+title: KnowDesign 0.21.0 — Reliable, Start to Finish
+description: 从 Agent 连接、实时 HTML 预览到 App 重新启动，KnowDesign 0.21.0 让整个创作体验更加可靠；遇到问题时，也更容易恢复。
 ---
 
 ### 🌟 Codename: *Reliable, Start to Finish*
 
 🛡️ **42 个 PR · 13 位贡献者 · 4 天** — **从 Agent 连接、实时 HTML 预览到 App
-重新启动，Open Design 0.21.0 让整个创作体验更加可靠；遇到问题时，也更容易恢复。** 🚀
+重新启动，KnowDesign 0.21.0 让整个创作体验更加可靠；遇到问题时，也更容易恢复。** 🚀
 
 ## 🔥 亮点
 
