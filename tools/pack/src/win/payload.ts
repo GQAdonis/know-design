@@ -10,6 +10,7 @@ import {
 } from "@open-design/launcher-proto";
 
 import { hashJson, hashPath, type ToolPackCache } from "../cache/index.js";
+import { brandExecutableFileName, brandOf } from "../brand.js";
 import type { ToolPackConfig } from "../config/index.js";
 import { winResources } from "../resources/index.js";
 import { electronBuilderVersionForAppVersion } from "../versioning/index.js";
@@ -29,7 +30,7 @@ export type WinLauncherPayloadManifest = {
   channel: string;
   entry: {
     cwd: "payload";
-    executable: "payload/Open Design.exe";
+    executable: string;
   };
   namespace: string;
   payloadRoot: "payload";
@@ -38,8 +39,12 @@ export type WinLauncherPayloadManifest = {
   version: string;
 };
 
+const DEFAULT_WIN_LAUNCHER_EXECUTABLE_FILE_NAME = "Open Design.exe";
+
 export function buildWinLauncherPayloadManifest(input: {
   channel: string;
+  /** The brand's executable; defaults to the original brand's. */
+  executableFileName?: string;
   namespace: string;
   version: string;
 }): WinLauncherPayloadManifest {
@@ -47,7 +52,7 @@ export function buildWinLauncherPayloadManifest(input: {
     channel: input.channel,
     entry: {
       cwd: "payload",
-      executable: "payload/Open Design.exe",
+      executable: `payload/${input.executableFileName ?? DEFAULT_WIN_LAUNCHER_EXECUTABLE_FILE_NAME}`,
     },
     namespace: input.namespace,
     payloadRoot: "payload",
@@ -85,8 +90,10 @@ export async function buildWinLauncherPayloadArchive(
   const stageRoot = join(dirname(paths.launcherPayloadPath), "stage");
   const payloadRoot = join(stageRoot, "payload");
   const overlayRoot = join(dirname(paths.launcherPayloadPath), "overlay");
+  const executableFileName = brandExecutableFileName(brandOf(config));
   const manifest = buildWinLauncherPayloadManifest({
     channel,
+    executableFileName,
     namespace: config.namespace,
     version: packagedVersion,
   });
@@ -124,7 +131,7 @@ export async function buildWinLauncherPayloadArchive(
     await mkdir(join(overlayRoot, "payload", "resources"), { recursive: true });
     await writeFile(join(overlayRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     if (input.includeExecutable) {
-      await cp(join(builtApp.unpackedRoot, "Open Design.exe"), join(overlayRoot, "payload", "Open Design.exe"));
+      await cp(join(builtApp.unpackedRoot, executableFileName), join(overlayRoot, "payload", executableFileName));
     }
     await writeFile(
       join(overlayRoot, "payload", "resources", "open-design-config.json"),
@@ -162,7 +169,7 @@ export async function buildWinLauncherPayloadArchive(
     await mkdir(dirname(outputPath), { recursive: true });
     await cp(paths.installerBasePayloadPath, outputPath);
 
-    const overlayTopLevel = new Set(resolveWinNsisOverlayRequiredPaths().map((entry) => entry[0]).filter((entry) => entry != null));
+    const overlayTopLevel = new Set(resolveWinNsisOverlayRequiredPaths(executableFileName).map((entry) => entry[0]).filter((entry) => entry != null));
     const entries = await readdir(builtApp.unpackedRoot, { withFileTypes: true });
     const renameArgs = entries
       .map((entry) => entry.name)
@@ -300,6 +307,7 @@ function archiveRelativePath(value: string): string {
 }
 
 export async function validateWinLauncherPayloadArchive(input: {
+  buildProfile?: "knowdesign";
   expectedVersion: string;
   namespace: string;
   payloadPath: string;
@@ -319,6 +327,7 @@ export async function validateWinLauncherPayloadArchive(input: {
     const manifest = JSON.parse(await readFile(join(extractRoot, "manifest.json"), "utf8")) as WinLauncherPayloadManifest;
     const expectedChannel = resolveToolPackLauncherChannel({
       appVersion: input.expectedVersion,
+      buildProfile: input.buildProfile,
       namespace: input.namespace,
     });
     requirePayloadManifestValue(manifest.schemaVersion, "schemaVersion", LAUNCHER_SCHEMA_VERSION);
@@ -328,9 +337,10 @@ export async function validateWinLauncherPayloadArchive(input: {
     requirePayloadManifestValue(manifest.platform, "platform", "win32");
     requirePayloadManifestValue(manifest.payloadRoot, "payloadRoot", "payload");
     requirePayloadManifestValue(manifest.entry?.cwd, "entry.cwd", "payload");
-    requirePayloadManifestValue(manifest.entry?.executable, "entry.executable", "payload/Open Design.exe");
+    const expectedExecutable = `payload/${brandExecutableFileName(brandOf(input))}`;
+    requirePayloadManifestValue(manifest.entry?.executable, "entry.executable", expectedExecutable);
 
-    await stat(join(extractRoot, archiveRelativePath("payload/Open Design.exe")));
+    await stat(join(extractRoot, archiveRelativePath(expectedExecutable)));
     await stat(join(extractRoot, archiveRelativePath("payload/resources/open-design-config.json")));
     return { manifest, payloadPath, valid: true };
   } finally {

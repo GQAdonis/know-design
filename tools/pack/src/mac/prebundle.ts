@@ -155,6 +155,6 @@ export async function assertMacPrebundleMetafile(options: {
   }
 }
 
-export function renderMacPackagedMainEntry(usePrebundle: boolean): string {
-  return renderPackagedMainEntry(usePrebundle);
+export function renderMacPackagedMainEntry(usePrebundle: boolean, productName?: string): string {
+  return renderPackagedMainEntry(usePrebundle, productName);
 }

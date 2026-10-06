@@ -1,12 +1,13 @@
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
-import { dirname, join, relative } from "node:path";
+import { dirname, join, relative, win32 } from "node:path";
 import { promisify } from "node:util";
 
 import type { ToolPackConfig } from "../config/index.js";
 import { resolveToolPackLauncherLayout } from "../launcher/layout.js";
 import { winResources } from "../resources/index.js";
+import { brandOf } from "../brand.js";
 import { PRODUCT_NAME } from "./constants.js";
 import { pathExists } from "./fs.js";
 import { resolveWinInstallIdentity } from "./identity.js";
@@ -27,11 +28,18 @@ const NSIS_LANGUAGES = [
   { macro: "LANG_PERSIAN", name: "Persian" },
 ] as const;
 
-const WIN_NSIS_OVERLAY_RELATIVE_PATHS = [
-  `${PRODUCT_NAME}.exe`,
-  "resources/app/package.json",
-  "resources/open-design-config.json",
-] as const;
+function winNsisOverlayRelativePaths(executableFileName: string): string[] {
+  return [
+    executableFileName,
+    "resources/app/package.json",
+    "resources/open-design-config.json",
+  ];
+}
+
+/** The executable a built app carries; the brand decides its name. */
+function builtAppExecutableFileName(builtApp: WinBuiltAppManifest): string {
+  return win32.basename(builtApp.executablePath);
+}
 
 export const WIN_PAYLOAD_SEVEN_Z_CREATE_ARGS = ["-t7z", "-m0=LZMA2", "-mx=1", "-mf=off"] as const;
 const WIN_NSIS_PAYLOAD_SEVEN_Z_TIMEOUT_MS = 15 * 60_000;
@@ -50,12 +58,12 @@ function normalizeArchivePath(relativePath: string): string {
   return relativePath.split("/").join("\\");
 }
 
-export function resolveWinNsisOverlayRequiredPaths(): string[][] {
-  return WIN_NSIS_OVERLAY_RELATIVE_PATHS.map((relativePath) => [relativePath]);
+export function resolveWinNsisOverlayRequiredPaths(executableFileName = `${PRODUCT_NAME}.exe`): string[][] {
+  return winNsisOverlayRelativePaths(executableFileName).map((relativePath) => [relativePath]);
 }
 
 export async function hashWinNsisBasePayloadInputs(builtApp: WinBuiltAppManifest): Promise<string> {
-  const excluded = new Set(WIN_NSIS_OVERLAY_RELATIVE_PATHS.map((entry) => entry.split("/").join("\\")));
+  const excluded = new Set(winNsisOverlayRelativePaths(builtAppExecutableFileName(builtApp)).map((entry) => entry.split("/").join("\\")));
   const hash = createHash("sha256");
 
   async function visit(current: string): Promise<void> {
@@ -413,7 +421,7 @@ if ($ids) {
 `;
 }
 
-async function writeInstallerScript(config: ToolPackConfig, paths: WinPaths, packagedVersion: string): Promise<void> {
+export async function writeInstallerScript(config: ToolPackConfig, paths: WinPaths, packagedVersion: string): Promise<void> {
   const identity = resolveWinInstallIdentity(config);
   const launcher = resolveToolPackLauncherLayout(config);
   const productName = escapeNsisString(identity.displayName);
@@ -422,17 +430,20 @@ async function writeInstallerScript(config: ToolPackConfig, paths: WinPaths, pac
   const shortcutName = escapeNsisString(identity.shortcutName);
   const registryKey = escapeNsisString(identity.registryKey);
   const appPathsKey = escapeNsisString(identity.appPathsKey);
-  const inviteProtocolKey = "Software\\Classes\\opendesign";
+  const brand = brandOf(config);
+  // Original brand: const inviteProtocolKey = "Software\\Classes\\opendesign"
+  // (kept verbatim for the source pin in tests/win-identity.test.ts).
+  const inviteProtocolKey = `Software\\Classes\\${brand.urlScheme}`;
   const inviteProtocolCommand = createNsisQuotedCommandLiteral([`$INSTDIR\\${exeName}`, "%1"]);
   const inviteProtocolExecutablePrefix = createNsisQuotedCommandLiteral([`$INSTDIR\\${exeName}`]);
   const namespace = escapeNsisString(config.namespace);
-  const localDataRoot = `$APPDATA\\${escapeNsisString(PRODUCT_NAME)}\\namespaces\\${escapeNsisString(sanitizeNamespace(config.namespace))}`;
+  const localDataRoot = `$APPDATA\\${escapeNsisString(brand.productName)}\\namespaces\\${escapeNsisString(sanitizeNamespace(config.namespace))}`;
   const localCacheRoot = `${localDataRoot}\\cache`;
   const localUpdateDownloadsRoot = `${localDataRoot}\\updates\\downloads`;
   const localUpdateReleasesRoot = `${localDataRoot}\\updates\\releases`;
   const localUpdateStagingRoot = `${localDataRoot}\\updates\\staging`;
   const nsisLogDirectory = config.portable
-    ? `$TEMP\\${escapeNsisString(PRODUCT_NAME)}\\${escapeNsisString(sanitizeNamespace(config.namespace))}`
+    ? `$TEMP\\${escapeNsisString(brand.productName)}\\${escapeNsisString(sanitizeNamespace(config.namespace))}`
     : escapeNsisString(dirname(paths.nsisLogPath));
   const nsisLogPath = config.portable
     ? `${nsisLogDirectory}\\nsis.log`
@@ -995,7 +1006,7 @@ skip_silent_desktop_shortcut:
   WriteRegStr HKCU "${registryKey}" "QuietUninstallString" '"$INSTDIR\\${uninstallerName}" /currentuser /S'
   WriteRegStr HKCU "${registryKey}" "DisplayIcon" "$INSTDIR\\${exeName},0"
   WriteRegStr HKCU "${appPathsKey}" "" "$INSTDIR\\${exeName}"
-  WriteRegStr HKCU "${inviteProtocolKey}" "" "URL:Open Design Invite Protocol"
+  WriteRegStr HKCU "${inviteProtocolKey}" "" "URL:${escapeNsisString(brand.productName)} Invite Protocol"
   WriteRegStr HKCU "${inviteProtocolKey}" "URL Protocol" ""
   WriteRegStr HKCU "${inviteProtocolKey}\\DefaultIcon" "" "$INSTDIR\\${exeName},0"
   WriteRegStr HKCU "${inviteProtocolKey}\\shell\\open\\command" "" ${inviteProtocolCommand}
@@ -1171,7 +1182,7 @@ async function buildWinNsisPayloadArchive(
 async function stageWinNsisOverlayPayload(builtApp: WinBuiltAppManifest, stageRoot: string): Promise<void> {
   await rm(stageRoot, { force: true, recursive: true });
   await mkdir(stageRoot, { recursive: true });
-  for (const relativePath of WIN_NSIS_OVERLAY_RELATIVE_PATHS) {
+  for (const relativePath of winNsisOverlayRelativePaths(builtAppExecutableFileName(builtApp))) {
     const sourcePath = join(builtApp.unpackedRoot, ...relativePath.split("/"));
     const targetPath = join(stageRoot, ...relativePath.split("/"));
     await mkdir(dirname(targetPath), { recursive: true });
@@ -1192,7 +1203,7 @@ export async function buildWinNsisBasePayload(
       ...WIN_PAYLOAD_SEVEN_Z_CREATE_ARGS,
       paths.installerBasePayloadPath,
       ".\\*",
-      ...WIN_NSIS_OVERLAY_RELATIVE_PATHS.map((relativePath) => `-x!${normalizeArchivePath(relativePath)}`),
+      ...winNsisOverlayRelativePaths(builtAppExecutableFileName(builtApp)).map((relativePath) => `-x!${normalizeArchivePath(relativePath)}`),
     ],
   );
 }

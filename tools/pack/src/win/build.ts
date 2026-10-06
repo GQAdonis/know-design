@@ -107,7 +107,7 @@ export async function packWin(config: ToolPackConfig): Promise<WinPackResult> {
     )
   );
   await runPhase("win-icon", async () => {
-    await copyWinIcon(paths);
+    await copyWinIcon(paths, config);
   });
   const tarballs = await runPhase("workspace-tarballs", async () =>
     collectWorkspaceTarballs(config, paths, cache, workspaceBuildKey)

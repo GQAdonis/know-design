@@ -57,6 +57,29 @@ export const linuxResources = {
   desktopTemplate: join(resourcesRoot, "linux", "open-design.desktop.template"),
 } as const;
 
+/**
+ * Icon directory for a brand: the original brand keeps `resources/<platform>`;
+ * any other brand reads `resources/brands/<id>/<platform>`.
+ */
+export function brandIconRoot(brandId: string, platform: "mac" | "win" | "linux"): string {
+  return brandId === "open-design"
+    ? join(resourcesRoot, platform)
+    : join(resourcesRoot, "brands", brandId, platform);
+}
+
+export function macResourcesForBrand(brandId: string): typeof macResources {
+  const root = brandIconRoot(brandId, "mac");
+  return { ...macResources, icon: join(root, "icon.icns"), iconPng: join(root, "icon.png") };
+}
+
+export function winResourcesForBrand(brandId: string): typeof winResources {
+  return { ...winResources, icon: join(brandIconRoot(brandId, "win"), "icon.ico") };
+}
+
+export function linuxResourcesForBrand(brandId: string): typeof linuxResources {
+  return { ...linuxResources, icon: join(brandIconRoot(brandId, "linux"), "icon.png") };
+}
+
 const BUNDLED_RESOURCE_TREES = [
   { from: "skills", to: "skills" },
   // After the skills/design-templates split (specs/current/skills-and-design-templates.md)

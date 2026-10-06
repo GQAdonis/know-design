@@ -12,6 +12,7 @@ import {
   pinAssembledAppToNpmCollector,
 } from "../assembled-app-package-manager.js";
 import { hashJson, hashPath, ToolPackCache } from "../cache/index.js";
+import { brandCacheKeyInput, brandOf, brandPackagedAppName } from "../brand.js";
 import type { ToolPackConfig } from "../config/index.js";
 import {
   prepareNodePtyRuntime,
@@ -42,7 +43,6 @@ import {
   ELECTRON_REBUILD_MODE,
   ELECTRON_REBUILD_NATIVE_MODULES,
   INTERNAL_PACKAGES,
-  PRODUCT_NAME,
 } from "./constants.js";
 import { readPackagedVersion, writePackagedConfig } from "./manifest.js";
 import { pathExists, removeTree } from "./fs.js";
@@ -249,11 +249,11 @@ async function writeAssembledAppEntrypoints(
     `${JSON.stringify(
       {
         dependencies: options.dependencies ?? createAssembledAppDependencies(config, paths, packedTarballs),
-        description: "Open Design packaged runtime",
+        description: `${brandOf(config).productName} packaged runtime`,
         main: "./main.cjs",
-        name: "open-design-packaged-app",
+        name: brandPackagedAppName(brandOf(config)),
         private: true,
-        productName: PRODUCT_NAME,
+        productName: brandOf(config).productName,
         version: packageVersion,
       },
       null,
@@ -263,7 +263,7 @@ async function writeAssembledAppEntrypoints(
   );
   await writeFile(
     paths.assembledMainEntryPath,
-    renderWinPackagedMainEntry(options.usePrebundle === true),
+    renderWinPackagedMainEntry(options.usePrebundle === true, brandOf(config).productName),
     "utf8",
   );
 }
@@ -394,6 +394,7 @@ export async function createWinPackagedAppCacheKey(
   runtimeDependencies: Readonly<Record<string, string>> = WIN_PREBUNDLE_RUNTIME_DEPENDENCIES,
 ): Promise<string> {
   return hashJson({
+    ...brandCacheKeyInput(brandOf(config)),
     arch: "x64",
     electronVersion: config.electronVersion,
     modules: ELECTRON_REBUILD_NATIVE_MODULES,

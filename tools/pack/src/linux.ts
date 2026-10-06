@@ -27,22 +27,25 @@ import {
   ASSEMBLED_APP_NPM_INSTALL_ARGS,
   pinAssembledAppToNpmCollector,
 } from "./assembled-app-package-manager.js";
+import { brandOf, brandPackagedAppName } from "./brand.js";
 import type { ToolPackConfig } from "./config/index.js";
+import type { BrandDescriptor } from "@open-design/release";
 import {
   allPackagedSidecarStopRequests,
   packagedSidecarStopRequests,
   toolPackSidecarStamp,
 } from "./config/sidecar-stamps.js";
 import { domToPptxBundleResource } from "./dom-to-pptx-resource.js";
-import { copyBundledResourceTrees, linuxResources, packBundledDshRuntime } from "./resources/index.js";
+import { copyBundledResourceTrees, linuxResources, linuxResourcesForBrand, packBundledDshRuntime } from "./resources/index.js";
 import { copyOptionalVelaCliBinary } from "./vela-cli.js";
 import { electronBuilderVersionForAppVersion, readRuntimeAppVersion } from "./versioning/index.js";
 import { runWorkspaceBuild } from "./workspace-build.js";
 
 const execFileAsync = promisify(execFile);
 
+// The original brand's spelling, kept as the default so helpers called without a
+// brand keep producing exactly what they always have.
 const PRODUCT_NAME = "Open Design";
-const APP_IMAGE_PRODUCT_NAME = "Open-Design";
 const DESKTOP_LOG_ECHO_ENV = "OD_DESKTOP_LOG_ECHO";
 // The containerized build sets this to the standalone pnpm binary fetched by
 // buildDockerArgs; runProductionInstall reads it to avoid invoking `npm` inside
@@ -265,20 +268,73 @@ export type DesktopTemplateValues = {
   namespace: string;
   execPath: string;
   iconName: string;
+  /** Brand display name; defaults to the original brand's. */
+  productName?: string;
+  /** URL scheme registered through MimeType; defaults to the original brand's (`od`). */
+  mimeScheme?: string;
 };
+
+/**
+ * The `x-scheme-handler` the original brand's desktop entry has always claimed.
+ * It is not the `opendesign` scheme the app actually registers, but changing it
+ * would change the original brand's installed files, so it is preserved; every
+ * other brand claims its real URL scheme.
+ */
+const ORIGINAL_BRAND_LINUX_MIME_SCHEME = "od";
 
 export function renderDesktopTemplate(template: string, values: DesktopTemplateValues): string {
   return template
     .replace(/@@NAMESPACE@@/g, values.namespace)
     .replace(/@@EXEC_PATH@@/g, values.execPath)
-    .replace(/@@ICON_PATH@@/g, values.iconName);
+    .replace(/@@ICON_PATH@@/g, values.iconName)
+    .replace(/@@PRODUCT_NAME@@/g, values.productName ?? PRODUCT_NAME)
+    .replace(/@@MIME_SCHEME@@/g, values.mimeScheme ?? ORIGINAL_BRAND_LINUX_MIME_SCHEME);
+}
+
+/**
+ * Every Linux name the OS or another install can observe, derived from the brand
+ * and namespace. Pure, so both brands can be compared without building.
+ */
+export type LinuxBrandNames = {
+  appId: string;
+  appImageInstallName: string;
+  desktopFileName: string;
+  executableName: string;
+  headlessLauncherName: string;
+  iconBaseName: string;
+  maintainer: string;
+  mimeScheme: string;
+  packagedAppName: string;
+  packagedPackageName: string;
+  productName: string;
+  repositoryUrl: string;
+  synopsis: string;
+};
+
+export function resolveLinuxBrandNames(brand: BrandDescriptor, namespace: string): LinuxBrandNames {
+  const namespaceToken = sanitizeNamespace(namespace);
+  return {
+    appId: brand.appId,
+    appImageInstallName: `${brand.productName.replace(/\s+/g, "-")}.${namespaceToken}.AppImage`,
+    desktopFileName: `${brand.slug}-${namespaceToken}.desktop`,
+    executableName: brand.productName,
+    headlessLauncherName: `${brand.slug}-headless-${namespaceToken}`,
+    iconBaseName: `${brand.slug}-${namespaceToken}`,
+    maintainer: `${brand.productName} Contributors`,
+    mimeScheme: brand.id === "open-design" ? ORIGINAL_BRAND_LINUX_MIME_SCHEME : brand.urlScheme,
+    packagedAppName: brandPackagedAppName(brand),
+    packagedPackageName: `${brand.slug}-packaged`,
+    productName: brand.productName,
+    repositoryUrl: `https://github.com/${brand.githubRepo}.git`,
+    synopsis: brand.productName,
+  };
 }
 
 export function renderLinuxPackagedMainEntry(): string {
   return 'import("@open-design/packaged").catch((error) => {\n  console.error("packaged entry failed", error);\n  process.exit(1);\n});\n';
 }
 
-export function renderLinuxAppImageAppRun(): string {
+export function renderLinuxAppImageAppRun(productName: string = PRODUCT_NAME): string {
   return `#!/bin/bash
 set -e
 
@@ -300,7 +356,7 @@ export LD_LIBRARY_PATH="\${APPDIR}/usr/lib:\${LD_LIBRARY_PATH}"
 export XDG_DATA_DIRS="\${APPDIR}"/usr/share/:"\${XDG_DATA_DIRS}":/usr/share/gnome/:/usr/local/share/:/usr/share/
 export GSETTINGS_SCHEMA_DIR="\${APPDIR}/usr/share/glib-2.0/schemas:\${GSETTINGS_SCHEMA_DIR}"
 
-BIN="$APPDIR/${PRODUCT_NAME}"
+BIN="$APPDIR/${productName}"
 
 if [ -z "$APPIMAGE_EXIT_AFTER_INSTALL" ] ; then
   trap atexit EXIT
@@ -338,6 +394,7 @@ export type AppImageProcessSnapshot = {
 export function matchesAppImageProcess(
   snapshot: AppImageProcessSnapshot,
   installPath: string,
+  productName: string = PRODUCT_NAME,
 ): boolean {
   if (snapshot.executable === installPath) return true;
   // Two AppImage launch modes leave different executable paths in /proc/<pid>/exe:
@@ -353,7 +410,7 @@ export function matchesAppImageProcess(
   // Direct AppRun launches do not know the installed .AppImage path. Our AppRun
   // fallback sets $APPIMAGE to the sibling AppRun before execing Electron.
   return (
-    posix.basename(snapshot.executable) === PRODUCT_NAME &&
+    posix.basename(snapshot.executable) === productName &&
     snapshot.env.APPIMAGE === posix.join(posix.dirname(snapshot.executable), "AppRun")
   );
 }
@@ -376,22 +433,11 @@ type LinuxPaths = {
   tarballsRoot: string;
 };
 
-function appImageInstallName(namespace: string): string {
-  return `${APP_IMAGE_PRODUCT_NAME}.${sanitizeNamespace(namespace)}.AppImage`;
-}
-
-function desktopFileName(namespace: string): string {
-  return `open-design-${sanitizeNamespace(namespace)}.desktop`;
-}
-
-function iconFileName(namespace: string): string {
-  return `open-design-${sanitizeNamespace(namespace)}.png`;
-}
-
 function resolveLinuxPaths(config: ToolPackConfig): LinuxPaths {
   const namespaceRoot = config.roots.output.namespaceRoot;
   const appBuilderOutputRoot = config.roots.output.appBuilderRoot;
   const home = homedir();
+  const names = resolveLinuxBrandNames(brandOf(config), config.namespace);
   return {
     appBuilderConfigPath: join(namespaceRoot, "builder-config.json"),
     appBuilderOutputRoot,
@@ -400,8 +446,8 @@ function resolveLinuxPaths(config: ToolPackConfig): LinuxPaths {
     assembledAppRoot: join(namespaceRoot, "assembled", "app"),
     assembledMainEntryPath: join(namespaceRoot, "assembled", "app", "main.cjs"),
     assembledPackageJsonPath: join(namespaceRoot, "assembled", "app", "package.json"),
-    installAppImagePath: join(home, ".local", "bin", appImageInstallName(config.namespace)),
-    installDesktopFilePath: join(home, ".local", "share", "applications", desktopFileName(config.namespace)),
+    installAppImagePath: join(home, ".local", "bin", names.appImageInstallName),
+    installDesktopFilePath: join(home, ".local", "share", "applications", names.desktopFileName),
     installIconPath: join(
       home,
       ".local",
@@ -410,7 +456,7 @@ function resolveLinuxPaths(config: ToolPackConfig): LinuxPaths {
       "hicolor",
       "512x512",
       "apps",
-      iconFileName(config.namespace),
+      `${names.iconBaseName}.png`,
     ),
     packagedConfigPath: join(namespaceRoot, "open-design-config.json"),
     resourceRoot: join(namespaceRoot, "resources", "open-design"),
@@ -537,17 +583,18 @@ async function writeAssembledApp(
 
   const version = await readPackagedVersion(config);
   const packageVersion = electronBuilderVersionForAppVersion(version);
+  const names = resolveLinuxBrandNames(brandOf(config), config.namespace);
   const packageJson = {
-    name: "open-design-packaged",
+    name: names.packagedPackageName,
     version: packageVersion,
     private: true,
     main: "main.cjs",
     dependencies,
     description: "Local-first design product: detects your installed code-agent CLI, runs design skills + design systems, streams artifacts into a sandboxed preview.",
-    author: "Open Design Team",
+    author: `${names.productName} Team`,
     repository: {
       type: "git",
-      url: "https://github.com/nexu-io/open-design.git"
+      url: names.repositoryUrl
     }
   };
   await writeFile(paths.assembledPackageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`, "utf8");
@@ -579,9 +626,9 @@ async function writeAssembledApp(
   await runProductionInstall(paths.assembledAppRoot);
 }
 
-async function writeLinuxAppImageAppRun(paths: LinuxPaths): Promise<void> {
+async function writeLinuxAppImageAppRun(paths: LinuxPaths, productName: string): Promise<void> {
   await mkdir(dirname(paths.appImageAppRunPath), { recursive: true });
-  await writeFile(paths.appImageAppRunPath, renderLinuxAppImageAppRun(), "utf8");
+  await writeFile(paths.appImageAppRunPath, renderLinuxAppImageAppRun(productName), "utf8");
   await chmod(paths.appImageAppRunPath, 0o755);
 }
 
@@ -593,26 +640,28 @@ async function writeLinuxBuilderConfig(config: ToolPackConfig, paths: LinuxPaths
   const packagedVersion = await readPackagedVersion(config);
   const packageVersion = electronBuilderVersionForAppVersion(packagedVersion);
 
+  const names = resolveLinuxBrandNames(brandOf(config), config.namespace);
+  const brandLinuxResources = linuxResourcesForBrand(brandOf(config).id);
   const builderConfig: Record<string, unknown> = {
-    appId: "io.open-design.desktop",
-    artifactName: `${PRODUCT_NAME}-${namespaceToken}.\${ext}`,
+    appId: names.appId,
+    artifactName: `${names.productName}-${namespaceToken}.\${ext}`,
     asar: false,
     buildDependenciesFromSource: false,
     compression: "maximum",
     directories: {
       app: paths.assembledAppRoot,
       output: paths.appBuilderOutputRoot,
-      buildResources: dirname(linuxResources.icon),
+      buildResources: dirname(brandLinuxResources.icon),
     },
     electronVersion: config.electronVersion.replace(/^[^\d]*/, ""),
     // See tools/pack/src/win/builder.ts: rely on electron-builder's own
     // Electron download rather than node_modules' dist, which pnpm does not
     // reliably materialize on CI runners.
-    executableName: PRODUCT_NAME,
+    executableName: names.executableName,
     extraMetadata: {
       main: "./main.cjs",
-      name: "open-design-packaged-app",
-      productName: PRODUCT_NAME,
+      name: names.packagedAppName,
+      productName: names.productName,
       version: packageVersion,
       ...(config.portable ? {} : { odToolsPackRuntimeRoot: config.roots.runtime.namespaceBaseRoot }),
     },
@@ -642,13 +691,13 @@ async function writeLinuxBuilderConfig(config: ToolPackConfig, paths: LinuxPaths
       "!pnpm-workspace.yaml",
       "!package-lock.json",
     ],
-    icon: linuxResources.icon,
+    icon: brandLinuxResources.icon,
     linux: {
       target,
-      icon: linuxResources.icon,
+      icon: brandLinuxResources.icon,
       category: "Development",
-      synopsis: "Open Design",
-      maintainer: "Open Design Contributors",
+      synopsis: names.synopsis,
+      maintainer: names.maintainer,
     },
     // Keep the AppImage launch fallback explicit. Our top-level AppRun wrapper
     // clears ELECTRON_RUN_AS_NODE before these Chromium flags reach Electron,
@@ -658,7 +707,7 @@ async function writeLinuxBuilderConfig(config: ToolPackConfig, paths: LinuxPaths
     },
     nodeGypRebuild: false,
     npmRebuild: false,
-    productName: PRODUCT_NAME,
+    productName: names.productName,
   };
 
   await mkdir(dirname(paths.appBuilderConfigPath), { recursive: true });
@@ -728,7 +777,7 @@ export async function packLinux(config: ToolPackConfig): Promise<LinuxPackResult
   const tarballs = await collectWorkspaceTarballs(config, paths);
   await writeAssembledApp(config, paths, tarballs);
   if (config.to !== "dir") {
-    await writeLinuxAppImageAppRun(paths);
+    await writeLinuxAppImageAppRun(paths, brandOf(config).productName);
   }
   await writeLinuxBuilderConfig(config, paths);
   await runElectronBuilderLinux(config, paths);
@@ -809,6 +858,8 @@ async function bestEffortRun(bin: string, args: string[]): Promise<"ok" | "missi
 
 export async function installPackedLinuxApp(config: ToolPackConfig): Promise<LinuxInstallResult> {
   const paths = resolveLinuxPaths(config);
+  const names = resolveLinuxBrandNames(brandOf(config), config.namespace);
+  const brandLinuxResources = linuxResourcesForBrand(brandOf(config).id);
   const builtAppImage = await findBuiltAppImage(paths);
   if (builtAppImage == null) {
     throw new Error("no AppImage found in builder output; run `tools-pack linux build` first");
@@ -823,14 +874,16 @@ export async function installPackedLinuxApp(config: ToolPackConfig): Promise<Lin
   await chmod(paths.installAppImagePath, 0o755);
 
   // Copy icon.
-  await cp(linuxResources.icon, paths.installIconPath);
+  await cp(brandLinuxResources.icon, paths.installIconPath);
 
   // Render and atomic-write the .desktop file.
   const template = await readFile(linuxResources.desktopTemplate, "utf8");
   const rendered = renderDesktopTemplate(template, {
     namespace: sanitizeNamespace(config.namespace),
     execPath: paths.installAppImagePath,
-    iconName: `open-design-${sanitizeNamespace(config.namespace)}`,
+    iconName: names.iconBaseName,
+    mimeScheme: names.mimeScheme,
+    productName: names.productName,
   });
   const tmpDesktopPath = `${paths.installDesktopFilePath}.tmp`;
   await writeFile(tmpDesktopPath, rendered, "utf8");
@@ -1177,7 +1230,7 @@ function resolveHeadlessBundledNodePath(paths: LinuxPaths): string {
 }
 
 function headlessLauncherPath(config: ToolPackConfig): string {
-  return join(homedir(), ".local", "bin", `open-design-headless-${sanitizeNamespace(config.namespace)}`);
+  return join(homedir(), ".local", "bin", resolveLinuxBrandNames(brandOf(config), config.namespace).headlessLauncherName);
 }
 
 function headlessLogPath(config: ToolPackConfig): string {
@@ -1224,7 +1277,7 @@ export async function installPackedLinuxHeadless(config: ToolPackConfig): Promis
   const dataDir = dirname(config.roots.runtime.namespaceBaseRoot);
   const script = [
     "#!/bin/sh",
-    `# Open Design headless launcher — namespace: ${config.namespace}`,
+    `# ${brandOf(config).productName} headless launcher — namespace: ${config.namespace}`,
     `OD_PACKAGED_NAMESPACE=${JSON.stringify(config.namespace)} OD_DATA_DIR=${JSON.stringify(dataDir)} OD_RESOURCE_ROOT=${JSON.stringify(paths.resourceRoot)} exec ${JSON.stringify(nodePath)} ${JSON.stringify(entryPath)} "$@"`,
   ].join("\n") + "\n";
 

@@ -9,7 +9,14 @@ import {
   SIDECAR_DEFAULTS,
 } from "@open-design/sidecar-proto";
 import { resolveNamespace } from "@open-design/sidecar";
-import { releaseChannelFromVersion, releaseNamespace } from "@open-design/release";
+import {
+  releaseChannelFromVersion,
+  releaseNamespace,
+  resolveBrand,
+  type BrandDescriptor,
+} from "@open-design/release";
+
+import { brandNamespacePrefix, brandScopedNamespace } from "../brand.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -87,6 +94,12 @@ export type ToolPackRoots = {
 
 export type ToolPackConfig = {
   appVersion?: string;
+  /**
+   * The brand this build presents (`resolveBrand` of the build profile). Every
+   * identifier the OS or another install can observe derives from it. Optional so
+   * hand-built configs fall back to `buildProfile` (see brandOf).
+   */
+  brand?: BrandDescriptor;
   containerized: boolean;
   electronBuilderCliPath: string;
   electronDistPath: string;
@@ -200,9 +213,15 @@ function resolveToolPackAppVersion(value: string | undefined): string | undefine
   return normalized;
 }
 
-function defaultNamespaceForAppVersion(platform: ToolPackPlatform, appVersion: string | undefined): string {
+function defaultNamespaceForAppVersion(
+  platform: ToolPackPlatform,
+  appVersion: string | undefined,
+  brand: BrandDescriptor,
+): string {
   const channel = releaseChannelFromVersion(appVersion);
-  if (channel == null) return SIDECAR_DEFAULTS.namespace;
+  // A non-original brand never defaults to `default` (or, via brandScopedNamespace,
+  // to `release-*`): its default namespace is the brand slug.
+  if (channel == null) return brandNamespacePrefix(brand) ?? SIDECAR_DEFAULTS.namespace;
 
   return releaseNamespace(channel, platform);
 }
@@ -397,11 +416,13 @@ export function resolveToolPackConfig(
   options: ToolPackCliOptions = {},
 ): ToolPackConfig {
   const appVersion = resolveToolPackAppVersion(options.appVersion);
-  const namespace = resolveNamespace({
+  const buildProfile = resolveToolPackBuildProfile(process.env.OD_BUILD_PROFILE);
+  const brand = resolveBrand({ OD_BUILD_PROFILE: buildProfile });
+  const namespace = brandScopedNamespace(brand, resolveNamespace({
     contract: OPEN_DESIGN_SIDECAR_CONTRACT,
     env: process.env,
-    namespace: options.namespace ?? defaultNamespaceForAppVersion(platform, appVersion),
-  });
+    namespace: options.namespace ?? defaultNamespaceForAppVersion(platform, appVersion, brand),
+  }));
   const defaultToolPackRoot = join(WORKSPACE_ROOT, ".tmp", "tools-pack");
   const toolPackRoot = resolve(options.dir ?? defaultToolPackRoot);
   const cacheRoot = resolve(options.cacheDir ?? join(defaultToolPackRoot, "cache"));
@@ -412,6 +433,7 @@ export function resolveToolPackConfig(
 
   return {
     appVersion,
+    brand,
     containerized: options.containerized === true,
     electronBuilderCliPath: resolveElectronBuilderCliPath(),
     electronDistPath: resolveElectronDistPath(WORKSPACE_ROOT),
@@ -446,7 +468,7 @@ export function resolveToolPackConfig(
     amrProfile: resolveToolPackAmrProfile(process.env.OPEN_DESIGN_AMR_PROFILE),
     telemetryRelayUrl: resolveToolPackTelemetryRelayUrl(process.env.OPEN_DESIGN_TELEMETRY_RELAY_URL),
     updateMetadataUrl: resolveToolPackUpdateMetadataUrl(process.env.OD_UPDATE_METADATA_URL),
-    buildProfile: resolveToolPackBuildProfile(process.env.OD_BUILD_PROFILE),
+    buildProfile,
     posthogKey: resolveToolPackPosthogKey(process.env.POSTHOG_KEY),
     posthogHost: resolveToolPackPosthogHost(process.env.POSTHOG_HOST),
     velaWebUrl: resolveToolPackVelaWebUrl(process.env.OD_VELA_WEB_URL),

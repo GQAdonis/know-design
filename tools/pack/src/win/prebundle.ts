@@ -144,6 +144,6 @@ export async function assertWinPrebundleMetafile(options: {
   }
 }
 
-export function renderWinPackagedMainEntry(usePrebundle: boolean): string {
-  return renderPackagedMainEntry(usePrebundle);
+export function renderWinPackagedMainEntry(usePrebundle: boolean, productName?: string): string {
+  return renderPackagedMainEntry(usePrebundle, productName);
 }

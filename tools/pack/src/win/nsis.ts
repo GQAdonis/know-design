@@ -3,6 +3,7 @@ import { appendFile, cp, mkdir, readFile, readdir, writeFile } from "node:fs/pro
 import { dirname, join, win32 } from "node:path";
 import { promisify } from "node:util";
 
+import { brandOf } from "../brand.js";
 import type { ToolPackConfig } from "../config/index.js";
 import { pathExists } from "./fs.js";
 import { resolveWinUninstallLocalDataRoot } from "./paths.js";
@@ -26,8 +27,11 @@ export async function writeNsisInclude(config: ToolPackConfig, paths: WinPaths):
     win32.join(runtimeNamespaceRoot, "data", "observations", "installer"),
   );
   await mkdir(dirname(paths.nsisIncludePath), { recursive: true });
+  const productName = brandOf(config).productName;
   await writeFile(
     paths.nsisIncludePath,
+    // The user-facing uninstaller text names the brand; "Open Design" is the
+    // original brand's spelling and is replaced verbatim for any other brand.
     `!include LogicLib.nsh
 !include nsDialogs.nsh
 
@@ -85,8 +89,8 @@ Function OpenDesignReadDownloadAttribution
     Return
   \${EndIf}
   StrCpy $odDownloadAttributionUrl $odDownloadAttributionUrl -2
-  CreateDirectory "${installerObservationRoot}"
-  FileOpen $3 "${installerObservationRoot}\\download-attribution.json" w
+  CreateDirectory "@@OD_INSTALLER_OBSERVATION_ROOT@@"
+  FileOpen $3 "@@OD_INSTALLER_OBSERVATION_ROOT@@\\download-attribution.json" w
   \${IfNot} \${Errors}
     FileWrite $3 "{$\\"rawUrl$\\":$\\"$odDownloadAttributionUrl$\\",$\\"source$\\":$\\"windows_zone_identifier$\\"}$\\r$\\n"
     FileClose $3
@@ -99,7 +103,7 @@ FunctionEnd
 
 Function un.OpenDesignLocalDataPage
   StrCpy $odRemoveLocalData "1"
-  StrCpy $odLocalDataRoot "${localDataRoot}"
+  StrCpy $odLocalDataRoot "@@OD_LOCAL_DATA_ROOT@@"
   nsDialogs::Create 1018
   Pop $0
   \${If} $0 == error
@@ -125,14 +129,17 @@ FunctionEnd
 
 !macro customUnInstall
   \${If} $odLocalDataRoot == ""
-    StrCpy $odLocalDataRoot "${localDataRoot}"
+    StrCpy $odLocalDataRoot "@@OD_LOCAL_DATA_ROOT@@"
   \${EndIf}
   \${If} $odRemoveLocalData != "0"
     DetailPrint "Removing local Open Design data: $odLocalDataRoot"
     RMDir /r "$odLocalDataRoot"
   \${EndIf}
 !macroend
-`,
+`
+      .replaceAll("Open Design", () => escapeNsisString(productName))
+      .replaceAll("@@OD_INSTALLER_OBSERVATION_ROOT@@", () => installerObservationRoot)
+      .replaceAll("@@OD_LOCAL_DATA_ROOT@@", () => localDataRoot),
     "utf8",
   );
 }

@@ -4,8 +4,8 @@ import {
   SIDECAR_SOURCES,
 } from "@open-design/sidecar-proto";
 import type { SidecarStamp, SidecarStopRequest } from "@open-design/sidecar";
-import { releaseChannelFromNamespace, releaseChannelFromVersion } from "@open-design/release";
 
+import { releaseChannelForConfig } from "../brand.js";
 import type { ToolPackConfig } from "./index.js";
 
 type PackagedSource = typeof SIDECAR_SOURCES.TOOLS_PACK | typeof SIDECAR_SOURCES.PACKAGED;
@@ -20,9 +20,7 @@ export function toolPackSidecarStamp(
 ): SidecarStamp {
   return {
     app: options.app ?? APP_KEYS.DESKTOP,
-    channel: releaseChannelFromVersion(config.appVersion)
-      ?? releaseChannelFromNamespace(config.namespace, "default")
-      ?? "stable",
+    channel: releaseChannelForConfig(config) ?? "stable",
     mode: options.mode ?? SIDECAR_MODES.RUNTIME,
     namespace: config.namespace,
     source: options.source ?? SIDECAR_SOURCES.TOOLS_PACK,
