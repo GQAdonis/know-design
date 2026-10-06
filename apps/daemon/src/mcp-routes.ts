@@ -9,6 +9,7 @@ import { MCP_TEMPLATES, buildAcpMcpServers, buildClaudeMcpJson, isManagedProject
 import { beginAuth, exchangeCodeForToken, refreshAccessToken } from './mcp-oauth.js';
 import { clearToken, getToken, isTokenExpired, readAllTokens, setToken } from './mcp-tokens.js';
 import type { RouteDeps } from './server-context.js';
+import { defaultDaemonPort, defaultMcpServerName } from './brand.js';
 
 export interface RegisterMcpRoutesDeps extends RouteDeps<'http' | 'paths' | 'mcp'> {}
 
@@ -115,7 +116,7 @@ export function registerMcpRoutes(app: Express, ctx: RegisterMcpRoutesDeps) {
   // so we shell out to it rather than rewriting ~/.codex/config.toml
   // ourselves — that way we inherit Codex's merge / validation rules
   // and only need to track its argv. See apps/daemon/src/codex-cli.ts.
-  const CODEX_MCP_NAME = 'open-design';
+  const CODEX_MCP_NAME = defaultMcpServerName();
 
   // Under a managed outer, keep this install's own Codex registration pointed
   // at the runtime that is running now. Registrations name a versioned
@@ -403,7 +404,7 @@ function getPublicBaseUrl(req: any) {
   }
   const proto = req.protocol || 'http';
   const host = req.get('host');
-  if (!host) return `http://localhost:${process.env.OD_PORT ?? '7456'}`;
+  if (!host) return `http://localhost:${process.env.OD_PORT ?? defaultDaemonPort()}`;
   return `${proto}://${host}`;
 }
 

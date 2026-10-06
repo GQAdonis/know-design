@@ -5,6 +5,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { hash as blake3Hash } from 'blake3-wasm';
 import { listFiles, readProjectFile, validateProjectPath } from './projects.js';
+import { userStateDirName } from './brand.js';
 import { findRealTagOffset, HTML_TAG_PATTERNS } from '@open-design/contracts/runtime/html-injection-points';
 
 export const VERCEL_PROVIDER_ID = 'vercel-self';
@@ -74,8 +75,11 @@ export class DeployError extends Error {
   }
 }
 
-export function deployConfigPath(providerId: DeployProviderId = VERCEL_PROVIDER_ID) {
-  const base = process.env.OD_USER_STATE_DIR || path.join(os.homedir(), '.open-design');
+export function deployConfigPath(
+  providerId: DeployProviderId = VERCEL_PROVIDER_ID,
+  env: NodeJS.ProcessEnv = process.env,
+) {
+  const base = env.OD_USER_STATE_DIR || path.join(os.homedir(), userStateDirName(env));
   return path.join(base, providerId === CLOUDFLARE_PAGES_PROVIDER_ID ? 'cloudflare-pages.json' : 'vercel.json');
 }
 

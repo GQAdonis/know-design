@@ -40,6 +40,7 @@ import { randomUUID } from 'node:crypto';
 
 import { postCreateArtifactRequest } from './artifacts/create.js';
 import { resolveMcpWorkspaceContext } from './mcp-workspace-context.js';
+import { defaultMcpServerName } from './brand.js';
 import {
   createLocalMcpBriefStore as createBriefStore,
   localMcpBriefResponseCopy,
@@ -63,7 +64,7 @@ import {
   validatePluginWorkflowId,
 } from './mcp-observability.js';
 
-const SERVER_NAME = 'open-design';
+const SERVER_NAME = defaultMcpServerName();
 const SERVER_VERSION = '0.2.0';
 const DEFAULT_MCP_STDIO_IDLE_EXIT_MS = 30 * 60 * 1000;
 const MAX_MCP_STDIO_IDLE_EXIT_MS = 24 * 60 * 60 * 1000;

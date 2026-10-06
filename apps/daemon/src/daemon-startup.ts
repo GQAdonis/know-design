@@ -1,6 +1,7 @@
 import type { Server } from 'node:http';
 
 import type { StartServerOptions } from './server.js';
+import { defaultDaemonPort } from './brand.js';
 
 type StartedServer = {
   server: Server;
@@ -46,7 +47,7 @@ export function parseDaemonCliStartupArgs(
   argv: string[],
   env: NodeJS.ProcessEnv = process.env,
 ): DaemonCliStartupParseResult {
-  let port = Number(env.OD_PORT) || 7456;
+  let port = Number(env.OD_PORT) || defaultDaemonPort(env);
   let host = normalizeDaemonBindHost(env.OD_BIND_HOST);
   let open = true;
 

@@ -1239,6 +1239,7 @@ import {
   requireLocalDaemonRequest,
 } from './http/local-daemon-request.js';
 import { renderOAuthResultPage } from './http/oauth-result-page.js';
+import { defaultDaemonPort } from './brand.js';
 import { bearerTokenFromRequest, createToolRequestAuth } from './http/tool-request-auth.js';
 
 /**
@@ -1495,7 +1496,7 @@ function getPublicBaseUrl(req) {
   }
   const proto = req.protocol || 'http';
   const host = req.get('host');
-  if (!host) return `http://localhost:${process.env.OD_PORT ?? '7456'}`;
+  if (!host) return `http://localhost:${process.env.OD_PORT ?? defaultDaemonPort()}`;
   return `${proto}://${host}`;
 }
 
@@ -3132,7 +3133,7 @@ export interface StartServerResult {
 }
 
 export async function startServer({
-  port = 7456,
+  port = defaultDaemonPort(),
   host = normalizeDaemonBindHost(process.env.OD_BIND_HOST),
   returnServer = false,
   desktopPdfExporter = null,

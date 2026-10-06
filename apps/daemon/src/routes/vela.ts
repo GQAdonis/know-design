@@ -75,6 +75,8 @@ import {
   type TouchpointOfflineReplayReason,
 } from '@open-design/contracts/api/touchpointOffline';
 
+import { defaultDaemonPort } from '../brand.js';
+
 const AMR_API_PROXY_PREFIX = '/api/integrations/vela/api-proxy';
 const VELA_MESSAGE_CENTER_PREFIX = '/api/integrations/vela/message-center';
 const VELA_PUBLIC_MESSAGE_CENTER_PREFIX = '/api/integrations/vela/message-center-public';
@@ -906,7 +908,7 @@ export function registerVelaRoutes(app: Express, deps: RegisterVelaRoutesDeps): 
   const getPublicBaseUrl = deps.http.getPublicBaseUrl ?? ((req: Request) => {
     const proto = req.protocol || 'http';
     const host = req.get('host');
-    return host ? `${proto}://${host}` : 'http://localhost:7456';
+    return host ? `${proto}://${host}` : `http://localhost:${defaultDaemonPort()}`;
   });
 
   function resolveAmrModelProbeForEnv(configuredEnv: Record<string, string>): AmrModelProbe {
