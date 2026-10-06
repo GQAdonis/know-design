@@ -2611,15 +2611,30 @@ async function readDesktopLocalCliSnapshot(
   `);
 }
 
-async function waitForHealthyDesktop(): Promise<MacInspectResult> {
-  const timeoutMs = 90_000;
-  const startedAt = Date.now();
-  let lastResult: unknown = null;
+function isProcessRunning(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    // EPERM means it exists but is not ours to signal; only ESRCH means it is gone.
+    return (error as NodeJS.ErrnoException).code === 'EPERM';
+  }
+}
 
-  while (Date.now() - startedAt < timeoutMs) {
+/**
+ * Wait until the packaged desktop answers /api/health, or until the desktop process we last saw is gone.
+ * Both are events. There is deliberately no time limit here: how long a cold start takes differs per
+ * machine, and the test case's own timeout is the watchdog for a desktop that is alive but never ready.
+ */
+async function waitForHealthyDesktop(): Promise<MacInspectResult> {
+  let lastResult: unknown = null;
+  let lastSeenPid: number | null = null;
+
+  for (;;) {
     try {
       const inspect = await runToolsPackJson<MacInspectResult>('inspect', ['--expr', healthExpression]);
       lastResult = inspect;
+      if (typeof inspect.status?.pid === 'number') lastSeenPid = inspect.status.pid;
       if (inspect.status?.state === 'running' && inspect.eval?.ok === true) {
         const value = asHealthEvalValue(inspect.eval.value);
         if (value?.status === 200 && value.health.ok === true && typeof value.health.version === 'string') {
@@ -2629,10 +2644,13 @@ async function waitForHealthyDesktop(): Promise<MacInspectResult> {
     } catch (error) {
       lastResult = error;
     }
+    if (lastSeenPid != null && !isProcessRunning(lastSeenPid)) {
+      throw new Error(
+        `packaged mac desktop (pid ${lastSeenPid}) exited before it became healthy: ${formatUnknown(lastResult)}`,
+      );
+    }
     await delay(1000);
   }
-
-  throw new Error(`packaged mac runtime did not become healthy: ${formatUnknown(lastResult)}`);
 }
 
 /**
@@ -2724,6 +2742,16 @@ async function capturePackagedHomeFirstRunFailure(
             throw new Error('the packaged desktop never started, so no log path was reported');
           }
           return await readFile(desktopLogPath);
+        },
+      },
+      {
+        // The ordered phases the app passed while starting: shows where a failed launch stopped.
+        name: 'startup-events.jsonl',
+        read: async () => {
+          if (desktopLogPath == null) {
+            throw new Error('the packaged desktop never started, so no startup events were reported');
+          }
+          return await readFile(join(dirname(desktopLogPath), 'startup-events.jsonl'));
         },
       },
     ]);
