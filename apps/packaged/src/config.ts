@@ -3,6 +3,8 @@ import { join, resolve } from "node:path";
 
 import { SIDECAR_DEFAULTS, normalizeNamespace } from "@open-design/sidecar-proto";
 
+import { applyBakedBuildProfile } from "./build-profile.js";
+
 // `electron` is loaded lazily so this module can also be imported from the
 // headless entry, which runs in a plain Node process without the electron
 // dependency on disk. Top-level `import { app } from "electron"` would crash
@@ -25,6 +27,9 @@ export type PackagedVelaWebUrls = Partial<Record<PackagedAmrProfile, string>>;
 
 export type RawPackagedConfig = {
   amrProfile?: string;
+  // Baked by tools/pack when the build is made under OD_BUILD_PROFILE=knowdesign, so the
+  // packaged app selects the profile without depending on how it was launched.
+  buildProfile?: string;
   appVersion?: string;
   daemonCliEntryRelative?: string;
   daemonSidecarEntryRelative?: string;
@@ -185,6 +190,8 @@ async function resolvePackagedRelativeEntry(value: string | undefined): Promise<
 
 export async function readPackagedConfig(): Promise<PackagedConfig> {
   const raw = await readRawPackagedConfig();
+  // First, before the daemon/web sidecars or any profile check can read the environment.
+  applyBakedBuildProfile(raw.buildProfile);
   const namespace = normalizeNamespace(
     process.env[PACKAGED_NAMESPACE_ENV] ?? raw.namespace ?? SIDECAR_DEFAULTS.namespace,
   );

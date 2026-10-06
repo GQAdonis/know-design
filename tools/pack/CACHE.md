@@ -107,7 +107,7 @@ Current materialization-time parameters:
 - **Namespace / channel and runtime endpoints.**
   `win.electron-builder-dir` omits them. `open-design-config.json` — which
   carries `namespace`, `amrProfile`, `telemetryRelayUrl`, `updateMetadataUrl`,
-  `posthogKey`/`posthogHost`, `webOutputMode`, and `namespaceBaseRoot` — is
+  `posthogKey`/`posthogHost`, `buildProfile`, `webOutputMode`, and `namespaceBaseRoot` — is
   regenerated on the materialization path by `writePackagedConfig`.
 
 The downstream `win.nsis-payload-overlay`, `win.nsis-installer`,

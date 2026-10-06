@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { join, resolve } from "node:path";
 
-import { resolveToolPackConfig, WORKSPACE_ROOT } from "@/config/index.js";
+import { resolveToolPackBuildProfile, resolveToolPackConfig, WORKSPACE_ROOT } from "@/config/index.js";
 
 const savedTelemetryRelayUrl = process.env.OPEN_DESIGN_TELEMETRY_RELAY_URL;
+const savedBuildProfile = process.env.OD_BUILD_PROFILE;
 const savedPosthogKey = process.env.POSTHOG_KEY;
 const savedPosthogHost = process.env.POSTHOG_HOST;
 const savedAmrProfile = process.env.OPEN_DESIGN_AMR_PROFILE;
@@ -13,6 +14,8 @@ const savedVelaWebUrlTest = process.env.OD_VELA_WEB_URL_TEST;
 const savedVelaWebUrlFeatureTest = process.env.OD_VELA_WEB_URL_FEATURE_TEST;
 
 afterEach(() => {
+  if (savedBuildProfile == null) delete process.env.OD_BUILD_PROFILE;
+  else process.env.OD_BUILD_PROFILE = savedBuildProfile;
   if (savedVelaWebUrl == null) {
     delete process.env.OD_VELA_WEB_URL;
   } else {
@@ -44,6 +47,23 @@ afterEach(() => {
   } else {
     process.env.OPEN_DESIGN_AMR_PROFILE = savedAmrProfile;
   }
+});
+
+describe("resolveToolPackConfig build profile", () => {
+  it("normalises only the knowdesign profile and ignores everything else", () => {
+    expect(resolveToolPackBuildProfile("knowdesign")).toBe("knowdesign");
+    expect(resolveToolPackBuildProfile(" KnowDesign ")).toBe("knowdesign");
+    for (const other of [undefined, "", "   ", "default", "knowdesign2", "open-design"]) {
+      expect(resolveToolPackBuildProfile(other), String(other)).toBeUndefined();
+    }
+  });
+
+  it("bakes the profile into the resolved config only when the build runs under it", () => {
+    process.env.OD_BUILD_PROFILE = "knowdesign";
+    expect(resolveToolPackConfig("mac", { namespace: "kd-profile" }).buildProfile).toBe("knowdesign");
+    delete process.env.OD_BUILD_PROFILE;
+    expect(resolveToolPackConfig("mac", { namespace: "kd-profile" }).buildProfile).toBeUndefined();
+  });
 });
 
 describe("resolveToolPackConfig AMR profile", () => {

@@ -563,6 +563,7 @@ async function writeAssembledApp(
         namespace: config.namespace,
         nodeCommandRelative: "open-design/bin/node",
         ...(config.telemetryRelayUrl == null ? {} : { telemetryRelayUrl: config.telemetryRelayUrl }),
+        ...(config.buildProfile == null ? {} : { buildProfile: config.buildProfile }),
         ...(config.posthogKey == null ? {} : { posthogKey: config.posthogKey }),
         ...(config.posthogHost == null ? {} : { posthogHost: config.posthogHost }),
         ...(config.velaWebUrl == null ? {} : { velaWebUrl: config.velaWebUrl }),

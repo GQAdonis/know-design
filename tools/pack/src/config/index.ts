@@ -106,6 +106,12 @@ export type ToolPackConfig = {
   silent: boolean;
   signed: boolean;
   amrProfile?: ToolPackAmrProfile;
+  /**
+   * `knowdesign` when the build is made under `OD_BUILD_PROFILE=knowdesign`, baked into
+   * open-design-config.json so the packaged app selects the profile itself instead of
+   * depending on how it is launched. Absent for every other build.
+   */
+  buildProfile?: "knowdesign";
   telemetryRelayUrl?: string;
   /**
    * PostHog product-analytics ingest key, sourced from process.env.POSTHOG_KEY
@@ -218,6 +224,10 @@ function resolveToolPackAmrProfile(value: string | undefined): ToolPackAmrProfil
     return normalized;
   }
   throw new Error(`OPEN_DESIGN_AMR_PROFILE must be prod, test, feature-test, or local: ${value}`);
+}
+
+export function resolveToolPackBuildProfile(value: string | undefined): "knowdesign" | undefined {
+  return String(value ?? "").trim().toLowerCase() === "knowdesign" ? "knowdesign" : undefined;
 }
 
 function resolveToolPackPosthogKey(value: string | undefined): string | undefined {
@@ -436,6 +446,7 @@ export function resolveToolPackConfig(
     amrProfile: resolveToolPackAmrProfile(process.env.OPEN_DESIGN_AMR_PROFILE),
     telemetryRelayUrl: resolveToolPackTelemetryRelayUrl(process.env.OPEN_DESIGN_TELEMETRY_RELAY_URL),
     updateMetadataUrl: resolveToolPackUpdateMetadataUrl(process.env.OD_UPDATE_METADATA_URL),
+    buildProfile: resolveToolPackBuildProfile(process.env.OD_BUILD_PROFILE),
     posthogKey: resolveToolPackPosthogKey(process.env.POSTHOG_KEY),
     posthogHost: resolveToolPackPosthogHost(process.env.POSTHOG_HOST),
     velaWebUrl: resolveToolPackVelaWebUrl(process.env.OD_VELA_WEB_URL),

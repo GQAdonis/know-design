@@ -1,3 +1,7 @@
+import { OPEN_DESIGN_BRAND, type BrandDescriptor } from "./brand.js";
+
+export * from "./brand.js";
+
 export const EXACT_RELEASE_NAME_PATTERN = /^[a-z0-9]{1,12}$/;
 export const RESERVED_RELEASE_NAMES = Object.freeze(["local"] as const);
 
@@ -53,35 +57,36 @@ export const RELEASE_PLATFORM_NAMESPACE_SUFFIXES = Object.freeze({
   win: "win",
 } as const satisfies Record<ReleasePlatform, string>);
 
-const PRODUCT_NAME = "Open Design";
 const DEFAULT_NAMESPACE = "open-design";
 
-const descriptors: Record<"prerelease" | "stable", ReleaseChannelDescriptor> = {
-  prerelease: {
-    appId: "io.open-design.desktop.prerelease",
-    baseVersionField: "baseVersion",
-    channel: "prerelease",
-    counterField: "releaseNumber",
-    displayLabel: "Prerelease",
-    githubReleaseEnabled: false,
-    internal: true,
-    productName: `${PRODUCT_NAME} Prerelease`,
-    releaseVersionField: "releaseVersion",
-    storagePrefix: "prerelease",
-  },
-  stable: {
-    appId: "io.open-design.desktop",
-    baseVersionField: "baseVersion",
-    channel: "stable",
-    counterField: null,
-    displayLabel: "Stable",
-    githubReleaseEnabled: true,
-    internal: false,
-    productName: PRODUCT_NAME,
-    releaseVersionField: "releaseVersion",
-    storagePrefix: "stable",
-  },
-};
+function channelDescriptors(brand: BrandDescriptor): Record<"prerelease" | "stable", ReleaseChannelDescriptor> {
+  return {
+    prerelease: {
+      appId: `${brand.appId}.prerelease`,
+      baseVersionField: "baseVersion",
+      channel: "prerelease",
+      counterField: "releaseNumber",
+      displayLabel: "Prerelease",
+      githubReleaseEnabled: false,
+      internal: true,
+      productName: `${brand.productName} Prerelease`,
+      releaseVersionField: "releaseVersion",
+      storagePrefix: "prerelease",
+    },
+    stable: {
+      appId: brand.appId,
+      baseVersionField: "baseVersion",
+      channel: "stable",
+      counterField: null,
+      displayLabel: "Stable",
+      githubReleaseEnabled: true,
+      internal: false,
+      productName: brand.productName,
+      releaseVersionField: "releaseVersion",
+      storagePrefix: "stable",
+    },
+  };
+}
 
 export function isReleaseChannel(value: unknown): value is ReleaseChannel {
   return typeof value === "string"
@@ -89,21 +94,24 @@ export function isReleaseChannel(value: unknown): value is ReleaseChannel {
     && (value === "stable" || value === "prerelease" || EXACT_RELEASE_NAME_PATTERN.test(value));
 }
 
-export function releaseChannelDescriptor(channel: string): ReleaseChannelDescriptor {
+export function releaseChannelDescriptor(
+  channel: string,
+  brand: BrandDescriptor = OPEN_DESIGN_BRAND,
+): ReleaseChannelDescriptor {
   if (!isReleaseChannel(channel)) {
     throw new Error(`RELEASE_CHANNEL must be stable, prerelease, or a non-reserved exact name matching [a-z0-9]{1,12}; got ${channel}`);
   }
-  if (channel === "stable" || channel === "prerelease") return descriptors[channel];
+  if (channel === "stable" || channel === "prerelease") return channelDescriptors(brand)[channel];
   const displayLabel = channel[0]!.toUpperCase() + channel.slice(1);
   return {
-    appId: `io.open-design.desktop.${channel}`,
+    appId: `${brand.appId}.${channel}`,
     baseVersionField: "baseVersion",
     channel,
     counterField: "releaseNumber",
     displayLabel,
     githubReleaseEnabled: false,
     internal: true,
-    productName: `${PRODUCT_NAME} ${displayLabel}`,
+    productName: `${brand.productName} ${displayLabel}`,
     releaseVersionField: "releaseVersion",
     storagePrefix: channel,
   };
@@ -135,8 +143,11 @@ export function releaseNamespace(channel: ReleaseChannel, platform: ReleasePlatf
   return suffix.length === 0 ? `release-${channel}` : `release-${channel}-${suffix}`;
 }
 
-export function releaseInstallIdentity(channel: ReleaseChannel): ReleaseInstallIdentity {
-  const descriptor = releaseChannelDescriptor(channel);
+export function releaseInstallIdentity(
+  channel: ReleaseChannel,
+  brand: BrandDescriptor = OPEN_DESIGN_BRAND,
+): ReleaseInstallIdentity {
+  const descriptor = releaseChannelDescriptor(channel, brand);
   return {
     appId: descriptor.appId,
     executableName: descriptor.productName,

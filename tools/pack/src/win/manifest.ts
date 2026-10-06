@@ -28,6 +28,7 @@ function createPackagedConfig(
     namespace: config.namespace,
     ...(config.telemetryRelayUrl == null ? {} : { telemetryRelayUrl: config.telemetryRelayUrl }),
     ...(config.updateMetadataUrl == null ? {} : { updateMetadataUrl: config.updateMetadataUrl }),
+    ...(config.buildProfile == null ? {} : { buildProfile: config.buildProfile }),
     ...(config.posthogKey == null ? {} : { posthogKey: config.posthogKey }),
     ...(config.posthogHost == null ? {} : { posthogHost: config.posthogHost }),
     ...(config.velaWebUrl == null ? {} : { velaWebUrl: config.velaWebUrl }),
