@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { spawn } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
 import { lstat, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
@@ -19,6 +20,7 @@ import {
   readCurrentSidecarStamp,
   restartSidecar,
   SidecarFactory,
+  SidecarLaunchConvergenceError,
   SIDECAR_STAMP_FIELDS,
   SIDECAR_STAMP_FLAGS,
   spawnSidecar,
@@ -497,6 +499,77 @@ describe("server-side atomic operations", () => {
       await rm(root, { force: true, recursive: true });
     }
   }, 15_000);
+
+  describe("event-driven convergence", () => {
+    const gatedFixture = fileURLToPath(new URL("./fixtures/gated-launcher.ts", import.meta.url));
+    const gatedRequest = (root: string, launchStamp: SidecarStamp, extraEnv: Record<string, string> = {}) => ({
+      args: ["--import", "tsx", gatedFixture],
+      command: process.execPath,
+      env: { ...process.env, OD_TEST_GATE: join(root, "gate"), OD_TEST_LAUNCH_ATTEMPT: join(root, "attempt.txt"), ...extraEnv },
+      resources: { dataRoot: join(root, "data"), ownerPid: null, port: 0, runtimeRoot: join(root, "runtime") },
+      stamp: launchStamp,
+    });
+
+    it("waits for as long as startup takes when no deadline is given, and ends on the ready event", async () => {
+      const root = await mkdtemp(join(tmpdir(), "open-design-gated-convergence-"));
+      const launchStamp = { ...stamp, namespace: `gated-no-deadline-${process.pid}` };
+      await writeFile(join(root, "attempt.txt"), "0");
+      const phases: string[] = [];
+      try {
+        const result = await convergeSidecarLaunch(gatedRequest(root, launchStamp), {
+          stabilityMs: 100,
+          // No timeoutMs: nothing but events ends this wait. The test is the event source.
+          onProgress(progress) {
+            const phase = progress.phase?.name;
+            if (phase != null && phases[phases.length - 1] !== phase) phases.push(phase);
+            if (phase === "waiting-for-gate") writeFileSync(join(root, "gate"), "open");
+          },
+        });
+        expect(result.description).toMatchObject({ ready: true, phase: { name: "gate-open" } });
+        // The sidecar was observably "starting" in a named phase before it became ready.
+        expect(phases).toContain("waiting-for-gate");
+        expect(phases.indexOf("waiting-for-gate")).toBeLessThan(phases.indexOf("gate-open"));
+      } finally {
+        await stopSidecar(launchStamp, { killGraceMs: 2_000, termGraceMs: 0 }).catch(() => undefined);
+        await rm(root, { force: true, recursive: true });
+      }
+    }, 30_000);
+
+    it("bounds repeated clean launcher exits by a count, not by time", async () => {
+      const root = await mkdtemp(join(tmpdir(), "open-design-exiting-launcher-"));
+      const launchStamp = { ...stamp, namespace: `gated-always-exits-${process.pid}` };
+      await writeFile(join(root, "attempt.txt"), "0");
+      try {
+        const error = await convergeSidecarLaunch(
+          gatedRequest(root, launchStamp, { OD_TEST_LAUNCHER_ALWAYS_EXITS: "1" }),
+          { maxAttempts: 3, retryDelayMs: 10 },
+        ).catch((e: unknown) => e);
+        expect(error).toBeInstanceOf(SidecarLaunchConvergenceError);
+        expect((error as Error).message).toContain("after 3 attempt(s)");
+        expect((error as Error).message).not.toContain("within");
+        expect(readFileSync(join(root, "attempt.txt"), "utf8")).toBe("3");
+      } finally {
+        await rm(root, { force: true, recursive: true });
+      }
+    }, 30_000);
+
+    it("still honours an explicit deadline, and says which phase it was waiting in", async () => {
+      const root = await mkdtemp(join(tmpdir(), "open-design-deadline-convergence-"));
+      const launchStamp = { ...stamp, namespace: `gated-deadline-${process.pid}` };
+      await writeFile(join(root, "attempt.txt"), "0");
+      try {
+        const error = await convergeSidecarLaunch(gatedRequest(root, launchStamp), { stabilityMs: 100, timeoutMs: 2_000 }).catch(
+          (e: unknown) => e,
+        );
+        expect(error).toBeInstanceOf(SidecarLaunchConvergenceError);
+        expect((error as Error).message).toContain("within 2000ms");
+        expect((error as Error).message).toContain("last phase: waiting-for-gate");
+      } finally {
+        await stopSidecar(launchStamp, { killGraceMs: 2_000, termGraceMs: 0 }).catch(() => undefined);
+        await rm(root, { force: true, recursive: true });
+      }
+    }, 30_000);
+  });
 
   it("quick-fails a non-retriable launcher error", async () => {
     const fixture = fileURLToPath(new URL("./fixtures/converging-launcher.ts", import.meta.url));

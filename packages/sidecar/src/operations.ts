@@ -14,6 +14,7 @@ import {
 } from "@open-design/platform";
 
 import { requestJsonIpc, type JsonIpcRequestOptions } from "./json-ipc.js";
+import type { SidecarPhase } from "./phase.js";
 import {
   prepareSidecarLaunchEnvironment,
   SIDECAR_SUPERVISOR_TARGET_ENV,
@@ -68,10 +69,27 @@ export type SidecarRestartOptions = {
   stop?: SidecarStopOptions;
 };
 
+/** What a convergence wait can observe on each pass, for callers that report progress. */
+export type SidecarLaunchProgress = {
+  attempts: number;
+  /** Latest announced startup phase of any described owner generation (ready or not). */
+  phase: SidecarPhase | null;
+  launcherPid: number;
+};
+
 export type SidecarLaunchConvergenceOptions = {
+  /** Stop after this many launcher attempts. Defaults to 5 when there is no deadline, unbounded with one. */
+  maxAttempts?: number;
+  /** Called on every pass of the wait; callers decide what changed. Must not throw. */
+  onProgress?: (progress: SidecarLaunchProgress) => void;
   ownerStamps?: readonly SidecarStamp[];
   retryDelayMs?: number;
   stabilityMs?: number;
+  /**
+   * An explicit wall-clock limit. Without it the wait ends only on events: a stable ready generation,
+   * the launcher failing, or the attempt count being used up. A caller that wants a time limit (a test
+   * harness, CI) states it here; the library no longer invents one.
+   */
   timeoutMs?: number;
 };
 
@@ -91,6 +109,7 @@ export class SidecarLaunchConvergenceError extends Error {
   }
 }
 
+const DEFAULT_MAX_LAUNCH_ATTEMPTS = 5;
 const RESTART_READY_TIMEOUT_MS = 30_000;
 const BOOTSTRAP_READY_TIMEOUT_MS = 90_000;
 const EXISTING_GENERATION_STABILITY_MS = 750;
@@ -222,15 +241,21 @@ export async function convergeSidecarLaunch(
 ): Promise<SidecarLaunchConvergenceResult> {
   const stamp = normalizeSidecarStamp(request.stamp);
   const ownerStamps = (options.ownerStamps ?? [stamp]).map(normalizeSidecarStamp);
-  const timeoutMs = normalizeDuration(options.timeoutMs, 45_000);
+  // No deadline unless the caller states one: the wait ends on events (ready, launcher failure, attempts
+  // used up). A library-chosen limit is wrong by construction: it has to be shorter or longer than the
+  // launched app's own startup, and the app's is the one that varies from machine to machine.
+  const timeoutMs = options.timeoutMs == null ? null : normalizeDuration(options.timeoutMs, 0);
   const stabilityMs = normalizeDuration(options.stabilityMs, EXISTING_GENERATION_STABILITY_MS);
   const retryDelayMs = normalizeDuration(options.retryDelayMs, 250);
-  const deadline = Date.now() + timeoutMs;
+  const deadline = timeoutMs == null ? null : Date.now() + timeoutMs;
+  const withinDeadline = () => deadline == null || Date.now() < deadline;
+  const maxAttempts = options.maxAttempts ?? (timeoutMs == null ? DEFAULT_MAX_LAUNCH_ATTEMPTS : Number.POSITIVE_INFINITY);
+  let lastPhase: SidecarPhase | null = null;
   let attempts = 0;
   let lastLauncher: (ChildProcess & { pid: number }) | null = null;
   let lastExit: { code: number | null; signal: NodeJS.Signals | null } | null = null;
 
-  while (Date.now() < deadline) {
+  while (withinDeadline() && attempts < maxAttempts) {
     attempts += 1;
     const launcher = await spawnSidecarLauncher({ ...request, stamp });
     lastLauncher = launcher;
@@ -239,7 +264,7 @@ export async function convergeSidecarLaunch(
     let stableSince = 0;
     let exitedAt: number | null = null;
 
-    while (Date.now() < deadline) {
+    while (withinDeadline()) {
       const exit = readExit();
       if (exit != null && exitedAt == null) {
         exitedAt = Date.now();
@@ -259,6 +284,9 @@ export async function convergeSidecarLaunch(
         await describeSidecarGeneration(candidate),
       ));
       const description = descriptions.find((candidate) => candidate?.ready === true) ?? null;
+      const described = description ?? descriptions.find((candidate) => candidate != null) ?? null;
+      if (described?.phase != null) lastPhase = described.phase;
+      options.onProgress?.({ attempts, launcherPid: launcher.pid, phase: lastPhase });
       const ownerPid = description?.resources.pid ?? null;
       const ownerSnapshot = ownerPid == null
         ? null
@@ -286,7 +314,7 @@ export async function convergeSidecarLaunch(
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
-    if (Date.now() < deadline) {
+    if (withinDeadline() && attempts < maxAttempts) {
       await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
     }
   }
@@ -297,8 +325,10 @@ export async function convergeSidecarLaunch(
   const exitSuffix = lastExit == null
     ? ""
     : `; last launcher exit code=${lastExit.code ?? "null"} signal=${lastExit.signal ?? "null"}`;
+  const limitSuffix = timeoutMs == null ? "" : ` within ${timeoutMs}ms`;
+  const phaseSuffix = lastPhase == null ? "" : `; last phase: ${lastPhase.name}`;
   throw new SidecarLaunchConvergenceError(
-    `sidecar launcher did not leave one stable ready generation after ${attempts} attempt(s) within ${timeoutMs}ms${exitSuffix}`,
+    `sidecar launcher did not leave one stable ready generation after ${attempts} attempt(s)${limitSuffix}${exitSuffix}${phaseSuffix}`,
     lastLauncher?.pid ?? 0,
   );
 }

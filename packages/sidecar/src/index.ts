@@ -62,6 +62,7 @@ export {
 export type {
   SidecarLaunchRequest,
   SidecarLaunchConvergenceOptions,
+  SidecarLaunchProgress,
   SidecarLaunchConvergenceResult,
   SidecarRestartOptions,
   SidecarRestartResult,
