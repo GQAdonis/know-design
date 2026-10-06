@@ -1,0 +1,191 @@
+/* ============================================================
+   KnowDesign — design tokens
+
+   An additive layer: it only takes effect under html[data-brand="knowdesign"], so the
+   upstream token file (tokens.css) is untouched and Open Design builds are unchanged.
+   The attribute is set at runtime from the build profile.
+
+   Source of truth: the KnowMe desktop tokens (know-me-system, desktop/src/index.css at
+   commit 68f7ab8), decision D-005. Dark is KnowMe's native theme; light is its `body.light`
+   override. Where KnowMe has no step (a text tier between two of its colours, a hover
+   shade) the value is derived and marked "derived".
+
+   Mapping rule: neutrals carry the interface (--bg*, --text*, --accent*), exactly as upstream
+   uses them; ember takes the role upstream gives its green --brand, i.e. sparse emphasis.
+   Flat 2.0 (no strokes) is NOT applied here: it is an open design point to evaluate on real
+   screens before any wholesale change, so borders keep their upstream roles with KnowMe colours.
+
+   Selector order matters: the base block wins over upstream's :root by specificity, the
+   explicit dark block over [data-theme="dark"], and the media block over
+   html:not([data-theme]) in the OS-dark system mode.
+   ============================================================ */
+
+/* Light (also the base for both themes: theme-independent tokens live here once). */
+html[data-brand="knowdesign"] {
+  --bg: #f7f7f8;
+  --bg-app: #f7f7f8;
+  --bg-panel: #ffffff;
+  --bg-subtle: #f2f4f7;
+  --bg-muted: #e5e8ed;
+  --bg-elevated: #ffffff;
+  --bg-fill-tertiary: rgba(11, 15, 20, 0.03);
+  --bg-fill-secondary: rgba(11, 15, 20, 0.06);
+  --bg-fill: rgba(11, 15, 20, 0.12);
+  --glass-regular: rgba(255, 255, 255, 0.66);
+  --glass-edge-highlight: color-mix(in srgb, #fff 65%, transparent);
+  --border: #e5e8ed;
+  --border-strong: #c9d0da; /* derived */
+  --border-selected: #9aa3b0;
+  --border-soft: #eef0f3;
+
+  --text: #0b0f14;
+  --text-strong: #0b0f14;
+  --text-muted: #4b5563;
+  --text-soft: #6b7280;
+  --text-faint: #9aa3b0;
+
+  --accent: #0b0f14;
+  --accent-contrast: #f7f7f8;
+  --accent-strong: #0b0f14;
+  --accent-soft: #f2f4f7;
+  --accent-tint: #fafbfc;
+  --accent-hover: #1c2535;
+  --brand: #e04e28;
+  --brand-weak: #f4b8a4; /* derived */
+  --brand-soft: #fbe8e1;
+  --brand-text: #b93a1b; /* derived: KnowMe ember-2 (#c13e1e) is 4.46:1 on its ember-soft, just under AA */
+  --brand-ink: #b93a1b;
+  --brand-surface: #fbe8e1;
+
+  --green: #16a34a;
+  --green-bg: color-mix(in srgb, #16a34a 12%, #ffffff);
+  --green-border: color-mix(in srgb, #16a34a 34%, #e5e8ed);
+  --blue: #0891b2;
+  --blue-bg: color-mix(in srgb, #0891b2 12%, #ffffff);
+  --blue-border: color-mix(in srgb, #0891b2 34%, #e5e8ed);
+  --purple: #4b5563;
+  --purple-bg: #f2f4f7;
+  --purple-border: #e5e8ed;
+  --red: #dc2626;
+  --red-bg: color-mix(in srgb, #dc2626 12%, #ffffff);
+  --red-border: color-mix(in srgb, #dc2626 34%, #e5e8ed);
+  --amber: #d97706;
+  --amber-bg: color-mix(in srgb, #d97706 14%, #ffffff);
+
+  /* Theme-independent: the glyph-on-disc send mark and the upgrade pill keep their own
+     contrast pair; ember on the canvas ink. */
+  --send-ground: #ff6a3d;
+  --send-ink: #0b0f14;
+  --upgrade-ground: #ff6a3d;
+  --upgrade-ink: #0b0f14;
+}
+
+/* Dark: explicit theme. */
+html[data-brand="knowdesign"][data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b0f14;
+  --bg-app: #0b0f14;
+  --bg-panel: #111620;
+  --bg-subtle: #161d29;
+  --bg-muted: #1c2535;
+  --bg-elevated: #161d29;
+  --bg-fill-tertiary: rgba(232, 237, 243, 0.04);
+  --bg-fill-secondary: rgba(232, 237, 243, 0.08);
+  --bg-fill: rgba(232, 237, 243, 0.14);
+  --glass-regular: rgba(17, 22, 32, 0.66);
+  --glass-edge-highlight: color-mix(in srgb, #fff 10%, transparent);
+  --border: #1f2d40;
+  --border-strong: #2c3e57; /* derived */
+  --border-selected: #4b6080;
+  --border-soft: #233041;
+
+  --text: #e8edf3;
+  --text-strong: #e8edf3;
+  --text-muted: #a7b0bc;
+  --text-soft: #6b7280;
+  --text-faint: #4b6080;
+
+  --accent: #e8edf3;
+  --accent-contrast: #0b0f14;
+  --accent-strong: #ffffff;
+  --accent-soft: #1c2535;
+  --accent-tint: #161d29;
+  --accent-hover: #ffffff;
+  --brand: #ff6a3d;
+  --brand-weak: #5a2a1c; /* derived */
+  --brand-soft: #2b1a18;
+  --brand-text: #ff6a3d;
+  --brand-ink: #ff6a3d;
+  --brand-surface: #2b1a18;
+
+  --green: #22c55e;
+  --green-bg: color-mix(in srgb, #22c55e 22%, #0b0f14);
+  --green-border: color-mix(in srgb, #22c55e 34%, #1f2d40);
+  --blue: #00c2dc;
+  --blue-bg: color-mix(in srgb, #00c2dc 22%, #0b0f14);
+  --blue-border: color-mix(in srgb, #00c2dc 34%, #1f2d40);
+  --purple: #a7b0bc;
+  --purple-bg: #1c2535;
+  --purple-border: #1f2d40;
+  --red: #ef4444;
+  --red-bg: color-mix(in srgb, #ef4444 24%, #0b0f14);
+  --red-border: color-mix(in srgb, #ef4444 34%, #1f2d40);
+  --amber: #f59e0b;
+  --amber-bg: color-mix(in srgb, #f59e0b 22%, #0b0f14);
+}
+
+/* Dark: system mode, i.e. the OS prefers dark and no explicit theme is set. */
+@media (prefers-color-scheme: dark) {
+  html[data-brand="knowdesign"]:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #0b0f14;
+    --bg-app: #0b0f14;
+    --bg-panel: #111620;
+    --bg-subtle: #161d29;
+    --bg-muted: #1c2535;
+    --bg-elevated: #161d29;
+    --bg-fill-tertiary: rgba(232, 237, 243, 0.04);
+    --bg-fill-secondary: rgba(232, 237, 243, 0.08);
+    --bg-fill: rgba(232, 237, 243, 0.14);
+    --glass-regular: rgba(17, 22, 32, 0.66);
+    --glass-edge-highlight: color-mix(in srgb, #fff 10%, transparent);
+    --border: #1f2d40;
+    --border-strong: #2c3e57; /* derived */
+    --border-selected: #4b6080;
+    --border-soft: #233041;
+
+    --text: #e8edf3;
+    --text-strong: #e8edf3;
+    --text-muted: #a7b0bc;
+    --text-soft: #6b7280;
+    --text-faint: #4b6080;
+
+    --accent: #e8edf3;
+    --accent-contrast: #0b0f14;
+    --accent-strong: #ffffff;
+    --accent-soft: #1c2535;
+    --accent-tint: #161d29;
+    --accent-hover: #ffffff;
+    --brand: #ff6a3d;
+    --brand-weak: #5a2a1c; /* derived */
+    --brand-soft: #2b1a18;
+    --brand-text: #ff6a3d;
+    --brand-ink: #ff6a3d;
+    --brand-surface: #2b1a18;
+
+    --green: #22c55e;
+    --green-bg: color-mix(in srgb, #22c55e 22%, #0b0f14);
+    --green-border: color-mix(in srgb, #22c55e 34%, #1f2d40);
+    --blue: #00c2dc;
+    --blue-bg: color-mix(in srgb, #00c2dc 22%, #0b0f14);
+    --blue-border: color-mix(in srgb, #00c2dc 34%, #1f2d40);
+    --purple: #a7b0bc;
+    --purple-bg: #1c2535;
+    --purple-border: #1f2d40;
+    --red: #ef4444;
+    --red-bg: color-mix(in srgb, #ef4444 24%, #0b0f14);
+    --red-border: color-mix(in srgb, #ef4444 34%, #1f2d40);
+    --amber: #f59e0b;
+    --amber-bg: color-mix(in srgb, #f59e0b 22%, #0b0f14);
+  }
+}
