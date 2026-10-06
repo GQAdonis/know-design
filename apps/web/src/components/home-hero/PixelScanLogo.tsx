@@ -1,3 +1,4 @@
+import { brandTextNow } from '../../brand/brand-text';
 import { useEffect, useRef } from 'react';
 import { PixelScanField, drawStaticLogo } from './pixel-scan/engine';
 
@@ -13,7 +14,7 @@ interface Props {
 // word drawn statically. A ResizeObserver keeps the canvas in sync as the hero
 // column reflows. The engine listens on the HOST (the canvas itself is
 // pointer-events:none via .home-hero__logo--tiles > canvas).
-export function PixelScanLogo({ className, label = 'OpenDesign' }: Props) {
+export function PixelScanLogo({ className, label = brandTextNow('OpenDesign') }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 

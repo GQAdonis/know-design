@@ -8,6 +8,7 @@
 // can be rebased without touching this file. `EntryView` becomes a
 // thin wrapper that passes data and callbacks through to this shell.
 
+import { brandTextNow } from '../brand/brand-text';
 import {
   useCallback,
   useEffect,
@@ -3791,7 +3792,7 @@ function OnboardingView({
           <footer className="onboarding-cloud__footer">
             <LanguageMenu placement="up" align="start" />
             <span>
-              © {new Date().getFullYear()} OpenDesign · {t('settings.onboardingCloudRights')}
+              © {new Date().getFullYear()} {brandTextNow('OpenDesign')} · {t('settings.onboardingCloudRights')}
             </span>
           </footer>
         </div>
@@ -3919,7 +3920,7 @@ function OnboardingView({
           <footer className="onboarding-cloud__footer">
             <LanguageMenu placement="up" align="start" />
             <span>
-              © {new Date().getFullYear()} OpenDesign ·{' '}
+              © {new Date().getFullYear()} {brandTextNow('OpenDesign')} ·{' '}
               {t('settings.onboardingCloudRights')}
             </span>
           </footer>

@@ -8,6 +8,7 @@
 // upward through the same callbacks `AvatarMenu` already uses, so the
 // switcher inherits autosave + daemon sync without re-implementing it.
 
+import { brandTextNow } from '../brand/brand-text';
 import {
   useCallback,
   useEffect,
@@ -167,11 +168,11 @@ function markAmrReminderSeen(): void {
 }
 
 function displayAgentName(agent: Pick<AgentInfo, 'id' | 'name'>): string {
-  return agent.id === 'amr' ? 'OpenDesign' : agent.name;
+  return agent.id === 'amr' ? brandTextNow('OpenDesign') : agent.name;
 }
 
 function displayAgentChipName(agent: Pick<AgentInfo, 'id' | 'name'>): string {
-  return agent.id === 'amr' ? 'OpenDesign' : displayAgentName(agent);
+  return agent.id === 'amr' ? brandTextNow('OpenDesign') : displayAgentName(agent);
 }
 
 export function InlineModelSwitcher({
@@ -1589,7 +1590,7 @@ export function InlineModelSwitcher({
                     type="button"
                     role="radio"
                     aria-checked={config.agentId === 'amr'}
-                    aria-label={`OpenDesign ${amrInlineStatus}`}
+                    aria-label={`${brandTextNow('OpenDesign')} ${amrInlineStatus}`}
                     className="inline-switcher__account-id inline-switcher__account-select"
                     data-testid="inline-model-switcher-agent-amr"
                     title={amrLoginPending ? amrPendingHoverLabel : undefined}
@@ -1608,7 +1609,7 @@ export function InlineModelSwitcher({
                     <span className="inline-switcher__account-text">
                       <span className="inline-switcher__account-name-row">
                         <span className="inline-switcher__account-name">
-                          OpenDesign
+                          {brandTextNow('OpenDesign')}
                         </span>
                         {amrLoggedIn ? (
                           <PlanBadge plan={amrPlanLabel} size="md" />

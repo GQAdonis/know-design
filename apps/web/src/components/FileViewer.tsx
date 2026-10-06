@@ -1,3 +1,4 @@
+import { githubUrl } from '../brand/brand-text';
 import { useExperienceError } from '../observability/use-experience-error';
 import { daemonErrorCodeProp, failureDetailProps } from '../analytics/failure-detail';
 import { memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent as ReactClipboardEvent, type CSSProperties, type DragEvent as ReactDragEvent, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
@@ -19,7 +20,6 @@ import {
 } from './comment-send-result';
 import {
   buildSocialSharePayload,
-  OPEN_DESIGN_GITHUB_REPO_URL,
   workspaceContextHasTeamIdentity,
   type CollabCloudMemberDirectoryEntry,
   type CollabMemberRole,
@@ -15871,7 +15871,7 @@ function HtmlViewer({
     const title = t('socialShare.projectTitle', { title: exportTitle });
     const text = t('socialShare.projectText', {
       title: exportTitle,
-      repo: OPEN_DESIGN_GITHUB_REPO_URL,
+      repo: githubUrl(),
     });
     return {
       kind: 'project-html',
@@ -15882,7 +15882,7 @@ function HtmlViewer({
       copyText: t('socialShare.projectCopyText', {
         title: exportTitle,
         url: socialShareDisplayUrl,
-        repo: OPEN_DESIGN_GITHUB_REPO_URL,
+        repo: githubUrl(),
       }),
     };
   }, [exportTitle, locale, socialShareDisplayUrl, t]);

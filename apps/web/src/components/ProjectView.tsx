@@ -1,3 +1,4 @@
+import { brandTextNow } from '../brand/brand-text';
 import { readRetriedErrorSurface, retriedErrorSurfaceKey, writeRetriedErrorSurface } from '../runtime/chat/retried-error-surface';
 import {
   startTransition,
@@ -14807,7 +14808,7 @@ function pluginWorkflowPlannedSteps(action: PluginFolderAgentAction): string[] {
     ];
   }
   return [
-    'Ensure the OpenDesign fork exists',
+    brandTextNow('Ensure the OpenDesign fork exists'),
     'Clone the fork and prepare a branch',
     'Copy the plugin into plugins/community',
     'Push the branch and open the PR form',
@@ -14941,7 +14942,7 @@ function applyDesignDeliveryOutcome(
   if (outcome !== 'no_result' && outcome !== 'delivery_failed') return message;
   const detail =
     outcome === 'delivery_failed'
-      ? persistenceError || DESIGN_RESULT_DELIVERY_FAILED_DETAIL
+      ? persistenceError || brandTextNow(DESIGN_RESULT_DELIVERY_FAILED_DETAIL)
       : DESIGN_RESULT_MISSING_DETAIL;
   const failed = {
     ...message,

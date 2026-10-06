@@ -1,3 +1,4 @@
+import { brandTextNow } from '../brand/brand-text';
 import type { InputFieldSpec } from '@open-design/contracts';
 import type { Locale } from './types';
 
@@ -324,7 +325,7 @@ export function localizePluginChrome(
     locale === 'zh-CN'
       ? ZH_PLUGIN_CHROME[key] ?? EN_PLUGIN_CHROME[key]
       : EN_PLUGIN_CHROME[key];
-  return phrase.replace(/\{(\w+)\}/g, (match, name) =>
+  return brandTextNow(phrase).replace(/\{(\w+)\}/g, (match, name) =>
     Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : match,
   );
 }

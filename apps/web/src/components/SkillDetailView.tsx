@@ -1,3 +1,4 @@
+import { brandTextNow } from '../brand/brand-text';
 import {
   useEffect,
   useMemo,
@@ -56,7 +57,7 @@ function skillInitials(title: string): string {
 
 function skillAuthor(skill: SkillSummary, personalAuthor: string): string {
   return String(skill.source) === 'built-in' || String(skill.source) === 'builtin'
-    ? 'OpenDesign'
+    ? brandTextNow('OpenDesign')
     : personalAuthor;
 }
 

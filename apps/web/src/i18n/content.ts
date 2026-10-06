@@ -1,3 +1,4 @@
+import { brandTextNow } from '../brand/brand-text';
 import type {
   DesignSystemSummary,
   PromptTemplateSummary,
@@ -1264,11 +1265,11 @@ function localizedRecordValue(
   return undefined;
 }
 
-export function localizeSkillName(locale: Locale, skill: SkillSummary): string {
+function localizeSkillNameRaw(locale: Locale, skill: SkillSummary): string {
   return localizedRecordValue(locale, skill.displayName) ?? skill.name;
 }
 
-export function localizeSkillPrompt(locale: Locale, skill: SkillSummary): string | undefined {
+function localizeSkillPromptRaw(locale: Locale, skill: SkillSummary): string | undefined {
   const inline = localizedRecordValue(locale, skill.examplePromptI18n, {
     includeEnglishFallback: false,
   });
@@ -1280,7 +1281,7 @@ export function localizeSkillPrompt(locale: Locale, skill: SkillSummary): string
   return skill.examplePrompt ? normalizeText(skill.examplePrompt) : undefined;
 }
 
-export function localizeSkillDescription(locale: Locale, skill: SkillSummary): string {
+function localizeSkillDescriptionRaw(locale: Locale, skill: SkillSummary): string {
   const inline = localizedRecordValue(locale, skill.descriptionI18n, {
     includeEnglishFallback: false,
   });
@@ -1292,7 +1293,7 @@ export function localizeSkillDescription(locale: Locale, skill: SkillSummary): s
   return normalizeText(skill.description);
 }
 
-export function localizeDesignSystemSummary(
+function localizeDesignSystemSummaryRaw(
   locale: Locale,
   system: DesignSystemSummary,
 ): string {
@@ -1319,9 +1320,31 @@ export function localizePromptTemplateSummary(
   const tags = template.tags?.map((tag) => content.promptTemplateTags[tag] ?? tag);
   return {
     ...template,
-    title: translated?.title ?? template.title,
-    summary: translated?.summary ?? template.summary,
+    title: brandTextNow(translated?.title ?? template.title),
+    summary: brandTextNow(translated?.summary ?? template.summary),
     category: localizePromptTemplateCategory(locale, template.category || 'General'),
     tags,
   };
+}
+
+// Brand substitution is applied on the way out so the bundled locale tables stay
+// byte-identical to upstream (D-014a). Resolved at call time from the web profile.
+export function localizeSkillName(locale: Locale, skill: SkillSummary): string {
+  return brandTextNow(localizeSkillNameRaw(locale, skill));
+}
+
+export function localizeSkillPrompt(locale: Locale, skill: SkillSummary): string | undefined {
+  const value = localizeSkillPromptRaw(locale, skill);
+  return value === undefined ? undefined : brandTextNow(value);
+}
+
+export function localizeSkillDescription(locale: Locale, skill: SkillSummary): string {
+  return brandTextNow(localizeSkillDescriptionRaw(locale, skill));
+}
+
+export function localizeDesignSystemSummary(
+  locale: Locale,
+  system: DesignSystemSummary,
+): string {
+  return brandTextNow(localizeDesignSystemSummaryRaw(locale, system));
 }

@@ -1,3 +1,4 @@
+import { githubUrl } from '../brand/brand-text';
 import { CodingPlanUsage } from './CodingPlanUsage';
 import planCardStyles from './PersonalPlanCard.module.css';
 // Team-edition entry navigation rail (Lovart/Manus-style labeled column).
@@ -140,9 +141,6 @@ const ACCOUNT_MENU_CARD_INSET = 11;
  *  instead of collapsing the menu into a sliver. */
 const ACCOUNT_MENU_MIN_HEIGHT = 200;
 
-const REPO_URL = 'https://github.com/nexu-io/open-design';
-const GITHUB_HELP_URL = `${REPO_URL}/issues/new`;
-const GITHUB_FEATURE_URL = `${REPO_URL}/pulls`;
 const DISCORD_URL = 'https://discord.gg/mHAjSMV6gz';
 const X_URL = 'https://x.com/OpenDesignHQ';
 const CONTACT_EMAIL_URL = 'mailto:support@open-design.ai';
@@ -1088,6 +1086,7 @@ export function EntryTopRightCluster({
   priorityAnnouncementMetricsConsent,
 }: EntryTopRightClusterProps) {
   const { t, locale } = useI18n();
+  const repoUrl = githubUrl();
   const analytics = useAnalytics();
   const workspaceDimensions = workspaceAnalyticsDimensions(context);
   const [chromeActionsHost, setChromeActionsHost] = useState<HTMLElement | null>(
@@ -1443,7 +1442,7 @@ export function EntryTopRightCluster({
           {clusterVisible ? (
             <a
               className="entry-top-right-github"
-              href={REPO_URL}
+              href={repoUrl}
               {...externalLinkProps}
               aria-label={`GitHub · ${githubStars == null ? GITHUB_STARS_FALLBACK_LABEL : formatStars(githubStars)} stars`}
               title={`GitHub · ${githubStars == null ? GITHUB_STARS_FALLBACK_LABEL : formatStars(githubStars)} stars`}
@@ -1793,7 +1792,7 @@ export function EntryTopRightCluster({
                       <a
                         className="entry-nav-rail__menu-item"
                         role="menuitem"
-                        href={GITHUB_HELP_URL}
+                        href={`${repoUrl}/issues/new`}
                         {...externalLinkProps}
                         onClick={() => {
                           trackAccountAction('github_help');
@@ -1805,7 +1804,7 @@ export function EntryTopRightCluster({
                       <a
                         className="entry-nav-rail__menu-item"
                         role="menuitem"
-                        href={GITHUB_FEATURE_URL}
+                        href={`${repoUrl}/pulls`}
                         {...externalLinkProps}
                         onClick={() => {
                           trackAccountAction('feature_request');

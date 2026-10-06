@@ -1,3 +1,4 @@
+import { githubUrl } from '../brand/brand-text';
 import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -28,9 +29,6 @@ import styles from './WhatsNewPopup.module.css';
 // It reports what already happened, so its only actions are "close" and "open
 // the highlight link". Applying an update belongs to the real updater indicator
 // (see ./UpdaterPopup.tsx) — this surface must never claim to install anything.
-
-// Fallback for the CTA when the highlight document omits an explicit link.
-const RELEASES_INDEX_URL = 'https://github.com/nexu-io/open-design/releases';
 
 /**
  * The version this dialog is allowed to state, or null when nothing real can
@@ -103,7 +101,7 @@ export function WhatsNewPopup({ active }: { active: boolean }) {
         headline: localized.title,
         notes: whatsNewNotesFromBody(localized.body),
         imageUrl: info.content.imageUrl ?? null,
-        linkUrl: localized.linkUrl ?? RELEASES_INDEX_URL,
+        linkUrl: localized.linkUrl ?? githubUrl('/releases'),
         ctaLabel: localized.ctaLabel,
       });
     });

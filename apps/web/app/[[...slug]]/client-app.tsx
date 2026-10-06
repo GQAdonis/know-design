@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
+import { BrandDocumentTitle } from '../../src/brand/BrandDocumentTitle';
 import { installErrorHandlers } from '../../src/analytics/error-tracking';
 import { MatrixLoader } from '../../src/components/MatrixLoader';
 import { installWebObservability } from '../../src/observability/install';
@@ -54,5 +55,10 @@ const App = dynamic(() => import('../../src/App').then((m) => m.App), {
 });
 
 export function ClientApp() {
-  return <App />;
+  return (
+    <>
+      <BrandDocumentTitle />
+      <App />
+    </>
+  );
 }

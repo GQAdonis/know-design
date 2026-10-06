@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 import type { OpenDesignGithubRepoResponse } from '@open-design/contracts';
 
 const API = '/api/github/open-design';
-const REPO = 'https://github.com/nexu-io/open-design';
 const LS_KEY = 'open-design:gh-stars';
 const FAILURE_LS_KEY = 'open-design:gh-stars:last-failure';
 export const GITHUB_STARS_FALLBACK_LABEL = '40K+';
@@ -95,7 +94,6 @@ export function formatStars(count: number): string {
   return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}K`;
 }
 
-export const GITHUB_REPO_URL = REPO;
 
 export function useGithubStars(): number | null {
   const [count, setCount] = useState<number | null>(() => {

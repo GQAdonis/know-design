@@ -17,6 +17,7 @@
  *    http(s) URLs become clickable) to keep `javascript:` /
  *    `data:` payloads in a manifest from rendering as live links.
  */
+import { getWebBrand, githubUrl } from '../brand/brand-text';
 import type { InstalledPluginRecord } from '@open-design/contracts';
 
 export interface PluginSourceLinks {
@@ -49,8 +50,6 @@ export interface PluginSourceLinks {
   contributeOnGithub: boolean;
 }
 
-const OPEN_DESIGN_REPO_URL = 'https://github.com/nexu-io/open-design';
-const OPEN_DESIGN_REPO_LABEL = 'nexu-io/open-design';
 
 const GITHUB_SOURCE_RE = /^github:([A-Za-z0-9._-]+)\/([A-Za-z0-9._-]+)(?:@([A-Za-z0-9._/-]+))?(?:\/(.+))?$/;
 const GITHUB_PROFILE_RE = /^https?:\/\/(?:www\.)?github\.com\/([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}[A-Za-z0-9])?)(?:[\/?#].*)?$/;
@@ -127,8 +126,8 @@ export function derivePluginSourceLinks(
   const authorName = typeof author.name === 'string' && author.name.trim().length > 0
     ? author.name.trim()
     : null;
-  const authorProfileUrl = officialBundled ? OPEN_DESIGN_REPO_URL : safeHttpUrl(author.url);
-  const homepageUrl = officialBundled ? OPEN_DESIGN_REPO_URL : safeHttpUrl(homepageRaw);
+  const authorProfileUrl = officialBundled ? githubUrl() : safeHttpUrl(author.url);
+  const homepageUrl = officialBundled ? githubUrl() : safeHttpUrl(homepageRaw);
 
   // Source URL + label resolution. The github:owner/repo case wins
   // because we can produce a deep `tree/<ref>/<sub>` URL when the
@@ -172,8 +171,8 @@ export function derivePluginSourceLinks(
   } else if (record.sourceKind === 'marketplace') {
     sourceLabel = record.source;
   } else if (officialBundled) {
-    sourceUrl = OPEN_DESIGN_REPO_URL;
-    sourceLabel = OPEN_DESIGN_REPO_LABEL;
+    sourceUrl = githubUrl();
+    sourceLabel = getWebBrand().githubRepo;
   } else {
     // user / project / local — the source string is a filesystem
     // path. Show just the basename for compactness; the

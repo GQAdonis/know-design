@@ -6,6 +6,7 @@
 // can stay rendered when the daemon is briefly unreachable. Reads whose empty
 // result changes behavior must preserve failure as a typed error instead.
 
+import { brandTextNow } from '../brand/brand-text';
 import { coalescedGet, evictCoalescedGet } from '../lib/coalesced-get';
 import { isDaemonProxyConnectionFailure } from '../runtime/daemon-proxy-failure';
 import { BackoffController, type BackoffOptions } from '../lib/backoff';
@@ -808,7 +809,7 @@ export async function createProject(
       }
       if (await isDaemonProxyConnectionFailure(resp)) {
         throw new ProjectCreateError(
-          'Could not reach the local OpenDesign service',
+          brandTextNow('Could not reach the local OpenDesign service'),
           null,
           null,
           true,

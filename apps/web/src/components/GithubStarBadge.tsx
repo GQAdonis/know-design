@@ -8,9 +8,9 @@
 
 import { Icon } from './Icon';
 import { useT } from '../i18n';
+import { githubUrl } from '../brand/brand-text';
 import {
   formatStars,
-  GITHUB_REPO_URL,
   GITHUB_STARS_FALLBACK_LABEL,
   useGithubStars,
 } from './useGithubStars';
@@ -23,7 +23,7 @@ export function GithubStarBadge() {
   return (
     <a
       className="entry-star-badge od-tooltip"
-      href={GITHUB_REPO_URL}
+      href={githubUrl()}
       target="_blank"
       rel="noreferrer noopener"
       aria-label={t('entry.githubStarAria')}
