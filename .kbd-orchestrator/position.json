@@ -2,25 +2,25 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 271,
-  "derivedRevision": 271,
+  "sourceRevision": 274,
+  "derivedRevision": 274,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 271
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 274
   },
   "conflictCount": 0,
-  "updatedAt": "2026-10-06T09:17:27.983493Z",
+  "updatedAt": "2026-10-06T09:39:05.836275Z",
   "cursor": [
     "deploy-web-to-knowme-k8s",
     "knowdesign-brand",
-    "plan",
-    "brand-seam-and-rename-codemod"
+    "execute",
+    "knowdesign-tokens-icons-and-app-identity"
   ],
   "root": {
     "type": "phase",
     "id": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
     "status": "ready",
     "progress": {
-      "done": 7,
+      "done": 8,
       "total": 47
     },
     "children": [
@@ -468,14 +468,14 @@
             "canonicalId": "knowdesign-brand",
             "status": "PENDING",
             "progress": {
-              "done": 0,
+              "done": 1,
               "total": 4
             },
             "children": [
               {
                 "type": "change",
                 "id": "brand-seam-and-rename-codemod",
-                "status": "PENDING",
+                "status": "COMPLETE",
                 "progress": {
                   "done": 0,
                   "total": 0

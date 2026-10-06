@@ -2,10 +2,10 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 271,
-  "derivedRevision": 271,
+  "sourceRevision": 274,
+  "derivedRevision": 274,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 271
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 274
   },
   "conflictCount": 0,
   "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
@@ -23,19 +23,19 @@
   "phase": "deploy-web-to-knowme-k8s",
   "parentPhase": "deploy-web-to-knowme-k8s",
   "childPointer": "knowdesign-brand",
-  "change": "brand-seam-and-rename-codemod",
+  "change": "knowdesign-tokens-icons-and-app-identity",
   "currentTask": null,
   "status": "ready",
   "lifecycle": "ready",
-  "stageId": "plan",
-  "stageStatus": "COMPLETE",
+  "stageId": "execute",
+  "stageStatus": "IN_PROGRESS",
   "completionMetric": "implementation",
-  "implementationCompleted": 7,
+  "implementationCompleted": 8,
   "implementationTotal": 47,
   "planRevision": 1,
-  "revision": 271,
+  "revision": 274,
   "exactNextCommand": "/kbd-assess knowdesign-brand",
-  "nextChange": "brand-seam-and-rename-codemod",
+  "nextChange": "knowdesign-tokens-icons-and-app-identity",
   "nextTask": null,
-  "updatedAt": "2026-10-06T09:17:27.983493Z"
+  "updatedAt": "2026-10-06T09:39:05.836275Z"
 }

@@ -2,16 +2,16 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 271,
-  "derivedRevision": 271,
+  "sourceRevision": 274,
+  "derivedRevision": 274,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 271
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 274
   },
   "conflictCount": 0,
   "phase": "deploy-web-to-knowme-k8s",
   "phaseId": "deploy-web-to-knowme-k8s",
   "parentPhase": null,
-  "last_updated": "2026-10-06T09:17:27.983493Z",
+  "last_updated": "2026-10-06T09:39:05.836275Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 1,
   "changes_completed": 0,
@@ -49,7 +49,7 @@
     "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 7,
+      "completed": 8,
       "total": 47,
       "status": "IN_PROGRESS"
     },
@@ -115,9 +115,9 @@
     },
     "knowdesign-brand": {
       "status": "PENDING",
-      "changes_completed": 0,
+      "changes_completed": 1,
       "changes_total": 4,
-      "implementation_completed": 0,
+      "implementation_completed": 1,
       "implementation_total": 4,
       "certification_status": "NOT_TRACKED",
       "handoff": null,
