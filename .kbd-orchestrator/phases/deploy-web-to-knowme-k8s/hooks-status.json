@@ -1,1 +1,1 @@
-{"totalRuns":41,"failedRuns":0,"lastRun":{"ts":"2026-10-05T16:48:28Z","kind":"reflect","edge":"after","name":"commerce-removal","hookId":"memory-reflection-writeback","layer":"builtin","mode":"augment","status":0},"lastFailure":null}
+{"totalRuns":45,"failedRuns":0,"lastRun":{"ts":"2026-10-06T08:57:26Z","kind":"phase","edge":"after","name":"commerce-removal","hookId":"legacy-phase-complete","layer":"builtin","mode":"augment","status":0},"lastFailure":null}

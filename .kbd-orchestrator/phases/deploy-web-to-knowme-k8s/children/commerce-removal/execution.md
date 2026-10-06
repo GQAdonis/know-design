@@ -71,4 +71,4 @@ A `certification`-kind gate was attempted for the packaged e2e and is blocked un
 - `OD_BUILD_PROFILE` is read from the process environment at launch and is not baked into the packaged config, so an app launched by double-click from Finder runs the default profile.
 - Electron main-process Chromium traffic is not routed through the recording proxy; the renderer is witnessed by in-page resource entries and the daemon/web sidecars by the proxy.
 - The agent is pinned in app-config in the packaged e2e; picking one through Settings is covered by `ui/knowdesign-fresh-install.test.ts`. A fresh install still has no agent selected, so the user must pick one.
-- D-015 (billing-derived lifecycle states only) is an agent-recorded acceptance amendment awaiting operator ratification.
+- D-015 (billing-derived lifecycle states only) was an agent-recorded acceptance amendment; the operator ratified it on 2026-10-06 (D-017).

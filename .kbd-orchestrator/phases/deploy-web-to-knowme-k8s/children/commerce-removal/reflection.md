@@ -33,7 +33,7 @@
 
 1. Add a change to `knowdesign-brand` (with change 20's app identity): bake `OD_BUILD_PROFILE=knowdesign` into the packaged config for knowdesign builds, with a packaged test that launches **without** the env var and asserts the profile is on. Until then, treat any DMG as "knowdesign only when launched with the profile".
 2. Put an explicit decision in front of the operator: should a fresh knowdesign install make the third-party calls listed in Delta 2 (package registries, agent-CLI model discovery, MCP catalogs)? If not, add them to the asserted forbidden set and silence them under the profile; if yes, record that in the plan so the acceptance wording matches.
-3. Have the operator ratify or reject D-015. Until then it is an agent-authored amendment.
+3. ~~Have the operator ratify or reject D-015.~~ Done: ratified 2026-10-06 (D-017).
 4. [GLOBAL] Make `/kbd-plan` require at least one spec delta per OpenSpec change before the plan is accepted, so verify/archive are reachable from the start.
 5. [GLOBAL] Merge plan amendments into `plan.md` (or have the packet builder append them) so reviewers and judges judge against the amended criterion.
 6. [GLOBAL] Sequence environment and authorization gates (judge reachability, packaged-app e2e approval) into the plan's first rounds, not its last.
@@ -52,7 +52,7 @@
 | Goal | Status | Notes |
 | ---- | ------ | ----- |
 | Capture the daemon/web test baseline before touching source | MET | `baseline.md` measured on clean `main` (a80bfeded3), by name, with failures classified. The full daemon suite was not re-measured at the end (Delta 7). |
-| Build-profile seam; decouple collab permissions from billing lifecycle | MET as amended | Billing-derived lifecycle states grant write under the profile; deleting/deleted/removed stay denied (D-015, not operator-ratified). Profile-off byte-identical, proven by test. |
+| Build-profile seam; decouple collab permissions from billing lifecycle | MET as amended | Billing-derived lifecycle states grant write under the profile; deleting/deleted/removed stay denied (D-015, ratified by the operator 2026-10-06 as D-017). Profile-off byte-identical, proven by test. |
 | Remove AMR login, billing, touchpoints/campaigns, marketplace and Vela media from the KnowDesign profile | MET | Each is gated off by the profile, covered by daemon/web tests and the e2e. The code is still in the tree (profile-gated, not deleted), which is the plan's "stub-swap, not deletion". |
 | Disable telemetry and upstream-hosted endpoints by configuration | PARTIAL | Open Design cloud, telemetry relays, PostHog, Langfuse, release feed, What's New, GitHub and Discord are silent (recording-proxy e2e with a control that sees traffic). Third-party hosts are not (Delta 2). |
 | Done = desktop starts a local agent run with no sign-in or balance prompt and zero requests to *.open-design.ai | PARTIAL | Passes on the packaged app when launched with the profile (daemon/web sidecars via proxy, renderer via in-page resource entries). Not true for an app launched without the env var (Delta 1); main-process Chromium egress is unwitnessed. |
@@ -101,7 +101,7 @@
 
 ## Next Phase Seed
 
-`phase-knowdesign-brand` — (1) `brand-seam-and-rename-codemod`: one `brand.config`, idempotent `brand/apply.ts`, `brand/verify.ts` that fails on stray "Open Design" outside the must-not-rename list; (2) bake `OD_BUILD_PROFILE=knowdesign` into the packaged config and test a launch with no env var, alongside tokens, icons and channel-distinct app identity (`KnowDesign`, `KnowDesign Beta`, …); (3) docs/locale values/CI/image names via the codemod, GitHub repo rename only on explicit confirmation. Carry open decisions: ratify D-015; decide on third-party egress.
+`phase-knowdesign-brand` — (1) `brand-seam-and-rename-codemod`: one `brand.config`, idempotent `brand/apply.ts`, `brand/verify.ts` that fails on stray "Open Design" outside the must-not-rename list; (2) bake `OD_BUILD_PROFILE=knowdesign` into the packaged config and test a launch with no env var, alongside tokens, icons and channel-distinct app identity (`KnowDesign`, `KnowDesign Beta`, …); (3) docs/locale values/CI/image names via the codemod, GitHub repo rename only on explicit confirmation. Carry open decisions: decide on third-party egress (D-015 was ratified as D-017).
 
 ## Codify as Skill?
 

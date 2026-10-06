@@ -2,10 +2,10 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 258,
-  "derivedRevision": 258,
+  "sourceRevision": 263,
+  "derivedRevision": 263,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 258
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 263
   },
   "conflictCount": 0,
   "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
@@ -33,9 +33,9 @@
   "implementationCompleted": 7,
   "implementationTotal": 47,
   "planRevision": 1,
-  "revision": 258,
+  "revision": 263,
   "exactNextCommand": "/kbd-execute commerce-removal",
   "nextChange": null,
   "nextTask": null,
-  "updatedAt": "2026-10-05T16:49:02.038623Z"
+  "updatedAt": "2026-10-06T08:57:23.706476Z"
 }
