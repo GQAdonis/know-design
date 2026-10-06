@@ -64,7 +64,6 @@ import {
   validatePluginWorkflowId,
 } from './mcp-observability.js';
 
-const SERVER_NAME = defaultMcpServerName();
 const SERVER_VERSION = '0.2.0';
 const DEFAULT_MCP_STDIO_IDLE_EXIT_MS = 30 * 60 * 1000;
 const MAX_MCP_STDIO_IDLE_EXIT_MS = 24 * 60 * 60 * 1000;
@@ -1902,7 +1901,7 @@ async function runMcpStdioImplementation(options: RunMcpOptions): Promise<void> 
           idleExit!.trackRequest(() => handler(...args));
 
   const server = new Server(
-    { name: SERVER_NAME, version: SERVER_VERSION },
+    { name: defaultMcpServerName(), version: SERVER_VERSION },
     {
       capabilities: { tools: {}, resources: {} },
       instructions: [

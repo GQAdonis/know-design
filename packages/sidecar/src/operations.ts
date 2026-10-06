@@ -286,7 +286,11 @@ export async function convergeSidecarLaunch(
       const description = descriptions.find((candidate) => candidate?.ready === true) ?? null;
       const described = description ?? descriptions.find((candidate) => candidate != null) ?? null;
       if (described?.phase != null) lastPhase = described.phase;
-      options.onProgress?.({ attempts, launcherPid: launcher.pid, phase: lastPhase });
+      try {
+        options.onProgress?.({ attempts, launcherPid: launcher.pid, phase: lastPhase });
+      } catch {
+        // Progress is observation only; a reporter bug must not abort convergence.
+      }
       const ownerPid = description?.resources.pid ?? null;
       const ownerSnapshot = ownerPid == null
         ? null

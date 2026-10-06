@@ -31,9 +31,11 @@ describe("startup events", () => {
     expect(parseStartupEvents(text).map((e) => e.phase)).toEqual(["a", "c"]);
   });
 
-  it("returns events in sequence order even if lines arrive out of order", () => {
-    const text = [event(2, "b"), event(1, "a")].map(formatStartupEvent).join("");
-    expect(parseStartupEvents(text).map((e) => e.seq)).toEqual([1, 2]);
+  it("keeps append order, because seq restarts in each writer process", () => {
+    const text = [{ ...event(1, "a"), pid: 1 }, { ...event(1, "b"), pid: 2 }, { ...event(2, "c"), pid: 1 }]
+      .map(formatStartupEvent)
+      .join("");
+    expect(parseStartupEvents(text).map((e) => e.phase)).toEqual(["a", "b", "c"]);
   });
 
   it("finds the latest event", () => {

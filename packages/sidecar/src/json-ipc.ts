@@ -371,6 +371,10 @@ export async function requestJsonIpc<T = any>(
 ): Promise<T> {
   const description = describeMessage(payload);
   return await new Promise<T>((resolveRequest, rejectRequest) => {
+    if (peer != null && (peer.exitCode != null || peer.signalCode != null)) {
+      rejectRequest(peerExitedError(description, socketPath, peer.exitCode, peer.signalCode));
+      return;
+    }
     const socket = createConnection(socketPath);
     const traceId = nextJsonIpcTraceId();
     const startedAt = process.hrtime.bigint();
@@ -414,11 +418,6 @@ export async function requestJsonIpc<T = any>(
             );
           }, effectiveTimeoutMs);
     if (peer != null) {
-      if (peer.exitCode != null || peer.signalCode != null) {
-        socket.destroy();
-        settle(() => rejectRequest(peerExitedError(description, socketPath, peer.exitCode, peer.signalCode)));
-        return;
-      }
       peer.once("exit", onPeerExit);
     }
 

@@ -51,7 +51,8 @@ export function parseStartupEvents(text: string): StartupEvent[] {
       events.push({ atMs: candidate.atMs, phase: candidate.phase, pid: candidate.pid as number, seq: candidate.seq as number });
     }
   }
-  return events.sort((a, b) => a.seq - b.seq);
+  // Append order is the only order that holds across writer processes (`seq` is per process).
+  return events;
 }
 
 export function lastStartupEvent(events: readonly StartupEvent[]): StartupEvent | null {

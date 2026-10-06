@@ -535,6 +535,25 @@ describe("server-side atomic operations", () => {
       }
     }, 30_000);
 
+    it("a throwing progress reporter cannot abort convergence", async () => {
+      const root = await mkdtemp(join(tmpdir(), "open-design-gated-reporter-"));
+      const launchStamp = { ...stamp, namespace: `gated-reporter-${process.pid}` };
+      await writeFile(join(root, "attempt.txt"), "0");
+      try {
+        const result = await convergeSidecarLaunch(gatedRequest(root, launchStamp), {
+          stabilityMs: 100,
+          onProgress(progress) {
+            if (progress.phase?.name === "waiting-for-gate") writeFileSync(join(root, "gate"), "open");
+            throw new Error("reporter bug");
+          },
+        });
+        expect(result.description).toMatchObject({ ready: true });
+      } finally {
+        await stopSidecar(launchStamp, { killGraceMs: 2_000, termGraceMs: 0 }).catch(() => undefined);
+        await rm(root, { force: true, recursive: true });
+      }
+    }, 30_000);
+
     it("bounds repeated clean launcher exits by a count, not by time", async () => {
       const root = await mkdtemp(join(tmpdir(), "open-design-exiting-launcher-"));
       const launchStamp = { ...stamp, namespace: `gated-always-exits-${process.pid}` };
