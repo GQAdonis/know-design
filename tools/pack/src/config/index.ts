@@ -10,6 +10,7 @@ import {
 } from "@open-design/sidecar-proto";
 import { resolveNamespace } from "@open-design/sidecar";
 import {
+  KNOWDESIGN_BRAND,
   releaseChannelFromVersion,
   releaseNamespace,
   resolveBrand,
@@ -245,6 +246,12 @@ function resolveToolPackAmrProfile(value: string | undefined): ToolPackAmrProfil
   throw new Error(`OPEN_DESIGN_AMR_PROFILE must be prod, test, feature-test, or local: ${value}`);
 }
 
+export function knowdesignProfileFromNamespace(namespace: string | undefined): "knowdesign" | undefined {
+  const prefix = brandNamespacePrefix(KNOWDESIGN_BRAND);
+  if (namespace == null || prefix == null) return undefined;
+  return namespace === prefix || namespace.startsWith(`${prefix}-`) ? "knowdesign" : undefined;
+}
+
 export function resolveToolPackBuildProfile(value: string | undefined): "knowdesign" | undefined {
   return String(value ?? "").trim().toLowerCase() === "knowdesign" ? "knowdesign" : undefined;
 }
@@ -416,7 +423,10 @@ export function resolveToolPackConfig(
   options: ToolPackCliOptions = {},
 ): ToolPackConfig {
   const appVersion = resolveToolPackAppVersion(options.appVersion);
-  const buildProfile = resolveToolPackBuildProfile(process.env.OD_BUILD_PROFILE);
+  // A knowdesign namespace is itself the brand: it is passed to every command (build, install,
+  // start, stop, uninstall), so none of them depends on OD_BUILD_PROFILE being exported too.
+  const buildProfile =
+    resolveToolPackBuildProfile(process.env.OD_BUILD_PROFILE) ?? knowdesignProfileFromNamespace(options.namespace);
   const brand = resolveBrand({ OD_BUILD_PROFILE: buildProfile });
   const namespace = brandScopedNamespace(brand, resolveNamespace({
     contract: OPEN_DESIGN_SIDECAR_CONTRACT,

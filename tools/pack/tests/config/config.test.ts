@@ -58,6 +58,19 @@ describe("resolveToolPackConfig build profile", () => {
     }
   });
 
+  it("infers the knowdesign brand from a knowdesign namespace, so install/start/stop need no env var", () => {
+    delete process.env.OD_BUILD_PROFILE;
+    for (const namespace of ["knowdesign", "knowdesign-e2e", "knowdesign-release-beta"]) {
+      const config = resolveToolPackConfig("mac", { namespace });
+      expect(config.buildProfile, namespace).toBe("knowdesign");
+      expect(config.brand?.id, namespace).toBe("knowdesign");
+      expect(config.namespace, namespace).toBe(namespace);
+    }
+    for (const namespace of ["default", "release-beta", "knowdesigner", "my-knowdesign"]) {
+      expect(resolveToolPackConfig("mac", { namespace }).buildProfile, namespace).toBeUndefined();
+    }
+  });
+
   it("bakes the profile into the resolved config only when the build runs under it", () => {
     process.env.OD_BUILD_PROFILE = "knowdesign";
     expect(resolveToolPackConfig("mac", { namespace: "kd-profile" }).buildProfile).toBe("knowdesign");
