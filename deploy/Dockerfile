@@ -109,6 +109,10 @@ COPY --from=build --chown=open-design:open-design /app/plugins/_official ./plugi
 RUN mkdir -p /app/.od && \
     chown -R open-design:open-design /app
 
+# KnowDesign build: the image carries its own profile. A web install has no launch
+# environment to supply it, and the web UI learns the profile from the daemon.
+ARG OD_BUILD_PROFILE=knowdesign
+ENV OD_BUILD_PROFILE=${OD_BUILD_PROFILE}
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=192
 ENV OD_BIND_HOST=0.0.0.0

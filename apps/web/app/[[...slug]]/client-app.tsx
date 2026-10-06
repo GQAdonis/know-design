@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 
 import { BrandDocumentTitle } from '../../src/brand/BrandDocumentTitle';
 import { installErrorHandlers } from '../../src/analytics/error-tracking';
-import { MatrixLoader } from '../../src/components/MatrixLoader';
+import { LoadingShell } from '../../src/brand/LoadingShell';
 import { installWebObservability } from '../../src/observability/install';
 import { installChatScrollExperiments } from '../../src/runtime/chat-scroll-experiments';
 import { installChatScrollTakeover } from '../../src/runtime/chat-scroll-takeover';
@@ -46,12 +46,7 @@ const App = dynamic(() => import('../../src/App').then((m) => m.App), {
   // Keeps the `od-loading-shell` class on the outer node: the white-screen
   // detector filters this whole subtree out by that class when deciding
   // whether the app really mounted (`src/observability/white-screen.ts`).
-  loading: () => (
-    <div className="od-loading-shell">
-      <MatrixLoader />
-      <span>Loading OpenDesign…</span>
-    </div>
-  ),
+  loading: () => <LoadingShell />,
 });
 
 export function ClientApp() {
