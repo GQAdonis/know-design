@@ -1,4 +1,5 @@
 import { access, mkdir, stat } from "node:fs/promises";
+import { resolveBrand } from "@open-design/release";
 import { constants as fsConstants } from "node:fs";
 import { dirname } from "node:path";
 import { userInfo } from "node:os";
@@ -51,7 +52,7 @@ function formatWritablePathError(options: {
   const message = error instanceof Error ? error.message : String(error);
   const parentPath = dirname(attemptedPath);
   const diagLines = [
-    `Open Design could not create or write to:`,
+    `${resolveBrand(process.env).productName} could not create or write to:`,
     attemptedPath,
     "",
     `Current user: ${currentUser}`,

@@ -44,6 +44,7 @@ import {
   splashPixelScanScript,
 } from "./splash-pixel-scan.js";
 import { RendererCrashLoopBreaker } from "./renderer-crash-loop.js";
+import { brandCompactName, brandRepoUrl } from "./brand.js";
 import type { PrintReadyPdfOptions } from "./pdf-export.js";
 import type { DesktopUpdater } from "./updater.js";
 import { parseDesktopUpdateMenuLabels } from "./update-menu.js";
@@ -942,13 +943,14 @@ const MAC_WINDOW_CHROME_CSS = `
 // seconds to a cold minute, and a clip that plays once leaves the rest of that
 // wait on a frozen frame.
 function createPendingHtml(): string {
+  const productTitle = brandCompactName();
   const start = splashStagePayload("starting");
   const initialPct = Math.max(0, Math.min(100, Math.round((start.step / start.total) * 100)));
   return `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>OpenDesign</title>
+    <title>${productTitle}</title>
     <style>
       html,
       body {
@@ -1079,7 +1081,6 @@ interface RendererCrashScreenContext {
   exitCode: number | null;
 }
 
-const CRASH_REPORT_ISSUES_URL = "https://github.com/nexu-io/open-design/issues/new";
 const SUPPORT_EMAIL = "support@open-design.ai";
 // Every address the app is allowed to hand to the OS mail client. Keep this in
 // sync with the renderer's own contact affordances (`CONTACT_EMAIL_URL` in
@@ -1152,7 +1153,7 @@ function buildCrashReportUrl(ctx: RendererCrashScreenContext): string {
   const title = `Desktop app keeps crashing (renderer ${ctx.reason})`;
   const body = [
     "**What happened**",
-    "The OpenDesign desktop window crashed several times in a row and showed the recovery screen.",
+    `The ${brandCompactName()} desktop window crashed several times in a row and showed the recovery screen.`,
     "",
     "**What I was doing when it started** (please add any detail):",
     "",
@@ -1165,15 +1166,15 @@ function buildCrashReportUrl(ctx: RendererCrashScreenContext): string {
     `- OS: ${osLabelForReport(ctx.platform)} ${ctx.osVersion}`,
     `- Renderer exit: ${ctx.reason}, code ${formatRendererExitCode(ctx.exitCode)}`,
   ].join("\n");
-  return `${CRASH_REPORT_ISSUES_URL}?${new URLSearchParams({ title, body }).toString()}`;
+  return `${brandRepoUrl()}/issues/new?${new URLSearchParams({ title, body }).toString()}`;
 }
 
 // Prefilled mailto for the "Email us" action — same auto-filled diagnostics as
 // the issue, for users who'd rather email than open a GitHub account.
 function buildCrashMailtoUrl(ctx: RendererCrashScreenContext): string {
-  const subject = `OpenDesign keeps crashing (renderer ${ctx.reason})`;
+  const subject = `${brandCompactName()} keeps crashing (renderer ${ctx.reason})`;
   const body = [
-    "The OpenDesign desktop app crashed several times in a row on my device.",
+    `The ${brandCompactName()} desktop app crashed several times in a row on my device.`,
     "",
     "(If possible, attach the diagnostics file you saved with the “Save logs…” button.)",
     "",
@@ -1185,13 +1186,14 @@ function buildCrashMailtoUrl(ctx: RendererCrashScreenContext): string {
 }
 
 function createRendererCrashHtml(ctx: RendererCrashScreenContext): string {
+  const productTitle = brandCompactName();
   const issueUrl = buildCrashReportUrl(ctx);
   const mailtoUrl = buildCrashMailtoUrl(ctx);
   return `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>OpenDesign</title>
+    <title>${productTitle}</title>
     <style>
       /* Palette mirrors the app's neutral design tokens (apps/web tokens.css):
          warm off-white + near-black, no accent color — matching the black/white
@@ -1287,7 +1289,7 @@ function createRendererCrashHtml(ctx: RendererCrashScreenContext): string {
   </head>
   <body>
     <div class="panel">
-      <p class="title">OpenDesign keeps closing on this device</p>
+      <p class="title">${productTitle} keeps closing on this device</p>
       <p class="body">The app window crashed several times in a row, so it has paused to avoid getting stuck reloading.</p>
       <p class="body">It will try to recover on its own in a few minutes.</p>
       <div class="actions">
@@ -1297,7 +1299,7 @@ function createRendererCrashHtml(ctx: RendererCrashScreenContext): string {
       <p class="hint" id="diag-note">Saved logs include a crash memory snapshot so we can find the cause. Nothing is sent unless you choose to share it.</p>
       <p class="status" id="status" aria-live="polite"></p>
       <p class="email" id="email-line">Prefer email? <a href="#" id="email">Contact ${SUPPORT_EMAIL}</a></p>
-      <p class="hint">If this keeps happening, quitting and reinstalling OpenDesign usually resolves it.</p>
+      <p class="hint">If this keeps happening, quitting and reinstalling ${productTitle} usually resolves it.</p>
     </div>
     <script>
       (function () {
@@ -1384,15 +1386,15 @@ const SPLASH_STAGE_SEQUENCE: readonly SplashBootStage[] = [
   "finishing",
 ];
 
-const SPLASH_STAGE_LABELS: Record<SplashBootStage, string> = {
-  starting: "Starting OpenDesign",
+const splashStageLabels = (): Record<SplashBootStage, string> => ({
+  starting: `Starting ${brandCompactName()}`,
   engine: "Starting the local engine",
   engineReady: "Local engine ready",
   interface: "Preparing the interface",
   interfaceReady: "Interface ready",
   workspace: "Opening your workspace",
   finishing: "Almost ready",
-};
+});
 
 const SPLASH_STAGE_TOTAL = SPLASH_STAGE_SEQUENCE.length;
 
@@ -1402,7 +1404,7 @@ function splashStagePayload(stage: SplashBootStage): { step: number; total: numb
   return {
     step: index < 0 ? 1 : index + 1,
     total: SPLASH_STAGE_TOTAL,
-    label: SPLASH_STAGE_LABELS[stage],
+    label: splashStageLabels()[stage],
   };
 }
 
@@ -1527,7 +1529,7 @@ export function createSplashWindow(): SplashWindowHandle {
     height: 900,
     resizable: false,
     show: true,
-    title: "OpenDesign",
+    title: brandCompactName(),
     width: 1280,
     webPreferences: {
       contextIsolation: true,
@@ -2244,7 +2246,7 @@ export async function createDesktopRuntime(options: DesktopRuntimeOptions): Prom
 
   const consoleEntries: DesktopConsoleEntry[] = [];
   const petWindow = createDesktopPetWindow(preloadPath, options.osLocale);
-  const windowTitle = options.windowTitle ?? "OpenDesign";
+  const windowTitle = options.windowTitle ?? brandCompactName();
   const window = new BrowserWindow({
     height: 900,
     icon: resolveDesktopIconPath(),

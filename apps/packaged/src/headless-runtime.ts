@@ -14,7 +14,7 @@ import {
   type SidecarRuntimeContext,
   type SidecarStamp,
 } from "@open-design/sidecar";
-import { releaseChannelFromNamespace, releaseChannelFromVersion } from "@open-design/release";
+import { releaseChannelFromNamespace, releaseChannelFromVersion, resolveBrand } from "@open-design/release";
 
 import type { PackagedConfig } from "./config.js";
 import { confirmPackagedLauncherRuntime, resolvePackagedLauncherRuntime } from "./launcher-runtime.js";
@@ -274,7 +274,7 @@ export async function runPackagedHeadless(
   await client.start();
   const webUrl = (await client.status<{ url: string }>(APP_KEYS.DESKTOP)).url;
 
-  process.stdout.write(`\n Open Design is running\n\n`);
+  process.stdout.write(`\n ${resolveBrand(process.env).productName} is running\n\n`);
   process.stdout.write(` ➜ ${colorize(webUrl)}\n\n`);
   process.stdout.write(` Press Ctrl+C to stop\n\n`);
 
@@ -292,5 +292,5 @@ async function installCodexMcp(daemonUrl: string | null): Promise<void> {
       `Codex MCP install failed (${response.status}): ${detail}`,
     );
   }
-  process.stdout.write(" Open Design MCP installed for Codex\n");
+  process.stdout.write(` ${resolveBrand(process.env).productName} MCP installed for Codex\n`);
 }

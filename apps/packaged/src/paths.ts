@@ -1,6 +1,7 @@
 import { homedir } from "node:os";
 import { join, posix, win32 } from "node:path";
 
+import { resolveBrand } from "@open-design/release";
 import { APP_KEYS, normalizeNamespace } from "@open-design/sidecar-proto";
 
 import type { PackagedConfig } from "./config.js";
@@ -54,6 +55,8 @@ function resolvePackagedDataRoot(
 ): string {
   const odDataDir = env.OD_DATA_DIR?.trim();
   if (odDataDir) {
+    const productName = resolveBrand(process.env).productName;
+    const compactName = productName.replace(/\s+/g, "");
     const expanded = expandHomePrefix(odDataDir);
     const isAbs = process.platform === "win32"
       ? win32.isAbsolute(expanded)
@@ -61,13 +64,13 @@ function resolvePackagedDataRoot(
     if (!isAbs) {
       throw new PackagedPathAccessError(
         [
-          "Open Design's packaged runtime requires OD_DATA_DIR to be an absolute path.",
+          `${productName}'s packaged runtime requires OD_DATA_DIR to be an absolute path.`,
           "",
           `Configured value: ${odDataDir}`,
           "",
-          "Set OD_DATA_DIR to an absolute path (for example, C:\\\\Users\\\\You\\\\OpenDesign on Windows or /Users/you/OpenDesign on macOS/Linux) and relaunch Open Design.",
+          `Set OD_DATA_DIR to an absolute path (for example, C:\\\\Users\\\\You\\\\${compactName} on Windows or /Users/you/${compactName} on macOS/Linux) and relaunch ${productName}.`,
         ].join("\n"),
-        { title: "Open Design cannot start with this OD_DATA_DIR" },
+        { title: `${productName} cannot start with this OD_DATA_DIR` },
       );
     }
     const scopedNamespace = getScopedPackagedDataRootNamespace(expanded);
@@ -75,7 +78,7 @@ function resolvePackagedDataRoot(
       if (scopedNamespace !== namespace) {
         throw new PackagedPathAccessError(
           [
-            "Open Design's packaged runtime requires OD_DATA_DIR to target the active namespace.",
+            `${productName}'s packaged runtime requires OD_DATA_DIR to target the active namespace.`,
             "",
             `Configured value: ${odDataDir}`,
             `Configured namespace: ${scopedNamespace}`,
@@ -83,7 +86,7 @@ function resolvePackagedDataRoot(
             "",
             "Use an unscoped absolute base path or relaunch the matching packaged namespace.",
           ].join("\n"),
-          { title: "Open Design cannot start with this OD_DATA_DIR" },
+          { title: `${productName} cannot start with this OD_DATA_DIR` },
         );
       }
       return expanded;

@@ -9,7 +9,7 @@ import {
   type SidecarSource,
 } from "@open-design/sidecar-proto";
 import { isKnowdesignBuildProfile } from "../build-profile.js";
-import { isReleaseChannel, releaseChannelFromVersion } from "@open-design/release";
+import { isReleaseChannel, releaseChannelFromVersion, resolveBrand } from "@open-design/release";
 
 /**
  * @module updater-config
@@ -39,7 +39,6 @@ export const DESKTOP_UPDATE_ENV = Object.freeze({
   PLATFORM: "OD_UPDATE_PLATFORM",
 } as const);
 
-const DEFAULT_RELEASE_ORIGIN = "https://releases.open-design.ai";
 const BETA_POLL_INTERVAL_MS = 15 * 60 * 1000;
 const STABLE_POLL_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_POLL_INITIAL_DELAY_MS = 5000;
@@ -115,8 +114,13 @@ export function isDesktopUpdateChannel(value: unknown): value is DesktopUpdateCh
   return isReleaseChannel(value);
 }
 
-function defaultMetadataUrl(channel: DesktopUpdateChannel): string {
-  return `${DEFAULT_RELEASE_ORIGIN}/${channel}/latest/metadata.json`;
+/**
+ * Default feed for the running brand. A brand that ships no release feed has an
+ * empty origin, which means "no feed": the empty string, never a malformed URL.
+ */
+export function defaultMetadataUrl(channel: DesktopUpdateChannel, env: NodeJS.ProcessEnv = process.env): string {
+  const origin = resolveBrand(env).releaseOrigin;
+  return origin === "" ? "" : `${origin}/${channel}/latest/metadata.json`;
 }
 
 export function normalizeDownloadRoot(value: string): string {
@@ -168,7 +172,8 @@ export function resolveDesktopUpdaterConfig(input: DesktopUpdaterConfigInput): D
   // so the updater stays off unless a KnowDesign feed is configured through
   // OD_UPDATE_METADATA_URL.
   const upstreamFeedBlocked =
-    isKnowdesignBuildProfile(env) && normalizeOptionalNonEmpty(env[DESKTOP_UPDATE_ENV.METADATA_URL]) == null;
+    (isKnowdesignBuildProfile(env) || resolveBrand(env).releaseOrigin === "") &&
+    normalizeOptionalNonEmpty(env[DESKTOP_UPDATE_ENV.METADATA_URL]) == null;
   const enabled = !upstreamFeedBlocked && (isTruthyEnv(env[DESKTOP_UPDATE_ENV.ENABLED]) ?? defaultEnabled);
   const runtimeBase = resolve(input.runtimeBase == null ? process.cwd() : input.runtimeBase);
   const downloadRoot = normalizeDownloadRoot(
@@ -225,7 +230,7 @@ export function resolveDesktopUpdaterConfig(input: DesktopUpdaterConfigInput): D
     ...(launcherRoot == null ? {} : { launcherRoot }),
     ...(launcherPayloadExtractorPath == null ? {} : { launcherPayloadExtractorPath }),
     ...(launcherRuntimePath == null ? {} : { launcherRuntimePath }),
-    metadataUrl: env[DESKTOP_UPDATE_ENV.METADATA_URL] ?? defaultMetadataUrl(channel),
+    metadataUrl: env[DESKTOP_UPDATE_ENV.METADATA_URL] ?? defaultMetadataUrl(channel, env),
     mode,
     ...(namespace == null ? {} : { namespace }),
     openDryRun: isTruthyEnv(env[DESKTOP_UPDATE_ENV.OPEN_DRY_RUN]) ?? false,

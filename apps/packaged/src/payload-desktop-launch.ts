@@ -1,6 +1,7 @@
 import { dirname } from "node:path";
 
 import { buildLauncherAfterQuitArgs, buildLauncherDelegatedArgs } from "@open-design/launcher-proto";
+import { resolveBrand } from "@open-design/release";
 import { handoffCurrentSidecarGeneration } from "@open-design/sidecar";
 
 import {
@@ -11,8 +12,17 @@ import {
 
 const DEFAULT_DELEGATION_TIMEOUT_MS = 60_000;
 
-export function findPackagedDeeplinkArg(argv: readonly string[]): string | null {
-  return argv.find((arg) => arg.startsWith("opendesign://")) ?? null;
+/** The brand's own URL-scheme prefix; the other brand's scheme is never ours. */
+function packagedDeeplinkPrefix(env: Readonly<Record<string, string | undefined>>): string {
+  return `${resolveBrand(env).urlScheme}://`;
+}
+
+export function findPackagedDeeplinkArg(
+  argv: readonly string[],
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string | null {
+  const prefix = packagedDeeplinkPrefix(env);
+  return argv.find((arg) => arg.startsWith(prefix)) ?? null;
 }
 
 export type PackagedPayloadDesktopLaunchPlan = {
@@ -29,6 +39,7 @@ export function planPackagedPayloadDesktopDelegation(
     extraArgs?: readonly string[];
     forwardedArgs?: readonly string[];
     timeoutMs?: number;
+    env?: Readonly<Record<string, string | undefined>>;
   } = {},
 ): PackagedPayloadDesktopLaunchPlan | null {
   if (runtime.source !== "payload" || runtime.payloadDesktopProcess) return null;
@@ -53,7 +64,7 @@ export function planPackagedPayloadDesktopDelegation(
       // process first; preserve only this explicit protocol argument when the
       // outer delegates to the versioned payload.
       ...(options.forwardedArgs ?? process.argv).filter((arg) =>
-        arg.startsWith("opendesign://")
+        arg.startsWith(packagedDeeplinkPrefix(options.env ?? process.env))
       ),
       ...(options.extraArgs ?? []),
     ],

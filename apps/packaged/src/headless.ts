@@ -1,5 +1,4 @@
-import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -9,7 +8,7 @@ import {
   SIDECAR_SOURCES,
 } from "@open-design/sidecar-proto";
 import { bootstrapSidecarProcess, readCurrentSidecarStamp } from "@open-design/sidecar";
-import { releaseChannelFromNamespace } from "@open-design/release";
+import { releaseChannelFromNamespace, resolveBrand } from "@open-design/release";
 
 import {
   PACKAGED_NAMESPACE_ENV,
@@ -20,22 +19,10 @@ import {
   parsePackagedHeadlessRequest,
   runPackagedHeadless,
 } from "./headless-runtime.js";
+import { resolveHeadlessNamespaceBaseRoot } from "./headless-root.js";
 import { resolvePackagedNamespacePaths } from "./paths.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-
-function resolveHeadlessNamespaceBaseRoot(): string {
-  const odDataDir = process.env.OD_DATA_DIR;
-  if (odDataDir != null && odDataDir.length > 0) {
-    return join(resolve(odDataDir.replace(/^~/, homedir())), "namespaces");
-  }
-  const xdgDataHome = process.env.XDG_DATA_HOME;
-  const dataBase =
-    xdgDataHome != null && xdgDataHome.length > 0
-      ? xdgDataHome
-      : join(homedir(), ".local", "share");
-  return join(dataBase, "open-design", "namespaces");
-}
 
 function resolveHeadlessAmrProfile(): PackagedConfig["amrProfile"] {
   return resolvePackagedAmrProfile(process.env.OPEN_DESIGN_AMR_PROFILE);
@@ -116,7 +103,7 @@ async function main(): Promise<void> {
 
 void main().catch((error: unknown) => {
   process.stderr.write(
-    `open-design headless failed: ${
+    `${resolveBrand(process.env).slug} headless failed: ${
       error instanceof Error ? error.message : String(error)
     }\n`,
   );

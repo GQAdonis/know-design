@@ -29,7 +29,7 @@ import {
   setSplashStage,
   type DesktopMainHandle,
 } from "@open-design/desktop/main";
-import { releaseChannelFromNamespace, releaseChannelFromVersion } from "@open-design/release";
+import { releaseChannelFromNamespace, releaseChannelFromVersion, resolveBrand } from "@open-design/release";
 import { join } from "node:path";
 import { app, dialog } from "electron";
 
@@ -184,7 +184,7 @@ async function main(): Promise<void> {
     });
     if (existingOwner != null) {
       throw new Error(
-        `Cannot install MCP while the existing ${existingOwner.stamp.mode} desktop runtime has no healthy daemon. Quit Open Design and retry.`,
+        `Cannot install MCP while the existing ${existingOwner.stamp.mode} desktop runtime has no healthy daemon. Quit ${resolveBrand(process.env).productName} and retry.`,
       );
     }
   }
@@ -490,8 +490,8 @@ async function main(): Promise<void> {
         if (splash != null && !splash.window.isDestroyed()) splash.window.destroy();
         splash = null;
         dialog.showErrorBox(
-          "Open Design",
-          "Open Design could not open its window. Quit Open Design from the Dock and open it again.",
+          resolveBrand(process.env).productName,
+          `${resolveBrand(process.env).productName} could not open its window. Quit ${resolveBrand(process.env).productName} from the Dock and open it again.`,
         );
       },
       stopHeadless: async () => { await sidecars.close(); },

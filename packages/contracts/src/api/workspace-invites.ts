@@ -311,33 +311,42 @@ export interface InviteDeeplinkPayload {
  * Build the canonical continuation deeplink:
  *   `opendesign://workspace/invite/continue?workspace_id=..&member_id=..&invite_id=..&nonce=..`
  *
- * In production B mints `deeplinkUrl` directly; this is the symmetric
+ * `scheme` defaults to the Open Design scheme; callers of another brand pass
+ * their own. In production B mints `deeplinkUrl` directly; this is the symmetric
  * constructor used for the fallback path and round-trip tests.
  */
-export function buildInviteDeeplink(payload: InviteDeeplinkPayload): string {
+export function buildInviteDeeplink(
+  payload: InviteDeeplinkPayload,
+  scheme: string = INVITE_DEEPLINK_SCHEME,
+): string {
   const params = new URLSearchParams({
     workspace_id: payload.workspaceId,
     member_id: payload.memberId,
     invite_id: payload.inviteId,
     nonce: payload.nonce,
   });
-  return `${INVITE_DEEPLINK_SCHEME}://${INVITE_DEEPLINK_PATH}?${params.toString()}`;
+  return `${scheme}://${INVITE_DEEPLINK_PATH}?${params.toString()}`;
 }
 
 /**
  * Parse a continuation deeplink back into its payload, or null when the URL is
  * not a well-formed invite continuation link: wrong scheme, wrong authority /
- * path, or any of the four required fields missing or empty. Extra query
+ * path, or any of the four required fields missing or empty. `scheme` defaults
+ * to the Open Design scheme; a brand with its own scheme passes it so the other
+ * brand's links are rejected. Extra query
  * params (e.g. a signature B appends) are ignored, not rejected.
  */
-export function parseInviteDeeplink(url: string): InviteDeeplinkPayload | null {
+export function parseInviteDeeplink(
+  url: string,
+  scheme: string = INVITE_DEEPLINK_SCHEME,
+): InviteDeeplinkPayload | null {
   let parsed: URL;
   try {
     parsed = new URL(url);
   } catch {
     return null;
   }
-  if (parsed.protocol !== `${INVITE_DEEPLINK_SCHEME}:`) return null;
+  if (parsed.protocol !== `${scheme}:`) return null;
   // Non-special scheme: `opendesign://workspace/invite/continue` parses to
   // host='workspace', pathname='/invite/continue'. Recombine and strip any
   // trailing slash before comparing to the fixed authority+path.
