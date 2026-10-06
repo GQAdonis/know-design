@@ -21,6 +21,7 @@ import {
   invokeSidecar,
   spawnSidecar,
   stopSidecar,
+  type JsonIpcPeer,
   type SpawnedSidecar,
   type SidecarStamp,
   type SidecarRuntimeContext,
@@ -844,12 +845,17 @@ export async function registerPackagedWebUrl(
   daemonStamp: SidecarStamp,
   webUrl: string,
   invoke: typeof invokeSidecar = invokeSidecar,
+  options: { peer?: JsonIpcPeer } = {},
 ): Promise<void> {
+  // The daemon has already reported its URL, so it is serving requests. What can still go wrong is
+  // the daemon dying (or dropping the connection) before it answers, and both of those are events.
+  // With the daemon process in hand the request ends on a reply or on that event, with no clock to
+  // tune per machine. Without it (callers that do not own the process) the fixed limit stays.
   const result = await invoke<RegisterWebUrlResult>(
     daemonStamp,
     SIDECAR_MESSAGES.REGISTER_WEB_URL,
     { url: webUrl },
-    { timeoutMs: 1_200 },
+    options.peer == null ? { timeoutMs: 1_200 } : { peer: options.peer },
   );
   if (result.accepted !== true) {
     throw new Error("daemon rejected packaged web URL registration");
@@ -1009,7 +1015,7 @@ export async function startPackagedSidecars(
       closeChild: (child) => closeManagedChild(child, shutdownObserver),
       hasExited: (web) => web.child.exitCode !== null || web.child.signalCode !== null,
       onExit: (web, listener) => web.child.once("exit", listener),
-      registerUrl: async (url) => await registerPackagedWebUrl(daemon.stamp, url),
+      registerUrl: async (url) => await registerPackagedWebUrl(daemon.stamp, url, invokeSidecar, { peer: daemon.child }),
       spawn: async () => await spawnSidecarChild({
         app: APP_KEYS.WEB,
         channel,

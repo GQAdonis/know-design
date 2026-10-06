@@ -192,6 +192,31 @@ describe('packaged web URL registration', () => {
   });
 });
 
+describe('packaged web URL registration liveness', () => {
+  it('observes the daemon process instead of racing a clock when it is given one', async () => {
+    const received: unknown[][] = [];
+    const invoke = async (...args: unknown[]) => {
+      received.push(args);
+      return { accepted: true };
+    };
+    const daemonStamp = testStamp();
+    const peer = { exitCode: null, signalCode: null, off() {}, once() {} };
+    await registerPackagedWebUrl(daemonStamp, 'http://127.0.0.1:64248', invoke as never, { peer });
+    expect(received).toEqual([[daemonStamp, 'register-web-url', { url: 'http://127.0.0.1:64248' }, { peer }]]);
+    // No timer of any kind is requested: the request ends on a reply or on the daemon exiting.
+    expect(received[0]![3]).not.toHaveProperty('timeoutMs');
+  });
+
+  it('still reports a rejected registration', async () => {
+    const invoke = async () => ({ accepted: false });
+    await expect(
+      registerPackagedWebUrl(testStamp(), 'http://127.0.0.1:1', invoke as never, {
+        peer: { exitCode: null, signalCode: null, off() {}, once() {} },
+      }),
+    ).rejects.toThrow('daemon rejected packaged web URL registration');
+  });
+});
+
 describe('packaged stale sidecar retirement', () => {
   const stopped = (overrides: Partial<{
     matchedPids: number[];

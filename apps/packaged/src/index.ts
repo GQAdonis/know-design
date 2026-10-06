@@ -30,7 +30,7 @@ import {
   type DesktopMainHandle,
 } from "@open-design/desktop/main";
 import { releaseChannelFromNamespace, releaseChannelFromVersion, resolveBrand } from "@open-design/release";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { app, dialog } from "electron";
 
 import { readPackagedConfig } from "./config.js";
@@ -64,6 +64,8 @@ import {
   type PackagedDesktopLogger,
 } from "./logging.js";
 import { resolvePackagedNamespacePaths } from "./paths.js";
+import { createStartupEventRecorder } from "./startup-events.js";
+import { STARTUP_EVENTS_FILE_NAME } from "@open-design/launcher-proto";
 import { createObsoleteInstalledOuterRetirement } from "./obsolete-installed-outer.js";
 import {
   createDeferredDesktopController,
@@ -302,6 +304,12 @@ async function main(): Promise<void> {
   });
   packagedLogger = createPackagedDesktopLogger(paths);
   attachPackagedDesktopProcessLogging({ logger: packagedLogger, paths, stamp: convergedStamp });
+  // The ordered record of the phases this launch passes, next to the desktop log. A caller waiting on
+  // this app (or reading a failure afterwards) can say where startup is, or where it stopped.
+  const startup = createStartupEventRecorder({
+    filePath: join(dirname(paths.desktopLogPath), STARTUP_EVENTS_FILE_NAME),
+  });
+  startup.record("process-started");
   const retireObsoleteInstalledOuter = createObsoleteInstalledOuterRetirement({
     currentExecutablePath: process.execPath,
     currentPid: process.pid,
@@ -371,6 +379,7 @@ async function main(): Promise<void> {
     // Both the "spawning" and "ready" edges are mapped so the step counter
     // advances the instant each long native wait clears.
     onPhase(phase) {
+      startup.record(phase);
       const stage =
         phase === "daemon-spawning"
           ? "engine"
@@ -448,6 +457,8 @@ async function main(): Promise<void> {
       await retireObsoleteInstalledOuter();
     },
     onDesktopReady(controls) {
+      startup.record("desktop-ready");
+      reportIpcPhase("desktop-ready");
       void confirmPackagedLauncherRuntime(launcherRuntime).catch((error: unknown) => {
         packagedLogger?.warn("failed to confirm packaged launcher runtime", { error });
       });
@@ -498,6 +509,8 @@ async function main(): Promise<void> {
     })
     : null;
   let client!: SidecarClient<DesktopMainHandle>;
+  // Set when the sidecar lifecycle starts; phases reported before that exist only in the event file.
+  let reportIpcPhase: (name: string) => void = () => undefined;
   client = SidecarFactory.create<DesktopMainHandle>({
     handlers: Object.fromEntries([
       SIDECAR_MESSAGES.CLICK,
@@ -512,9 +525,14 @@ async function main(): Promise<void> {
       SIDECAR_MESSAGES.UPDATE,
     ].map((action) => [action, (input: unknown) => invokeDesktop(action, input)])),
     lifecycle: {
-      async start() {
+      async start(_resources, context) {
+        reportIpcPhase = (name) => context?.reportPhase(name);
+        startup.record("desktop-launching");
+        reportIpcPhase("desktop-launching");
         const started = deferredDesktop ?? await launchDesktop();
         desktopHandle = started;
+        startup.record("desktop-created");
+        reportIpcPhase("desktop-created");
         return started;
       },
       status: (started) => started.status(),

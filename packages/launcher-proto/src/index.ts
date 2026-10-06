@@ -692,3 +692,5 @@ export function selectLauncherRuntimeTarget(input: {
 
   return { pointer: active, reason: "active", selected: true };
 }
+
+export * from "./startup-events.js";
