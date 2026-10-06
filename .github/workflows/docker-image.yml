@@ -46,6 +46,11 @@ on:
         required: false
         type: boolean
         default: false
+      platforms:
+        description: "Comma-separated platforms to publish. Empty means linux/amd64,linux/arm64. The arm64 half builds under emulation and is much slower."
+        required: false
+        type: string
+        default: ""
 
 jobs:
   build-and-push:
@@ -67,6 +72,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           RELEASE_VERSION: ${{ inputs.release_version }}
           PUBLISH_LATEST: ${{ inputs.publish_latest }}
+          PLATFORMS: ${{ inputs.platforms }}
         run: |
           set -euo pipefail
           # Publish on:
@@ -78,7 +84,7 @@ jobs:
           # smoke-only build.
           if [ "$EVENT_NAME" = "push" ] || [ -n "${RELEASE_VERSION:-}" ] || [ "${PUBLISH_LATEST:-}" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
-            echo "platforms=linux/amd64,linux/arm64" >> "$GITHUB_OUTPUT"
+            echo "platforms=${PLATFORMS:-linux/amd64,linux/arm64}" >> "$GITHUB_OUTPUT"
           else
             # pull_request and standalone workflow_dispatch: smoke only
             echo "publish=false" >> "$GITHUB_OUTPUT"
