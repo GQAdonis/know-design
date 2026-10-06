@@ -2,13 +2,16 @@ import {
   releaseChannelFromNamespace,
   releaseChannelFromVersion,
   releaseInstallIdentity,
+  resolveBrand,
 } from "@open-design/release";
 
-const DEFAULT_WINDOW_TITLE = "Open Design";
-
-export function resolvePackagedWindowTitle(config: { appVersion: string | null; namespace: string }): string {
+export function resolvePackagedWindowTitle(
+  config: { appVersion: string | null; namespace: string },
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string {
+  const brand = resolveBrand(env);
   const channel =
     releaseChannelFromVersion(config.appVersion) ??
     releaseChannelFromNamespace(config.namespace);
-  return channel == null ? DEFAULT_WINDOW_TITLE : releaseInstallIdentity(channel).productName;
+  return channel == null ? brand.productName : releaseInstallIdentity(channel, brand).productName;
 }

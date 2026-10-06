@@ -1,6 +1,6 @@
 import { app } from "electron";
 import {
-  INVITE_DEEPLINK_SCHEME,
+  inviteDeeplinkScheme,
   createInviteDeeplinkDispatcher,
   continueInviteFromUrl,
   findDeeplinkArg,
@@ -26,7 +26,7 @@ export {
   createInviteDeeplinkDispatcher,
   findDeeplinkArg,
   planProtocolClientRegistration,
-  INVITE_DEEPLINK_SCHEME,
+  inviteDeeplinkScheme,
   type InviteDeeplinkDeps,
 } from "./invite-deeplink-core.js";
 
@@ -78,9 +78,9 @@ export function registerInviteDeeplink(deps: InviteDeeplinkDeps): void {
   });
   if (registration.register) {
     if (registration.clientPath) {
-      app.setAsDefaultProtocolClient(INVITE_DEEPLINK_SCHEME, registration.clientPath);
+      app.setAsDefaultProtocolClient(inviteDeeplinkScheme(), registration.clientPath);
     } else {
-      app.setAsDefaultProtocolClient(INVITE_DEEPLINK_SCHEME);
+      app.setAsDefaultProtocolClient(inviteDeeplinkScheme());
     }
   }
   deeplinkDispatcher.setDeps(deps);

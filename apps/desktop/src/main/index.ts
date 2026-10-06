@@ -42,6 +42,7 @@ import {
 import { createDesktopRuntime, type DesktopRuntime } from "./runtime.js";
 import { dispatchInviteDeeplink, registerInviteDeeplink } from "./invite-deeplink.js";
 import { focusDesktopForDeeplink } from "./deeplink-focus.js";
+import { brandIssuesUrl, brandRepoUrl } from "./brand.js";
 import { setUpDesktopCrashReporter, writeDesktopGpuInfo } from "./crash-diagnostics.js";
 import { beginDesktopSession, clearReportedCrash, endDesktopSessionCleanly, markDesktopSessionRunning } from "./session-lifecycle.js";
 import {
@@ -209,7 +210,7 @@ export type DesktopMainOptions = {
    */
   discoverDaemonUrl: () => Promise<string | null>;
   registerDesktopAuth: (secret: Buffer) => Promise<boolean>;
-  /** Stable installed launcher used for Windows opendesign:// registration. */
+  /** Stable installed launcher used for Windows deeplink-scheme registration. */
   inviteProtocolClientPath?: string | null;
   preloadPath?: string;
   windowTitle?: string;
@@ -571,7 +572,7 @@ function installDesktopMenu(
           {
             label: "Documentation",
             click() {
-              void shell.openExternal("https://github.com/nexu-io/open-design#readme");
+              void shell.openExternal(brandRepoUrl());
             },
           },
           { type: "separator" },
@@ -584,7 +585,7 @@ function installDesktopMenu(
           {
             label: "Report Issue",
             click() {
-              void shell.openExternal("https://github.com/nexu-io/open-design/issues/new");
+              void shell.openExternal(brandIssuesUrl());
             },
           },
           {
@@ -1023,7 +1024,7 @@ export async function runDesktopMain(
   removeDiagnosticsIpc = registerDesktopDiagnosticsIpc({
     discoverDaemonBaseUrl: resolveDaemonBaseUrl(options),
   });
-  // Route opendesign:// team-invite deeplinks to the daemon (desktop wake-up).
+  // Route <brand-scheme>:// team-invite deeplinks to the daemon (desktop wake-up).
   registerInviteDeeplink({
     resolveDaemonBaseUrl: resolveDaemonBaseUrl(options),
     focus: () => focusDesktopForDeeplink(desktop),

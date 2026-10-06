@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
 import { BrowserWindow, app, clipboard, dialog, shell } from "electron";
+import { brandCompactName } from "./brand.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -243,7 +244,7 @@ const defaultDeps: OpenFirstPartyMailtoDeps = {
     const notice = noMailClientNotice(address, app.getLocale());
     const options = {
       type: "info" as const,
-      title: "OpenDesign",
+      title: brandCompactName(),
       message: notice.message,
       detail: notice.detail,
       buttons: [notice.button],

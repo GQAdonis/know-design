@@ -1,7 +1,18 @@
 // Pure core of the desktop invite hand-off — no electron import, so it is unit
 // testable. The electron scheme registration lives in `invite-deeplink.ts`.
 
-export const INVITE_DEEPLINK_SCHEME = "opendesign";
+import { resolveBrand } from "@open-design/release";
+
+type BrandEnv = Readonly<Record<string, string | undefined>>;
+
+/**
+ * The OS-wide URL scheme this process claims and accepts, resolved at call time
+ * from the brand (`opendesign` by default, `knowdesign` under the knowdesign
+ * build profile). A process never accepts the other brand's scheme.
+ */
+export function inviteDeeplinkScheme(env: BrandEnv = process.env): string {
+  return resolveBrand(env).urlScheme;
+}
 const INVITE_DEEPLINK_HOST = "workspace";
 const INVITE_DEEPLINK_PATH = "/invite/continue";
 const WORKSPACE_OPEN_DEEPLINK_PATH = "/open";
@@ -23,14 +34,14 @@ interface ParsedInviteDeeplink {
  * half-handled. The payload shape is fixed by the B-C invite contract; the daemon
  * and web share the same fields.
  */
-function parseInviteDeeplink(url: string): ParsedInviteDeeplink | null {
+function parseInviteDeeplink(url: string, env: BrandEnv = process.env): ParsedInviteDeeplink | null {
   let parsed: URL;
   try {
     parsed = new URL(url);
   } catch {
     return null;
   }
-  if (parsed.protocol !== `${INVITE_DEEPLINK_SCHEME}:`) return null;
+  if (parsed.protocol !== `${inviteDeeplinkScheme(env)}:`) return null;
   if (parsed.host !== INVITE_DEEPLINK_HOST) return null;
   if (parsed.pathname.replace(/\/+$/, "") !== INVITE_DEEPLINK_PATH) return null;
   const q = parsed.searchParams;
@@ -49,7 +60,7 @@ function parseInviteDeeplink(url: string): ParsedInviteDeeplink | null {
  * the login itself lands through the daemon's `vela login` polling, so handling
  * this deeplink only brings the client back to the foreground.
  */
-export function isWorkspaceOpenDeeplink(url: string): boolean {
+export function isWorkspaceOpenDeeplink(url: string, env: BrandEnv = process.env): boolean {
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -57,7 +68,7 @@ export function isWorkspaceOpenDeeplink(url: string): boolean {
     return false;
   }
   return (
-    parsed.protocol === `${INVITE_DEEPLINK_SCHEME}:` &&
+    parsed.protocol === `${inviteDeeplinkScheme(env)}:` &&
     parsed.host === INVITE_DEEPLINK_HOST &&
     parsed.pathname.replace(/\/+$/, "") === WORKSPACE_OPEN_DEEPLINK_PATH
   );
@@ -156,8 +167,9 @@ export function createInviteDeeplinkDispatcher(
 }
 
 /** Extract an `opendesign://` url from a process argv list, if present. */
-export function findDeeplinkArg(argv: readonly string[]): string | null {
-  return argv.find((arg) => arg.startsWith(`${INVITE_DEEPLINK_SCHEME}://`)) ?? null;
+export function findDeeplinkArg(argv: readonly string[], env: BrandEnv = process.env): string | null {
+  const prefix = `${inviteDeeplinkScheme(env)}://`;
+  return argv.find((arg) => arg.startsWith(prefix)) ?? null;
 }
 
 /**
@@ -167,8 +179,9 @@ export function findDeeplinkArg(argv: readonly string[]): string | null {
 export async function continueInviteFromUrl(
   url: string,
   deps: InviteDeeplinkDeps,
+  env: BrandEnv = process.env,
 ): Promise<{ ok: boolean; reason?: string; status?: number }> {
-  if (isWorkspaceOpenDeeplink(url)) {
+  if (isWorkspaceOpenDeeplink(url, env)) {
     // The focus dep touches runtime/window state that may be mid-teardown; a
     // throw here must not escape into the OS url handler (this function's
     // documented no-throw contract) and must still report completion.
@@ -182,7 +195,7 @@ export async function continueInviteFromUrl(
     // continuation, which is the only other `ok: true` outcome here.
     return completeInvite(deps, { ok: true, reason: WORKSPACE_OPEN_FOCUS_REASON });
   }
-  const parsed = parseInviteDeeplink(url);
+  const parsed = parseInviteDeeplink(url, env);
   if (!parsed) return completeInvite(deps, { ok: false, reason: "not_an_invite_deeplink" });
   let baseUrl: string;
   try {
