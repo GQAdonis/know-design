@@ -9,6 +9,7 @@
  *   - 'stderr'  : incidental stderr. Shown only when the process exits
  *                 non-zero (tail appended to the error message).
  */
+import { brandTextNow } from '../brand/brand-text';
 import type { AgentEvent, ChatCommentAttachment, ChatMessage } from '../types';
 import type { AmrEntryAttribution } from '../analytics/amr-attribution';
 import type {
@@ -745,7 +746,7 @@ export const STRATEGY_TASK_BLOCKED_MESSAGE =
 export function createStrategyTaskBlockedError(
   strategyTask: StrategyTaskProjectionV2,
 ): Error & { code?: string } {
-  const error = new Error(STRATEGY_TASK_BLOCKED_MESSAGE) as Error & { code?: string };
+  const error = new Error(brandTextNow(STRATEGY_TASK_BLOCKED_MESSAGE)) as Error & { code?: string };
   const reasonCode = strategyTask.blockedContext?.reasonCodes[0]?.trim();
   if (reasonCode) error.code = reasonCode;
   return error;
@@ -841,7 +842,7 @@ function daemonCreateRunError(response: Response, responseText: string): Error {
   if (!apiError || typeof apiError !== 'object') {
     return new Error(`daemon ${response.status}: ${responseText || 'no body'}`);
   }
-  const error = new Error(apiError.message || `OpenDesign service returned ${response.status}`) as Error & {
+  const error = new Error(apiError.message || brandTextNow(`OpenDesign service returned ${response.status}`)) as Error & {
     code?: string;
     requestId?: string;
     retryable?: boolean;
@@ -917,10 +918,10 @@ function formatOpenCodeSessionError(value: unknown): string | null {
     return message;
   }
   if (statusCode === 404) {
-    return 'The model service returned 404 Not Found for the configured runtime endpoint. Check the OpenDesign link URL or model route.';
+    return brandTextNow('The model service returned 404 Not Found for the configured runtime endpoint. Check the OpenDesign link URL or model route.');
   }
   if (statusCode === 401 || statusCode === 403) {
-    return 'OpenDesign authentication failed. Please sign in again or refresh the runtime key.';
+    return brandTextNow('OpenDesign authentication failed. Please sign in again or refresh the runtime key.');
   }
   if (statusCode === 429) {
     return 'The model service rejected the request due to quota or rate limits. Retry later or check quota and rate limits.';
@@ -2439,7 +2440,7 @@ async function consumeDaemonPhysicalRun({
       const formattedOpenCodeError = formatLegacyOpenCodeSessionError(cleanedStderr);
       const tail = (formattedOpenCodeError ?? cleanedStderr).trim().slice(-400);
       const fallbackTail =
-        tail || (isAmrOpenCodeExitFallback(agentId, stderrBuf) ? AMR_OPENCODE_INCOMPLETE_MESSAGE : '');
+        tail || (isAmrOpenCodeExitFallback(agentId, stderrBuf) ? brandTextNow(AMR_OPENCODE_INCOMPLETE_MESSAGE) : '');
       handlers.onError(
         markErrorRunFailure(
           markErrorResumable(

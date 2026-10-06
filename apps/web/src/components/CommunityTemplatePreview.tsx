@@ -12,6 +12,7 @@
 // the exact same view-model the Community grid uses — no third modal, no
 // duplicated data shaping.
 
+import { brandTextNow } from '../brand/brand-text';
 import type {
   InstalledPluginRecord,
   WorkspaceCollabContext,
@@ -145,7 +146,7 @@ function templateAuthor(
   const named = record.manifest?.author?.name?.trim();
   if (named) return named;
   return record.sourceKind === 'bundled' || record.sourceKind === 'marketplace'
-    ? 'Open Design'
+    ? brandTextNow('Open Design')
     : t('chat.you');
 }
 
@@ -409,7 +410,7 @@ function templatePreviewHtml(template: TemplateDemo): string {
     <section class="sections">
       <div class="section"><b>Structure</b><span>Ready-made sections and hierarchy.</span></div>
       <div class="section"><b>Visual System</b><span>Color, type, rhythm, and reusable blocks.</span></div>
-      <div class="section"><b>Editable</b><span>Remix into a real OpenDesign project.</span></div>
+      <div class="section"><b>Editable</b><span>${brandTextNow('Remix into a real OpenDesign project.')}</span></div>
     </section>
   </main>
 </body>

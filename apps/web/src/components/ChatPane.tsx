@@ -1,3 +1,4 @@
+import { brandTextNow } from '../brand/brand-text';
 import { reportExperienceEvent } from '../observability/experience-diagnostics';
 import { conversationMetaLabel } from '../runtime/chat/conversation-time';
 export { conversationMetaLabel } from '../runtime/chat/conversation-time';
@@ -6533,7 +6534,7 @@ export function buildRunErrorDiagnosticText(input: RunErrorDiagnosticInput): str
   }
 
   lines.push(
-    'OpenDesign run error diagnostics',
+    brandTextNow('OpenDesign run error diagnostics'),
     `trace_id: ${input.traceId ?? 'n/a'}`,
     `run_id: ${input.traceId ?? 'n/a'}`,
     `error_code: ${input.errorCode ?? 'n/a'}`,

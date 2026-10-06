@@ -2,6 +2,7 @@
 // current design project folder in a local editor, while the dropdown also
 // exposes copy-to-CLI prompts for handing the same local folder to code agents.
 
+import { brandTextNow } from '../brand/brand-text';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   AgentInfo,
@@ -165,7 +166,7 @@ function writePreferredFramework(id: string): void {
 }
 
 function cliDisplayName(agent: Pick<CliTarget, 'id' | 'name'>): string {
-  return agent.id === 'amr' ? 'OpenDesign' : agent.name;
+  return agent.id === 'amr' ? brandTextNow('OpenDesign') : agent.name;
 }
 
 function mergeCliTargets(agents: AgentInfo[] | undefined): CliTarget[] {

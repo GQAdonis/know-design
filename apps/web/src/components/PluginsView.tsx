@@ -1,3 +1,4 @@
+import { brandTextNow } from '../brand/brand-text';
 import {
   useCallback,
   useEffect,
@@ -2061,7 +2062,7 @@ export function ExtensionsMarketplace({
         skill={selectedSkill}
         author={
           scope === 'official'
-            ? 'OpenDesign'
+            ? brandTextNow('OpenDesign')
             : scope === 'team'
               ? 'Nexu Team'
               : t('chat.you')
@@ -2790,9 +2791,9 @@ function PluginShareConfirmModal({
 }) {
   const { locale, t } = useI18n();
   const details = PLUGIN_SHARE_DETAILS[action];
-  const actionTitle = actionRecord ? localizePluginTitle(locale, actionRecord) : details.fallbackTitle;
+  const actionTitle = actionRecord ? localizePluginTitle(locale, actionRecord) : brandTextNow(details.fallbackTitle);
   const actionDescription =
-    (actionRecord ? localizePluginDescription(locale, actionRecord) : '') || details.fallbackDescription;
+    (actionRecord ? localizePluginDescription(locale, actionRecord) : '') || brandTextNow(details.fallbackDescription);
   const actionQuery = readLocalizedUseCaseQuery(actionRecord);
   const stagedPath = `plugin-source/${pluginShareSlug(sourceRecord.id)}`;
 
@@ -2812,7 +2813,7 @@ function PluginShareConfirmModal({
               <TrustBadge trust="official" label={t('pluginsView.shareActionBadge')} />
             </div>
             <div className="plugin-details-modal__meta">
-              <span>{details.eyebrow}</span>
+              <span>{brandTextNow(details.eyebrow)}</span>
               <span>· for {sourceRecord.title}</span>
               {actionRecord ? <span>· v{actionRecord.version}</span> : null}
             </div>
@@ -2840,7 +2841,7 @@ function PluginShareConfirmModal({
               {actionDescription}
             </p>
             <ol className="plugin-share-confirm__steps">
-              {details.steps.map((step) => (
+              {details.steps.map(brandTextNow).map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
@@ -3314,7 +3315,7 @@ function AvailablePluginDetailsModal({
                 </h3>
               </div>
               <p className="plugin-details-modal__section-hint">
-                This official catalog entry is bundled with OpenDesign and is ready to use.
+                This official catalog entry is bundled with {brandTextNow('OpenDesign')} and is ready to use.
               </p>
             </section>
           ) : (

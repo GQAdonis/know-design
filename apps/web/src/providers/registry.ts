@@ -1,3 +1,4 @@
+import { brandTextNow } from '../brand/brand-text';
 import { learnBuildProfileFromResponse } from '../collab/build-profile';
 import {
   PUBLIC_FILE_MANUAL_REVOKE_REQUIRED,
@@ -1380,7 +1381,7 @@ export interface ConnectorActionResult {
 }
 
 function popupBlockedMessage(): string {
-  return 'Popup blocked. Allow popups for OpenDesign and try again.';
+  return brandTextNow('Popup blocked. Allow popups for OpenDesign and try again.');
 }
 
 export async function openExternalUrl(url: string): Promise<boolean> {
