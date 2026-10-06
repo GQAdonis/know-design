@@ -32,7 +32,12 @@ const spawnLoggedProcess = vi.fn(async ({ env }: { env: NodeJS.ProcessEnv }) => 
     unref: vi.fn(),
   }) as unknown as ChildProcess & { env: NodeJS.ProcessEnv };
 });
-const defaultConvergeSidecarLaunch = async (request: { env: NodeJS.ProcessEnv; stamp: Record<string, string> }) => ({
+type ConvergeOptions = {
+  onProgress?: (progress: { attempts: number; launcherPid: number; phase: { name: string; seq: number } | null }) => void;
+  ownerStamps?: unknown;
+  timeoutMs?: number;
+};
+const defaultConvergeSidecarLaunch = async (request: { env: NodeJS.ProcessEnv; stamp: Record<string, string> }, _options?: ConvergeOptions) => ({
   attempts: 1,
   description: { ready: true, resources: { pid: 1234 }, stamp: request.stamp },
   launcherProcess: await spawnLoggedProcess(request),
@@ -143,6 +148,87 @@ afterEach(() => {
   stopSidecar.mockImplementation(defaultStopSidecar);
   stopSidecars.mockClear();
   convergeSidecarLaunch.mockImplementation(defaultConvergeSidecarLaunch);
+});
+
+describe("startPackedMacApp readiness is decided by events", () => {
+  async function installedApp(root: string) {
+    const config = makeConfig(root);
+    const paths = resolveMacPaths(config);
+    const executablePath = join(paths.installedAppPath, "Contents", "MacOS", "Open Design");
+    await mkdir(join(paths.installedAppPath, "Contents", "MacOS"), { recursive: true });
+    await writeFile(executablePath, "#!/bin/sh\nexit 0\n", "utf8");
+    await chmod(executablePath, 0o755);
+    return config;
+  }
+
+  it("keeps asking for the desktop status until it appears, with no time budget", async () => {
+    const root = await mkdtemp(join(tmpdir(), "open-design-tools-pack-status-events-"));
+    try {
+      const config = await installedApp(root);
+      // Four failed probes (two stamps per probe, two probes) and then the status: how long that takes
+      // is up to the app, so the wait must not be what decides.
+      for (let i = 0; i < 4; i += 1) getSidecarStatus.mockRejectedValueOnce(new Error("endpoint not up yet"));
+      const result = await startPackedMacApp(config);
+      expect(result.status).toMatchObject({ state: "running" });
+      expect(getSidecarStatus.mock.calls.length).toBeGreaterThanOrEqual(5);
+    } finally {
+      await rm(root, { force: true, recursive: true });
+    }
+  });
+
+  it("ends the wait when the converged owner process dies, naming the last startup phase", async () => {
+    const root = await mkdtemp(join(tmpdir(), "open-design-tools-pack-owner-death-"));
+    try {
+      const config = await installedApp(root);
+      const logDir = join(config.roots.runtime.namespaceRoot, "logs", "desktop");
+      await mkdir(logDir, { recursive: true });
+      await writeFile(
+        join(logDir, "startup-events.jsonl"),
+        [
+          { atMs: 5, phase: "process-started", pid: 1234, seq: 1 },
+          { atMs: 900, phase: "daemon-ready", pid: 1234, seq: 2 },
+        ].map((event) => `${JSON.stringify(event)}\n`).join(""),
+      );
+      getSidecarStatus.mockRejectedValue(new Error("endpoint gone"));
+      const platform = await import("@open-design/platform");
+      vi.mocked(platform.isProcessAlive).mockReturnValue(false);
+      try {
+        const error = await startPackedMacApp(config).catch((e: unknown) => e);
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain("converged sidecar owner stopped responding");
+        expect((error as Error).message).toContain("startup phases: process-started -> daemon-ready");
+      } finally {
+        vi.mocked(platform.isProcessAlive).mockReturnValue(true);
+      }
+    } finally {
+      await rm(root, { force: true, recursive: true });
+    }
+  });
+
+  it("reports each announced startup phase while the launch converges", async () => {
+    const root = await mkdtemp(join(tmpdir(), "open-design-tools-pack-progress-"));
+    try {
+      const config = await installedApp(root);
+      convergeSidecarLaunch.mockImplementationOnce(async (request, options) => {
+        options?.onProgress?.({ attempts: 1, launcherPid: 1234, phase: { name: "web-ready", seq: 3 } });
+        options?.onProgress?.({ attempts: 1, launcherPid: 1234, phase: { name: "web-ready", seq: 3 } });
+        options?.onProgress?.({ attempts: 1, launcherPid: 1234, phase: { name: "desktop-created", seq: 4 } });
+        return {
+          attempts: 1,
+          description: { ready: true, resources: { pid: 1234 }, stamp: request.stamp },
+          launcherProcess: await spawnLoggedProcess(request),
+        };
+      });
+      const lines: string[] = [];
+      await startPackedMacApp(config, { report: (line) => lines.push(line) });
+      // Each phase once, in order; repeats of the same phase are not new events.
+      expect(lines.filter((line) => line.includes("phase"))).toEqual(["startup phase: web-ready", "startup phase: desktop-created"]);
+      // And no deadline is imposed on the convergence wait.
+      expect(convergeSidecarLaunch.mock.calls[0]?.[1]).not.toHaveProperty("timeoutMs");
+    } finally {
+      await rm(root, { force: true, recursive: true });
+    }
+  });
 });
 
 describe("startPackedMacApp", () => {

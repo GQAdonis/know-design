@@ -22,7 +22,7 @@ import {
   stopSidecars,
   type SidecarStamp as ConvergedSidecarStamp,
 } from "@open-design/sidecar";
-import { readLogTail } from "@open-design/platform";
+import { isProcessAlive, readLogTail } from "@open-design/platform";
 import type { ToolPackConfig } from "../config/index.js";
 import { allPackagedSidecarStopRequests, toolPackSidecarStamp } from "../config/sidecar-stamps.js";
 import { resolveToolPackLauncherLayout } from "../launcher/layout.js";
@@ -33,6 +33,7 @@ import { DESKTOP_LOG_ECHO_ENV } from "./constants.js";
 import { pathExists, scrubMacExtendedAttributes } from "./fs.js";
 import { resolveMacInstallIdentity } from "./identity.js";
 import { desktopLogPath, macAppExecutablePath, resolveMacPaths } from "./paths.js";
+import { createStartupProgressWatcher, summarizeStartupPhases, type StartProgressReporter } from "./startup-progress.js";
 import type { MacCleanupResult, MacInspectResult, MacInstallResult, MacStartResult, MacStartSource, MacStopResult, MacUninstallResult } from "./types.js";
 
 const execFileAsync = promisify(execFile);
@@ -70,14 +71,19 @@ async function resolveReachableDesktop(config: ToolPackConfig, timeoutMs: number
   return probes.find((probe): probe is ReachableDesktop => probe != null) ?? null;
 }
 
-async function waitForDesktopStatus(config: ToolPackConfig, timeoutMs = 45_000): Promise<DesktopStatusSnapshot | null> {
-  const startedAt = Date.now();
-  while (Date.now() - startedAt < timeoutMs) {
+/**
+ * Wait for the converged desktop to answer a status request. Convergence only returns once a ready
+ * generation is stable, so this normally answers at once. The two ways it can end are events: a status
+ * arrives, or the owner process is gone. There is no time budget to tune per machine; the poll interval
+ * only sets how often the question is asked.
+ */
+async function waitForDesktopStatus(config: ToolPackConfig, ownerPid: number): Promise<DesktopStatusSnapshot | null> {
+  for (;;) {
     const active = await resolveReachableDesktop(config, 1000);
     if (active != null) return active.status;
+    if (!isProcessAlive(ownerPid)) return null;
     await new Promise((resolveWait) => setTimeout(resolveWait, 200));
   }
-  return null;
 }
 
 function nonEmptyLines(value: string): string[] {
@@ -234,6 +240,7 @@ async function createLaunchFailureMessage(
   const assessment = await collectLaunchAssessment(target.appPath);
   const xattrs = await collectLaunchXattrSummary(target.appPath);
   const systemPolicyLog = await collectSystemPolicyLog(target);
+  const startupPhases = await summarizeStartupPhases(logPath);
   return [
     `mac desktop failed to become healthy (${details.reason})`,
     `namespace: ${config.namespace}`,
@@ -248,6 +255,7 @@ async function createLaunchFailureMessage(
     ...(xattrs.length === 0 ? ["(no xattr output)"] : xattrs),
     "macOS system policy log:",
     ...(systemPolicyLog.length === 0 ? ["(no matching system log lines)"] : systemPolicyLog),
+    ...(startupPhases == null ? [] : [`startup phases: ${startupPhases}`]),
     "desktop log tail:",
     ...(logLines.length === 0 ? ["(no log lines)"] : logLines),
   ].join("\n");
@@ -330,7 +338,11 @@ export async function installPackedMacDmg(config: ToolPackConfig): Promise<MacIn
   };
 }
 
-export async function startPackedMacApp(config: ToolPackConfig): Promise<MacStartResult> {
+export async function startPackedMacApp(
+  config: ToolPackConfig,
+  options: { report?: StartProgressReporter } = {},
+): Promise<MacStartResult> {
+  const report = options.report ?? ((line: string) => { process.stderr.write(`[tools-pack] ${line}\n`); });
   const target = await resolvePackedMacStartTarget(config);
   const stamp = convergedDesktopStamp(config);
   const logPath = desktopLogPath(config);
@@ -339,6 +351,7 @@ export async function startPackedMacApp(config: ToolPackConfig): Promise<MacStar
   await writeFile(logPath, "", "utf8");
 
   const logHandle = await open(logPath, "a");
+  const progress = createStartupProgressWatcher(logPath, report);
   let convergence: Awaited<ReturnType<typeof convergeSidecarLaunch>>;
   try {
     convergence = await convergeSidecarLaunch({
@@ -359,14 +372,19 @@ export async function startPackedMacApp(config: ToolPackConfig): Promise<MacStar
         runtimeRoot: join(config.roots.runtime.namespaceRoot, "runtime"),
       },
       stamp,
-    }, { ownerStamps: [stamp, convergedDesktopStamp(config, SIDECAR_SOURCES.PACKAGED)] });
+    }, {
+      ownerStamps: [stamp, convergedDesktopStamp(config, SIDECAR_SOURCES.PACKAGED)],
+      // No timeoutMs: the launch ends when the app says it is ready or fails, and what it is doing in
+      // the meantime is reported as it announces it.
+      onProgress: (observed) => progress.observe(observed.phase?.name),
+    });
   } finally {
     await logHandle.close().catch(() => undefined);
   }
   convergence.launcherProcess.unref();
   const pid = convergence.description.resources.pid;
 
-  const status = await waitForDesktopStatus(config);
+  const status = await waitForDesktopStatus(config, pid);
   if (status == null) {
     throw new Error(await createLaunchFailureMessage(config, target, {
       pid,
