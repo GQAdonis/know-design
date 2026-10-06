@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-06T09:17:26Z",
+  "outputs": [
+    "/Users/gqadonis/Projects/references/open-design/.kbd-orchestrator/phases/deploy-web-to-knowme-k8s/children/knowdesign-brand/../backend-complete-replacement/analysis.md",
+    "/Users/gqadonis/Projects/references/open-design/.kbd-orchestrator/phases/deploy-web-to-knowme-k8s/children/knowdesign-brand/../backend-complete-replacement/spike-report.md"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "Inherited from the umbrella analysis and the rebrand spike (GO): reduced-surface rename (D-007), apply brand at build/runtime, locale files and brand-asserting tests untouched, idempotent codemod + rerere, rebuild packages between merge and typecheck.",
+  "skipped": false,
+  "skipReason": null
+}

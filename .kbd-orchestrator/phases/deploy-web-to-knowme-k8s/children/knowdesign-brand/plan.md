@@ -29,6 +29,12 @@
 - **Details**: Perform a real `git merge upstream/main` against the finished fork, run `brand/apply` + `verify`, count conflicts versus the spike's prediction, and write the **upstream-sync runbook** (merge → rerere → apply → verify → test). Record the new `OD_*`/alias map.
 - **Acceptance**: merge completes with ≤ the spike's predicted conflict count (or the variance is explained); `pnpm guard`, `pnpm typecheck`, and package suites pass; runbook reproduces the sync from a clean clone.
 
-## AMENDMENTS APPLIED
+## AMENDMENTS APPLIED (2026-10-06, see plan-amendments.md; D-018, D-019, D-020)
+- Change 19 also owns the single brand descriptor and baking `OD_BUILD_PROFILE=knowdesign` into the packaged config (test: launch with no env var).
+- Change 20 replaces the "alongside the existing scheme" wording: knowdesign registers only `knowdesign://` and renames every OS-observable identifier (bundle ID, userData, sockets, port, user-state dir, MCP name, CLI bin, installer/registry names).
+- Change 21 adds GitHub-slug literals and image/chart names, and renames the repository to `GQAdonis/knowdesign` as its last step after re-confirmation; local directory kept.
+- Phase acceptance: a KnowDesign build runs beside an installed, running original with no shared identifier.
+
+## AMENDMENTS APPLIED (2026-10-03)
 - Locale files and brand-asserting tests stay **byte-identical to upstream**; apply the display name at build/runtime from the brand config (19 of 23 spike conflicts).
 - Runbook: rebuild workspace packages between merge and typecheck; sync at least weekly.

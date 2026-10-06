@@ -1,0 +1,12 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-10-06T09:17:28Z",
+  "outputs": [
+    "/Users/gqadonis/Projects/references/open-design/.kbd-orchestrator/phases/deploy-web-to-knowme-k8s/children/knowdesign-brand/plan.md",
+    "/Users/gqadonis/Projects/references/open-design/.kbd-orchestrator/phases/deploy-web-to-knowme-k8s/children/knowdesign-brand/plan-amendments.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "Plan amended 2026-10-06 (D-018/019/020): one brand descriptor for all OS-observable identifiers; bake the profile by construction; knowdesign registers only knowdesign://; repo renamed to GQAdonis/knowdesign as the last step of change 21 after re-confirmation.",
+  "skipped": false,
+  "skipReason": null
+}

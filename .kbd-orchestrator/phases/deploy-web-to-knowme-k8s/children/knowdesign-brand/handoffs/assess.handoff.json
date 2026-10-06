@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-10-06T09:17:25Z",
+  "outputs": [
+    "/Users/gqadonis/Projects/references/open-design/.kbd-orchestrator/phases/deploy-web-to-knowme-k8s/children/knowdesign-brand/assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "knowdesign-brand assessed: only the network-silencing profile exists; no OS-visible identity changed. ~15 scattered identity literals + ~25 GitHub-slug literals; clash surface ranked in assessment.md. Operator scope: rename every observable identifier, include the GitHub repo, keep the local directory.",
+  "skipped": false,
+  "skipReason": null
+}
