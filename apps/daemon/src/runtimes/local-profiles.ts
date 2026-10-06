@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
 import path from 'node:path';
+import { userStateDirName } from '../brand.js';
 
 import {
   isSandboxModeEnabled,
@@ -28,17 +29,17 @@ function isInsideDir(parent: string, child: string): boolean {
   );
 }
 
-function localAgentProfilesFile(): string | null {
-  const explicit = process.env.OD_AGENT_PROFILES_CONFIG;
+export function localAgentProfilesFile(env: NodeJS.ProcessEnv = process.env): string | null {
+  const explicit = env.OD_AGENT_PROFILES_CONFIG;
   const explicitPath =
     typeof explicit === 'string' && explicit.trim()
       ? path.resolve(explicit.trim())
       : null;
 
-  if (isSandboxModeEnabled(process.env)) {
-    if (!process.env.OD_DATA_DIR?.trim()) return null;
+  if (isSandboxModeEnabled(env)) {
+    if (!env.OD_DATA_DIR?.trim()) return null;
     const sandboxRuntime = resolveSandboxRuntimeConfigFromEnv(
-      process.env,
+      env,
       RUNTIME_PROJECT_ROOT,
     );
     if (!sandboxRuntime?.enabled) return null;
@@ -48,13 +49,13 @@ function localAgentProfilesFile(): string | null {
     ) {
       return explicitPath;
     }
-    return sandboxAgentProfilesConfigPath(sandboxRuntime);
+    return sandboxAgentProfilesConfigPath(sandboxRuntime, env);
   }
 
   if (explicitPath) {
     return explicitPath;
   }
-  return path.join(homedir(), '.open-design', 'agents.local.json');
+  return path.join(homedir(), userStateDirName(env), 'agents.local.json');
 }
 
 function normalizeStringList(value: unknown): string[] {

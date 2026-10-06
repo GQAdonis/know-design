@@ -3,9 +3,18 @@ import path from 'node:path';
 import type { ProjectLocationPrefs } from './app-config.js';
 import { expandHomePrefix } from './home-expansion.js';
 import { isSafeId } from './projects.js';
+import { userStateDirName } from './brand.js';
 
 export const BUILT_IN_PROJECT_LOCATION_ID = 'default';
 export const PROJECT_MANIFEST_RELATIVE_PATH = path.join('.open-design', 'project.json');
+
+/**
+ * Manifest location inside a project folder. The directory name is the brand's
+ * so a KnowDesign daemon never reads or writes the one Open Design owns.
+ */
+export function projectManifestRelativePath(env: NodeJS.ProcessEnv = process.env): string {
+  return path.join(userStateDirName(env), 'project.json');
+}
 
 export interface ProjectLocation extends ProjectLocationPrefs {
   builtIn?: boolean;
@@ -68,8 +77,8 @@ export async function canonicalLocationChildDir(location: ProjectLocation, child
   return canonical;
 }
 
-export function manifestPath(projectDir: string): string {
-  return path.join(projectDir, PROJECT_MANIFEST_RELATIVE_PATH);
+export function manifestPath(projectDir: string, env: NodeJS.ProcessEnv = process.env): string {
+  return path.join(projectDir, projectManifestRelativePath(env));
 }
 
 export async function ensureProjectLocation(locationPath: string): Promise<string> {
@@ -79,15 +88,22 @@ export async function ensureProjectLocation(locationPath: string): Promise<strin
   return realpath(expanded);
 }
 
-export async function writeProjectManifest(projectDir: string, manifest: ProjectManifest): Promise<void> {
-  const file = manifestPath(projectDir);
+export async function writeProjectManifest(
+  projectDir: string,
+  manifest: ProjectManifest,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<void> {
+  const file = manifestPath(projectDir, env);
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, JSON.stringify(manifest, null, 2), 'utf8');
 }
 
-export async function readProjectManifest(projectDir: string): Promise<ProjectManifest | null> {
+export async function readProjectManifest(
+  projectDir: string,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<ProjectManifest | null> {
   try {
-    const raw = await readFile(manifestPath(projectDir), 'utf8');
+    const raw = await readFile(manifestPath(projectDir, env), 'utf8');
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
     const obj = parsed as Record<string, unknown>;

@@ -7,8 +7,14 @@ import {
   type DaemonStatusSnapshot,
 } from "@open-design/sidecar-proto";
 import { SidecarFactory } from "@open-design/sidecar";
+import { daemonBrand, defaultDaemonPort } from "./brand.js";
 
 export const DEFAULT_DAEMON_URL = "http://127.0.0.1:7456";
+
+/** Loopback URL of the daemon the brand listens on by default. */
+export function defaultDaemonUrl(env: NodeJS.ProcessEnv = process.env): string {
+  return `http://127.0.0.1:${defaultDaemonPort(env)}`;
+}
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
 export interface ResolveDaemonUrlOptions {
@@ -49,9 +55,9 @@ export async function resolveDaemonUrl(
   const toolsDevUrl = await discoverDaemonUrlFromToolsDev(env, options.timeoutMs ?? 800);
   if (toolsDevUrl != null) return toolsDevUrl;
   if (options.allowLegacyDefault === false) {
-    throw new Error("Open Design daemon could not be discovered. Open the app and refresh the MCP registration, or supply --daemon-url explicitly.");
+    throw new Error(`${daemonBrand(env).productName} daemon could not be discovered. Open the app and refresh the MCP registration, or supply --daemon-url explicitly.`);
   }
-  return DEFAULT_DAEMON_URL;
+  return defaultDaemonUrl(env);
 }
 
 async function discoverDaemonUrlFromInheritedClient(

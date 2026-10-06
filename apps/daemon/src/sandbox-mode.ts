@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { userStateDirName } from './brand.js';
 import { resolveProjectRelativePath } from './home-expansion.js';
 
 export const SANDBOX_MODE_ENV = 'OD_SANDBOX_MODE';
@@ -144,10 +145,11 @@ export function resolveSandboxRuntimeConfigFromEnv(
 
 export function sandboxAgentProfilesConfigPath(
   config: SandboxRuntimeConfig,
+  env: NodeJS.ProcessEnv = process.env,
 ): string {
   return path.join(
     config.roots.agentHomeDir,
-    '.open-design',
+    userStateDirName(env),
     'agents.local.json',
   );
 }
@@ -187,7 +189,7 @@ export function applySandboxRuntimeEnv(
   env.CODEX_HOME = codexHome;
   env.CLAUDE_CONFIG_DIR = claudeConfigDir;
   env.OPENCODE_TEST_HOME = opencodeHome;
-  env.OD_AGENT_PROFILES_CONFIG = sandboxAgentProfilesConfigPath(config);
+  env.OD_AGENT_PROFILES_CONFIG = sandboxAgentProfilesConfigPath(config, env);
   env.NPM_CONFIG_USERCONFIG = npmUserConfig;
   env.npm_config_userconfig = npmUserConfig;
 
