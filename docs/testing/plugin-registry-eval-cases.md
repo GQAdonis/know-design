@@ -18,7 +18,7 @@ registry / distribution / website / multi-source 的细分用例。
 | REG-004 | checked-in registry entry 指向真实可打包插件源码 | `community/registry-starter` 的 source 指向 `plugins/community/registry-starter`，源码 `open-design.json` 带 `plugin.repo` | `apps/daemon/tests/plugins-marketplaces.test.ts` |
 | REG-005 | marketplace install 会保留 provenance 并继承 trust | installed record 写入 `sourceMarketplaceId`、entry name/version、resolved source/ref、digest/integrity；official/trusted source 默认 trusted | `apps/daemon/tests/plugins-installer.test.ts` |
 | REG-006 | restricted marketplace install 不会被自动提权 | restricted source 安装出的 plugin 仍是 `restricted` | `apps/daemon/tests/plugins-installer.test.ts` |
-| REG-007 | 直接 GitHub source import 与 registry source 是两条入口 | Import dialog 会把 `github:GQAdonis/knowdesign@.../plugins/community/registry-starter` 原样交给 install API | `apps/web/tests/components/PluginsView.test.tsx` |
+| REG-007 | 直接 GitHub source import 与 registry source 是两条入口 | Import dialog 会把 `github:GQAdonis/know-design@.../plugins/community/registry-starter` 原样交给 install API | `apps/web/tests/components/PluginsView.test.tsx` |
 | REG-008 | Available 里的 bundled official entry 已安装时显示 `Use`，不是 `Install` | registry entry `open-design/official-plugin` 能匹配 installed bundled record，并调用 `applyPlugin` | `apps/web/tests/components/PluginsView.test.tsx` |
 | REG-009 | Sources tab 支持填入 raw GitHub `open-design-marketplace.json` URL | UI 调用 `addPluginMarketplace({ url, trust: "restricted" })` | `apps/web/tests/components/PluginsView.test.tsx` |
 | REG-010 | Create plugin 是 agent-assisted authoring 入口 | `Create plugin` 不打开旧 import modal，而是触发 `onCreatePlugin` agent 流程 | `apps/web/tests/components/PluginsView.test.tsx` |

@@ -23,7 +23,7 @@ same environment.
 ## 1. Install from source in WSL
 
 ```bash
-git clone https://github.com/GQAdonis/knowdesign.git ~/tools/open-design
+git clone https://github.com/GQAdonis/know-design.git ~/tools/open-design
 cd ~/tools/open-design
 
 node --version   # should print v24.x.x

@@ -50,7 +50,7 @@ describe('runtime brand substitution', () => {
     act(() => setWebBuildProfile('knowdesign'));
     expect(container.textContent).not.toMatch(OLD);
     expect(container.textContent).toContain('KnowDesign');
-    expect(link()).toBe('https://github.com/GQAdonis/knowdesign/blob/main/PRIVACY.md');
+    expect(link()).toBe('https://github.com/GQAdonis/know-design/blob/main/PRIVACY.md');
   });
 
   it('rewrites the document title once the profile is known', () => {
@@ -87,8 +87,8 @@ describe('runtime brand substitution', () => {
     expect(derivePluginSourceLinks(record).sourceLabel).toBe('nexu-io/open-design');
     setWebBuildProfile('knowdesign');
     const links = derivePluginSourceLinks(record);
-    expect(links.sourceLabel).toBe('GQAdonis/knowdesign');
-    expect(links.sourceUrl).toBe('https://github.com/GQAdonis/knowdesign');
+    expect(links.sourceLabel).toBe('GQAdonis/know-design');
+    expect(links.sourceUrl).toBe('https://github.com/GQAdonis/know-design');
   });
 });
 

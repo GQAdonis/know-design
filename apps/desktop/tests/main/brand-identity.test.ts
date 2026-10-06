@@ -32,8 +32,8 @@ describe("brand display strings", () => {
   it("uses KnowDesign values under the profile, none equal to Open Design's", () => {
     expect(brandProductName(KD)).toBe("KnowDesign");
     expect(brandCompactName(KD)).toBe("KnowDesign");
-    expect(brandIssuesUrl(KD)).toBe("https://github.com/GQAdonis/knowdesign/issues/new");
-    expect(brandRepoUrl(KD)).toBe("https://github.com/GQAdonis/knowdesign");
+    expect(brandIssuesUrl(KD)).toBe("https://github.com/GQAdonis/know-design/issues/new");
+    expect(brandRepoUrl(KD)).toBe("https://github.com/GQAdonis/know-design");
     for (const fn of [brandProductName, brandCompactName, brandIssuesUrl, brandRepoUrl]) {
       expect(fn(KD)).not.toBe(fn(OD));
     }

@@ -10,7 +10,7 @@ This is the easiest self-hosting path for beginners.
 ## Step 1: Open the Deploy Folder
 
 ```bash
-git clone https://github.com/GQAdonis/knowdesign.git
+git clone https://github.com/GQAdonis/know-design.git
 cd open-design/deploy
 ```
 

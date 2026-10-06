@@ -10,7 +10,7 @@
 
 ## 相关 bad case
 
-- [PR #2311](https://github.com/GQAdonis/knowdesign/pull/2311)
+- [PR #2311](https://github.com/GQAdonis/know-design/pull/2311)
   `chore(deps): upgrade express 4 -> 5 in daemon`
 - 用户反馈的问题形态：项目内生成的 HTML 文件无法正常渲染，预览黑屏。
 
@@ -103,7 +103,7 @@
 
 ### 1. 当时主要验证的是 daemon 包级测试和视觉回归
 
-在 [PR #2311](https://github.com/GQAdonis/knowdesign/pull/2311) 里，验证重心是：
+在 [PR #2311](https://github.com/GQAdonis/know-design/pull/2311) 里，验证重心是：
 
 - `pnpm --filter @open-design/daemon test`
 - `pnpm guard`

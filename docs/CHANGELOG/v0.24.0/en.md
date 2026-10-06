@@ -33,7 +33,7 @@ interface can connect to its local engine on first launch. (#7520) Thanks
 key, and pick from its current DeepSeek, MiniMax, Qwen, GLM, Kimi and GPT-OSS  
 models without hand-building the provider setup. (#6327) Thanks @jax-novita.
 
-> 📥 **Download:**[KnowDesign 0.24.0](https://github.com/GQAdonis/knowdesign/releases/tag/open-design-v0.24.0).
+> 📥 **Download:**[KnowDesign 0.24.0](https://github.com/GQAdonis/know-design/releases/tag/open-design-v0.24.0).
 
 ## ✨ Added
 

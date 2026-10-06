@@ -58,7 +58,7 @@ export const KNOWDESIGN_BRAND: BrandDescriptor = Object.freeze({
   appId: "ai.prometheusags.knowdesign",
   cliBin: "knowdesign",
   daemonDefaultPort: 7556,
-  githubRepo: "GQAdonis/knowdesign",
+  githubRepo: "GQAdonis/know-design",
   id: "knowdesign",
   imageRepo: "ghcr.io/gqadonis/knowdesign",
   mcpServerName: "knowdesign",

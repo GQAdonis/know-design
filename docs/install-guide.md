@@ -9,7 +9,7 @@ Deploy OpenDesign on Linux or macOS with a single command. The installer wraps t
 Clone the repository and run the installer:
 
 ```bash
-git clone https://github.com/GQAdonis/knowdesign.git
+git clone https://github.com/GQAdonis/know-design.git
 cd open-design
 bash deploy/scripts/install.sh
 ```

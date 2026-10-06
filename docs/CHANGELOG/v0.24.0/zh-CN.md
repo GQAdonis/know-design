@@ -15,7 +15,7 @@ description: 重新加载和补充问题后对话不断线，你选中的预览�
 - 🪟 **Windows 全新安装，第一次启动就能进到 App。** 打包 App 不再把初始 payload 状态误判为交接失败，因此首次启动时 Web 界面可以连上本地引擎。 (#7520) 感谢 @lorenzozanee。
 - 🔑 **Novita AI 已进入 BYOK 选择器。** 选择 Novita AI、填入自己的 key，即可从当前的 DeepSeek、MiniMax、Qwen、GLM、Kimi 与 GPT-OSS 模型中选择，无需手动搭建提供商配置。 (#6327) 感谢 @jax-novita。
 
-> 📥 **下载：**[KnowDesign 0.24.0](https://github.com/GQAdonis/knowdesign/releases/tag/open-design-v0.24.0)。
+> 📥 **下载：**[KnowDesign 0.24.0](https://github.com/GQAdonis/know-design/releases/tag/open-design-v0.24.0)。
 
 ## ✨ 新增
 

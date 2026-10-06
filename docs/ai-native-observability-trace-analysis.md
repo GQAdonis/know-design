@@ -7,8 +7,8 @@ stability, latency, and cost without weakening user trust.
 
 Related links:
 
-- PR: https://github.com/GQAdonis/knowdesign/pull/3714
-- Issue: https://github.com/GQAdonis/knowdesign/issues/3733
+- PR: https://github.com/GQAdonis/know-design/pull/3714
+- Issue: https://github.com/GQAdonis/know-design/issues/3733
 - Full UI validation, alignment turn: https://us.cloud.langfuse.com/project/cmov9fhj905kaad06h8to8rqu/traces/f486abe4-f45d-4af2-b0c2-8b8675140c78
 - Full UI validation, artifact turn: https://us.cloud.langfuse.com/project/cmov9fhj905kaad06h8to8rqu/traces/e0614ca6-bbe8-41a4-8022-ccab09a66efa
 

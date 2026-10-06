@@ -102,7 +102,7 @@ describe("default configuration", () => {
     const text = "see https://github.com/nexu-io/open-design and ghcr.io/nexu-io/od:latest";
     assert.equal(
       applyBrandToText(text, docs, DEFAULT_BRAND_CONFIG),
-      "see https://github.com/GQAdonis/knowdesign and ghcr.io/gqadonis/knowdesign:latest",
+      "see https://github.com/GQAdonis/know-design and ghcr.io/gqadonis/knowdesign:latest",
     );
     // In code the upstream slug is data (update/metadata sources), never branding.
     assert.equal(applyBrandToText(text, code, DEFAULT_BRAND_CONFIG), text);

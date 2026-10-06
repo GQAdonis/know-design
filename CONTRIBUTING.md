@@ -19,7 +19,7 @@ This guide tells you exactly where to look for each type of contribution and wha
 | Add a feature, fix a bug, lift a UX pattern from [`open-codesign`][ocod] | code | `apps/web/src/`, `apps/daemon/` | normal PR |
 | Improve docs, port a section to Français / Deutsch / 中文, fix typos | docs | `README.md`, `docs/i18n/README.fr.md`, `docs/i18n/README.de.md`, `docs/i18n/README.zh-CN.md`, `docs/`, `QUICKSTART.md` | one PR |
 
-If you're not sure which bucket your idea is in, [open a discussion / issue first](https://github.com/GQAdonis/knowdesign/issues/new) and we'll point you at the right surface.
+If you're not sure which bucket your idea is in, [open a discussion / issue first](https://github.com/GQAdonis/know-design/issues/new) and we'll point you at the right surface.
 
 ---
 
@@ -28,7 +28,7 @@ If you're not sure which bucket your idea is in, [open a discussion / issue firs
 The full one-page setup lives in [`QUICKSTART.md`](QUICKSTART.md). The TL;DR for contributors:
 
 ```bash
-git clone https://github.com/GQAdonis/knowdesign.git
+git clone https://github.com/GQAdonis/know-design.git
 cd open-design
 corepack enable           # selects the pinned pnpm from packageManager
 pnpm install
@@ -283,7 +283,7 @@ For prompt-stack bugs ("the agent emitted a purple gradient hero, the slop black
 
 ## Asking questions
 
-- Architecture question, design question, "is this a bug or a misuse" → [GitHub Discussions](https://github.com/GQAdonis/knowdesign/discussions) (preferred — searchable for the next person).
+- Architecture question, design question, "is this a bug or a misuse" → [GitHub Discussions](https://github.com/GQAdonis/know-design/discussions) (preferred — searchable for the next person).
 - "How do I write a skill that does X" → Open a discussion. We'll answer it and turn the answer into [`docs/skills-protocol.md`](docs/skills-protocol.md) if it's a missing pattern.
 
 ---
@@ -317,7 +317,7 @@ If you've been contributing consistently and want to know what the path to becom
 
 The tl;dr: ship good PRs, review thoughtfully, hang out in [Discussions][discussions] / [Discord][discord], and the rest takes care of itself.
 
-[discussions]: https://github.com/GQAdonis/knowdesign/discussions
+[discussions]: https://github.com/GQAdonis/know-design/discussions
 [discord]: https://discord.gg/mHAjSMV6gz
 
 ---
