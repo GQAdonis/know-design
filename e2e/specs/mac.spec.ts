@@ -570,8 +570,9 @@ macDescribe('packaged mac runtime smoke', () => {
         runtimeIds: ['codex'],
         recordInvocations: true,
       });
-      await runToolsPackJson<MacInstallResult>('install');
+      const installResult = await runToolsPackJson<MacInstallResult>('install');
       installed = true;
+      await expectNoSharedIdentityWithOpenDesign(installResult.installedAppPath);
       // A fresh install: onboarding is deliberately NOT marked completed, so a
       // regression that routes to Cloud onboarding is visible. The agent is pinned
       // because the packaged first-run driver needs one; choosing it through the
@@ -592,7 +593,7 @@ macDescribe('packaged mac runtime smoke', () => {
       const start = await runToolsPackJson<MacStartResult>(
         'start',
         [],
-        knowdesignLaunchEnv({ profile: 'knowdesign', proxyUrl: proxy.url }),
+        knowdesignLaunchEnv({ profile: 'baked', proxyUrl: proxy.url }),
       );
       started = true;
       desktopLogPath = start.logPath;
@@ -648,7 +649,7 @@ macDescribe('packaged mac runtime smoke', () => {
       const controlStart = await runToolsPackJson<MacStartResult>(
         'start',
         [],
-        knowdesignLaunchEnv({ profile: null, proxyUrl: proxy.url }),
+        knowdesignLaunchEnv({ profile: 'stock', proxyUrl: proxy.url }),
       );
       started = true;
       desktopLogPath = controlStart.logPath;
@@ -1929,7 +1930,7 @@ type KnowdesignSurfaces = {
 };
 
 /** The environment `tools-pack mac start` hands the app: profile (or none) plus egress through the recorder. */
-function knowdesignLaunchEnv(options: { profile: 'knowdesign' | null; proxyUrl: string }): NodeJS.ProcessEnv {
+function knowdesignLaunchEnv(options: { profile: 'baked' | 'stock'; proxyUrl: string }): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     // A developer's real ~/.amr login must never leak into a fresh install.
@@ -1948,8 +1949,11 @@ function knowdesignLaunchEnv(options: { profile: 'knowdesign' | null; proxyUrl: 
     OPEN_DESIGN_TELEMETRY_RELAY_URL: 'https://telemetry.open-design.ai/api/langfuse',
     OPEN_DESIGN_OBJECT_RELAY_URL: 'https://telemetry.open-design.ai/api/objects/batch',
   };
-  if (options.profile == null) delete env.OD_BUILD_PROFILE;
-  else env.OD_BUILD_PROFILE = options.profile;
+  // 'baked': NO profile variable at all, exactly like a Finder/Dock launch; the build itself must
+  // carry the profile. 'stock': an explicit launch value, which overrides the baked one, so the
+  // control can show the recorder sees traffic from the very same install.
+  if (options.profile === 'baked') delete env.OD_BUILD_PROFILE;
+  else env.OD_BUILD_PROFILE = 'default';
   return env;
 }
 
@@ -1997,6 +2001,33 @@ const KNOWDESIGN_CONTROL_UPSTREAM_EXPRESSION = `
     '/api/community/discord',
   ].map((path) => fetch(path).then((response) => response.status).catch(() => 0)))
 `;
+
+/**
+ * The installed bundle must share no OS-observable identity with an Open Design install, so both
+ * can sit on one machine: bundle id, display name, executable, URL scheme, and a profile baked
+ * into the packaged config instead of the launch environment.
+ */
+async function expectNoSharedIdentityWithOpenDesign(installedAppPath: string): Promise<void> {
+  const plistPath = join(installedAppPath, 'Contents', 'Info.plist');
+  const { stdout } = await execFileAsync('plutil', ['-convert', 'json', '-o', '-', plistPath]);
+  const plist = JSON.parse(stdout) as Record<string, unknown>;
+  const urlTypes = (plist.CFBundleURLTypes ?? []) as Array<{ CFBundleURLSchemes?: string[] }>;
+  const schemes = urlTypes.flatMap((type) => type.CFBundleURLSchemes ?? []);
+
+  expect(plist.CFBundleIdentifier).toBe('ai.prometheusags.knowdesign');
+  expect(String(plist.CFBundleIdentifier)).not.toContain('open-design');
+  expect(String(plist.CFBundleName)).toBe('KnowDesign');
+  expect(String(plist.CFBundleExecutable)).toBe('KnowDesign');
+  expect(schemes).toContain('knowdesign');
+  expect(schemes).not.toContain('opendesign');
+  expect(installedAppPath).not.toMatch(/\/Open Design\.app$/);
+
+  const baked = JSON.parse(
+    await readFile(join(installedAppPath, 'Contents', 'Resources', 'open-design-config.json'), 'utf8'),
+  ) as { buildProfile?: string; namespace?: string };
+  expect(baked.buildProfile).toBe('knowdesign');
+  expect(baked.namespace).toMatch(/^knowdesign(-|$)/);
+}
 
 async function readKnowdesignSurfaces(): Promise<KnowdesignSurfaces> {
   const inspect = await runToolsPackJson<MacInspectResult>('inspect', ['--expr', knowdesignSurfacesExpression()]);
