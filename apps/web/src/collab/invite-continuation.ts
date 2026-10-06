@@ -20,9 +20,22 @@ import type {
   WorkspaceCollabContext,
   WorkspaceInviteAcceptResponse,
 } from '@open-design/contracts';
-import { buildInviteDeeplink, parseInviteDeeplink } from '@open-design/contracts';
+import {
+  buildInviteDeeplink as buildInviteDeeplinkWithScheme,
+  parseInviteDeeplink as parseInviteDeeplinkWithScheme,
+} from '@open-design/contracts';
+import type { InviteDeeplinkPayload } from '@open-design/contracts';
+import { getWebBrand } from '../brand/brand-text';
 
-export { buildInviteDeeplink, parseInviteDeeplink };
+// The URL protocol is the running brand's: a knowdesign client mints and accepts only knowdesign://
+// links, and never the original's. Resolved per call, because the profile can arrive after boot.
+export function buildInviteDeeplink(payload: InviteDeeplinkPayload): string {
+  return buildInviteDeeplinkWithScheme(payload, getWebBrand().urlScheme);
+}
+
+export function parseInviteDeeplink(url: string): InviteDeeplinkPayload | null {
+  return parseInviteDeeplinkWithScheme(url, getWebBrand().urlScheme);
+}
 export type {
   InviteDeeplinkPayload,
   LocalPendingInviteContinuation,

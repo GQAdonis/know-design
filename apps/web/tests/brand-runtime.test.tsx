@@ -91,3 +91,23 @@ describe('runtime brand substitution', () => {
     expect(links.sourceUrl).toBe('https://github.com/GQAdonis/knowdesign');
   });
 });
+
+describe('invite deeplinks follow the web brand', () => {
+  it('mints and parses links with the running brand scheme', async () => {
+    const { buildInviteDeeplink, parseInviteDeeplink } = await import('../src/collab/invite-continuation');
+    const payload = { workspaceId: 'w', memberId: 'm', inviteId: 'i', nonce: 'n' };
+
+    resetWebBuildProfileForTests();
+    const stock = buildInviteDeeplink(payload);
+    expect(stock.startsWith('opendesign://')).toBe(true);
+    expect(parseInviteDeeplink(stock)).toMatchObject(payload);
+
+    setWebBuildProfile('knowdesign');
+    const branded = buildInviteDeeplink(payload);
+    expect(branded.startsWith('knowdesign://')).toBe(true);
+    expect(parseInviteDeeplink(branded)).toMatchObject(payload);
+    // A knowdesign client does not accept the original's links.
+    expect(parseInviteDeeplink(stock)).toBeNull();
+    resetWebBuildProfileForTests();
+  });
+});
