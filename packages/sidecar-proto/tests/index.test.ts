@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   APP_KEYS,
@@ -8,6 +8,7 @@ import {
   DESKTOP_UPDATE_STATES,
   normalizeDaemonSidecarMessage,
   normalizeDesktopSidecarMessage,
+  resolveWindowsUninstallRegistryKey,
   normalizeNamespace,
   normalizeSidecarRuntimeLayout,
   OPEN_DESIGN_SIDECAR_CONTRACT,
@@ -432,5 +433,33 @@ describe("open-design sidecar contract", () => {
         type: SIDECAR_MESSAGES.UPDATE,
       }),
     ).toThrow(/unsupported fields/);
+  });
+});
+
+describe("brand-aware identity helpers", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("derives the Windows uninstall key from the product name, defaulting to Open Design", () => {
+    expect(resolveWindowsUninstallRegistryKey("release-beta-win")).toBe(
+      "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Open Design-release-beta-win",
+    );
+    expect(resolveWindowsUninstallRegistryKey("knowdesign", "KnowDesign")).toBe(
+      "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\KnowDesign-knowdesign",
+    );
+  });
+
+  it("accepts only the running brand's URL scheme for the desktop show deeplink", () => {
+    const show = (deeplinkUrl: string) =>
+      normalizeDesktopSidecarMessage({ input: { deeplinkUrl }, type: SIDECAR_MESSAGES.SHOW });
+
+    expect(() => show("knowdesign://workspace/invite/continue?nonce=hot")).toThrow(/opendesign scheme/);
+
+    vi.stubEnv("OD_BUILD_PROFILE", "knowdesign");
+    expect(show("knowdesign://workspace/invite/continue?nonce=hot")).toEqual({
+      input: { deeplinkUrl: "knowdesign://workspace/invite/continue?nonce=hot" },
+      type: "show",
+    });
+    // A knowdesign build never answers the original's links, and says which scheme it wants.
+    expect(() => show("opendesign://workspace/invite/continue?nonce=hot")).toThrow(/knowdesign scheme/);
   });
 });

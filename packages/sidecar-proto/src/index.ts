@@ -1,4 +1,4 @@
-import { RELEASE_CHANNELS, type ReleaseChannel } from "@open-design/release";
+import { RELEASE_CHANNELS, resolveBrand, type ReleaseChannel } from "@open-design/release";
 
 export const APP_KEYS = Object.freeze({
   DAEMON: "daemon",
@@ -92,9 +92,12 @@ export function resolveWindowsReleaseNamespaceToken(value: string): string {
   return value.replace(/[^A-Za-z0-9._-]+/g, "-");
 }
 
-export function resolveWindowsUninstallRegistryKey(namespace: string): string {
+export function resolveWindowsUninstallRegistryKey(
+  namespace: string,
+  productName: string = OPEN_DESIGN_PRODUCT_NAME,
+): string {
   const namespaceToken = resolveWindowsReleaseNamespaceToken(namespace);
-  return `Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${OPEN_DESIGN_PRODUCT_NAME}-${namespaceToken}`;
+  return `Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${productName}-${namespaceToken}`;
 }
 
 export const SIDECAR_MESSAGES = Object.freeze({
@@ -1088,8 +1091,11 @@ function normalizeDesktopShowInput(input: unknown): DesktopShowInput {
   assertKnownKeys(value, ["deeplinkUrl"], "desktop show input");
   if (value.deeplinkUrl == null) return {};
   const deeplinkUrl = normalizeNonEmptyString(value.deeplinkUrl, "desktop show deeplinkUrl");
-  if (!deeplinkUrl.startsWith("opendesign://")) {
-    throw new Error("desktop show deeplinkUrl must use the opendesign scheme");
+  // The running brand decides which URL protocol is its own: a knowdesign process never
+  // answers the original's links, and the original never answers knowdesign's.
+  const scheme = resolveBrand().urlScheme;
+  if (!deeplinkUrl.startsWith(`${scheme}://`)) {
+    throw new Error(`desktop show deeplinkUrl must use the ${scheme} scheme`);
   }
   return { deeplinkUrl };
 }
