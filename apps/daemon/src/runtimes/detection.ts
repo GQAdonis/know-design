@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { statSync } from 'node:fs';
 import { execAgentFile } from './invocation.js';
 import { AGENT_DEFS } from './registry.js';
 import {
@@ -154,8 +155,14 @@ export async function ensureDetectedRuntimeCapabilities(
   const context = runtimeVersionProbeContext(def, configuredAgentEnv);
   if (!context) return null;
   const remembered = agentCapabilities.get(agentId);
+  // An empty map is what a failed or timed-out `--help` read leaves behind
+  // (a CLI whose help merely lacks every flag resolves to explicit `false`
+  // values). It must not become the final answer: buildArgs reads it as
+  // "unknown", and for OpenCode that pins the whole 1.x argv onto a 2.x CLI
+  // until the daemon restarts. Re-probe instead; the read is bounded.
   if (
     remembered
+    && Object.keys(remembered).length > 0
     && detectedRuntimeCapabilityScopes.get(agentId) === context.scope
   ) {
     return { ...remembered };
@@ -431,8 +438,27 @@ function runtimeVersionProbeContext(
       selectedPath: launch.selectedPath,
       launchPath: launch.launchPath,
       companionPath,
+      binary: executableIdentity(launch.selectedPath),
     })).digest('hex'),
   };
+}
+
+/**
+ * Identity of the bytes behind a resolved executable, so a CLI that
+ * self-updates in place (OpenCode's `~/.opencode/bin/opencode`, Claude's
+ * native installer) invalidates the daemon-lifetime version and capability
+ * caches instead of keeping the previous build's answers. The caches decide
+ * which command line the daemon speaks, so a stale entry sends the old
+ * generation's flags to the new binary. Unreadable paths (a wrapper on PATH
+ * that resolves lazily) fall back to the path-only scope.
+ */
+function executableIdentity(executablePath: string): { size: number; mtimeMs: number } | null {
+  try {
+    const stat = statSync(executablePath);
+    return { size: stat.size, mtimeMs: stat.mtimeMs };
+  } catch {
+    return null;
+  }
 }
 
 async function probeRuntimeVersionsOnly(
