@@ -62,6 +62,15 @@ const detectedRuntimeVersionProbes = new Map<
   Promise<DetectedRuntimeVersions | null>
 >();
 const detectedRuntimeCapabilityScopes = new Map<string, string>();
+// A `--help` read that failed (timeout, crash during a cold start) leaves an
+// empty map, which buildArgs reads as "unknown". Keep it only for a while:
+// long enough that one Run's launch, its automatic retry, memory extraction
+// and evidence export share the answer instead of each paying the bounded
+// probe (a CLI that hangs on `--help` costs the full 5s per read), short
+// enough that it never becomes the daemon-lifetime verdict that pins the 1.x
+// argv onto a 2.x CLI. Mirrors `missingRuntimeVersionRetryAt`.
+const emptyRuntimeCapabilityRetryAt = new Map<string, number>();
+const EMPTY_RUNTIME_CAPABILITY_TTL_MS = 60_000;
 const detectedRuntimeCapabilityProbes = new Map<
   string,
   Promise<RuntimeCapabilityMap | null>
@@ -155,15 +164,17 @@ export async function ensureDetectedRuntimeCapabilities(
   const context = runtimeVersionProbeContext(def, configuredAgentEnv);
   if (!context) return null;
   const remembered = agentCapabilities.get(agentId);
-  // An empty map is what a failed or timed-out `--help` read leaves behind
+  // A populated map is daemon-lifetime provenance for its scope. An empty one
   // (a CLI whose help merely lacks every flag resolves to explicit `false`
-  // values). It must not become the final answer: buildArgs reads it as
-  // "unknown", and for OpenCode that pins the whole 1.x argv onto a 2.x CLI
-  // until the daemon restarts. Re-probe instead; the read is bounded.
+  // values, so empty means the read failed) is honoured only inside its retry
+  // window; see `emptyRuntimeCapabilityRetryAt`.
   if (
     remembered
-    && Object.keys(remembered).length > 0
     && detectedRuntimeCapabilityScopes.get(agentId) === context.scope
+    && (
+      Object.keys(remembered).length > 0
+      || Date.now() < (emptyRuntimeCapabilityRetryAt.get(agentId) ?? 0)
+    )
   ) {
     return { ...remembered };
   }
@@ -175,6 +186,8 @@ export async function ensureDetectedRuntimeCapabilities(
       if (caps) {
         agentCapabilities.set(def.id, caps);
         detectedRuntimeCapabilityScopes.set(def.id, context.scope);
+        if (Object.keys(caps).length > 0) emptyRuntimeCapabilityRetryAt.delete(def.id);
+        else emptyRuntimeCapabilityRetryAt.set(def.id, Date.now() + EMPTY_RUNTIME_CAPABILITY_TTL_MS);
       }
       return caps ? { ...caps } : null;
     });
