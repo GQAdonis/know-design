@@ -1,8 +1,8 @@
-import { chmodSync, existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { agentCapabilities } from '../../src/runtimes/capabilities.js';
 import { ensureDetectedRuntimeCapabilities } from '../../src/runtimes/detection.js';
@@ -51,17 +51,19 @@ describe('OpenCode capability cache', () => {
       .resolves.toMatchObject({ workspaceDir: false, autoApprove: true });
   });
 
-  it('does not keep a failed --help probe as the final answer', async () => {
+  it('retries a failed --help probe only after the retry window, not on every launch', async () => {
     const dir = mkdtempSync(path.join(os.tmpdir(), 'od-opencode-probe-'));
     dirs.push(dir);
     const ready = path.join(dir, 'ready');
+    const calls = path.join(dir, 'calls');
     // Same bytes on disk throughout; behaviour flips on a side file, so the
-    // cache scope cannot tell the two calls apart.
+    // cache scope cannot tell the calls apart.
     const bin = fakeOpenCode(dir, `
 const fs = require('node:fs');
 const args = process.argv.slice(2);
 if (args.includes('--version')) { console.log('opencode fake'); process.exit(0); }
 if (args.includes('--help')) {
+  fs.appendFileSync(${JSON.stringify(calls)}, 'x');
   if (!fs.existsSync(${JSON.stringify(ready)})) process.exit(1);
   console.error(${JSON.stringify(HELP_2X)});
   process.exit(0);
@@ -69,14 +71,32 @@ if (args.includes('--help')) {
 process.exit(0);
 `);
     const env = { OPENCODE_BIN: bin };
+    const helpProbes = (): number => (existsSync(calls) ? readFileSync(calls, 'utf8').length : 0);
+    const now = Date.now();
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+    try {
+      // A transient failure (timeout, crash during a cold start) yields no
+      // flags at all, which buildArgs reads as "unknown".
+      await expect(ensureDetectedRuntimeCapabilities('opencode', env)).resolves.toEqual({});
+      expect(helpProbes()).toBe(1);
 
-    // A transient failure (timeout, crash during a cold start) yields no
-    // flags at all, which buildArgs reads as "unknown".
-    await expect(ensureDetectedRuntimeCapabilities('opencode', env)).resolves.toEqual({});
+      // Inside the window the empty answer is served from cache: a chat run,
+      // its automatic retry, its memory extraction and its evidence export
+      // must not each pay the bounded probe again (a CLI that hangs on --help
+      // costs 5s per read, and a retry starts well after the first launch).
+      writeFileSync(ready, '');
+      clock.mockReturnValue(now + 30_000);
+      await expect(ensureDetectedRuntimeCapabilities('opencode', env)).resolves.toEqual({});
+      expect(helpProbes()).toBe(1);
 
-    writeFileSync(ready, '');
-    expect(existsSync(ready)).toBe(true);
-    await expect(ensureDetectedRuntimeCapabilities('opencode', env))
-      .resolves.toMatchObject({ workspaceDir: false, autoApprove: true });
+      // Once the window elapses the probe runs again, so a failed read is not
+      // the daemon-lifetime answer that pins the 1.x argv onto a 2.x CLI.
+      clock.mockReturnValue(now + 60_001);
+      await expect(ensureDetectedRuntimeCapabilities('opencode', env))
+        .resolves.toMatchObject({ workspaceDir: false, autoApprove: true });
+      expect(helpProbes()).toBe(2);
+    } finally {
+      clock.mockRestore();
+    }
   });
 });
