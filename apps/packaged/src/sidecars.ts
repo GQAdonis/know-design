@@ -65,6 +65,7 @@ const PACKAGED_CHILD_ENV_ALLOWLIST = [
   "OD_ALLOWED_INTERNAL_HOSTS",
   // Lets the packaged daemon resolve the same build profile as the launcher.
   "OD_BUILD_PROFILE",
+  "OD_JSON_IPC_TRACE",
 ] as const;
 
 // The daemon owns the historical-outer compatibility handoff. Preserve the

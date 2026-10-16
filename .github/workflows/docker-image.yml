@@ -24,6 +24,11 @@ on:
         required: false
         type: boolean
         default: false
+      expected_revision:
+        description: "Source commit recorded in the image revision label. Accepted for compatibility with upstream's release-stable-docker caller."
+        required: false
+        type: string
+        default: ""
   push:
     tags: ['v*.*.*']
   pull_request:
@@ -129,6 +134,7 @@ jobs:
             type=sha,prefix=manual-sha-,format=short,enable=${{ steps.mode.outputs.publish != 'true' && github.event_name == 'workflow_dispatch' }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ inputs.expected_revision || github.sha }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
