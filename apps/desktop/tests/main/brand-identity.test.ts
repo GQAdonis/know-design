@@ -2,6 +2,7 @@ import { SIDECAR_SOURCES } from "@open-design/sidecar-proto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  brandAppIconPublicPath,
   brandCompactName,
   brandIssuesUrl,
   brandProductName,
@@ -20,6 +21,16 @@ const KD = { OD_BUILD_PROFILE: "knowdesign" };
 
 const invite = (scheme: string) =>
   `${scheme}://workspace/invite/continue?workspace_id=w&member_id=m&invite_id=i&nonce=n`;
+
+describe("brand app icon", () => {
+  it("keeps the upstream web/public icon for Open Design", () => {
+    expect(brandAppIconPublicPath(OD)).toBe("app-icon.png");
+  });
+
+  it("reads the brand slot under the knowdesign profile", () => {
+    expect(brandAppIconPublicPath(KD)).toBe("brands/knowdesign/app-icon.png");
+  });
+});
 
 describe("brand display strings", () => {
   it("keeps today's Open Design literals with no profile", () => {
