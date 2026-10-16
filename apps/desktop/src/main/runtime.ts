@@ -44,7 +44,7 @@ import {
   splashPixelScanScript,
 } from "./splash-pixel-scan.js";
 import { RendererCrashLoopBreaker } from "./renderer-crash-loop.js";
-import { brandCompactName, brandRepoUrl } from "./brand.js";
+import { brandAppIconPublicPath, brandCompactName, brandRepoUrl } from "./brand.js";
 import type { PrintReadyPdfOptions } from "./pdf-export.js";
 import type { DesktopUpdater } from "./updater.js";
 import { parseDesktopUpdateMenuLabels } from "./update-menu.js";
@@ -1546,7 +1546,7 @@ export function createSplashWindow(): SplashWindowHandle {
 }
 
 function resolveDesktopIconPath(): string {
-  return resolve(dirname(fileURLToPath(import.meta.url)), "../../../web/public/app-icon.png");
+  return resolve(dirname(fileURLToPath(import.meta.url)), "../../../web/public", brandAppIconPublicPath());
 }
 
 function applyDockIcon(): void {

@@ -30,3 +30,13 @@ export function brandIssuesUrl(env: BrandEnv = process.env): string {
 export function brandRepoUrl(env: BrandEnv = process.env): string {
   return `https://github.com/${resolveBrand(env).githubRepo}`;
 }
+
+/**
+ * Dock/window icon for the running brand, relative to `apps/web/public`. Open
+ * Design keeps the upstream `app-icon.png`; any other brand reads its own slot
+ * under `brands/<id>/`, mirroring how tools-pack resolves packaged icons.
+ */
+export function brandAppIconPublicPath(env: BrandEnv = process.env): string {
+  const { id } = resolveBrand(env);
+  return id === "open-design" ? "app-icon.png" : `brands/${id}/app-icon.png`;
+}
