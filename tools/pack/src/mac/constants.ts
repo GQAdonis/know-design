@@ -35,6 +35,9 @@ export const ELECTRON_BUILDER_FILE_PATTERNS = [
   // steer electron-builder's node_modules collection and must not ship.
   "!pnpm-workspace.yaml",
   "!package-lock.json",
+  // Dependency tarballs can carry dotenv credentials; never ship them.
+  "!**/.env",
+  "!**/.env.*",
   "!**/*.map",
   "!**/*.tsbuildinfo",
   "!**/.next/cache",
