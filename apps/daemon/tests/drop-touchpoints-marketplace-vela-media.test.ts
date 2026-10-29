@@ -169,7 +169,7 @@ describe('knowdesign profile: CLI surface', () => {
     for (const sub of ['login', 'publish', 'publish-repo', 'open-design-pr']) {
       const result = await run(['plugin', sub], true);
       expect(result.code).toBe(2);
-      expect(result.stderr).toContain(`unknown subcommand: od plugin ${sub}`);
+      expect(result.stderr).toContain(`unknown subcommand: knowdesign plugin ${sub}`);
     }
   });
 
@@ -181,6 +181,6 @@ describe('knowdesign profile: CLI surface', () => {
     expect(off.stdout).toContain('od marketplace login');
     const rejected = await run(['marketplace', 'login', 'x'], true);
     expect(rejected.code).toBe(2);
-    expect(rejected.stderr).toContain('unknown subcommand: od marketplace login');
+    expect(rejected.stderr).toContain('unknown subcommand: knowdesign marketplace login');
   });
 });

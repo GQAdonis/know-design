@@ -29,12 +29,14 @@ export function userStateDirName(env: NodeJS.ProcessEnv = process.env): string {
 
 // Command-position `od` tokens in help and error text: a line that starts with
 // the command (optionally after `$ ` or `Usage:`), a backticked command, or a
-// command introduced by run/use/try. Anything else (JSON keys, prose such as
-// "od-ish", user data) is left alone.
+// command introduced by run/use/try or by an error/usage label such as
+// `unknown subcommand:`. Anything else (JSON keys, prose such as "od-ish",
+// user data) is left alone.
 const LINE_START_COMMAND = /^([ \t]*(?:\$[ \t]+)?(?:Usage:[ \t]+)?)od(?=[ \t]|$)/gm;
 const INLINE_USAGE = /(Usage:[ \t]+)od(?=[ \t]|$)/g;
 const BACKTICKED_COMMAND = /(`)od(?=[ \t`])/g;
 const INTRODUCED_COMMAND = /\b((?:run|use|try|via|with|Run|Use|Try)[ \t]+)od(?=[ \t]+[a-z-])/g;
+const LABELLED_COMMAND = /\b((?:unknown subcommand|usage|or|required):[ \t]+)od(?=[ \t]+[a-z-])/g;
 
 /**
  * Rewrite the `od` command name in CLI help and error text to the brand's
@@ -47,7 +49,8 @@ export function brandCliText(text: string, cliBin: string): string {
     .replace(LINE_START_COMMAND, `$1${cliBin}`)
     .replace(INLINE_USAGE, `$1${cliBin}`)
     .replace(BACKTICKED_COMMAND, `$1${cliBin}`)
-    .replace(INTRODUCED_COMMAND, `$1${cliBin}`);
+    .replace(INTRODUCED_COMMAND, `$1${cliBin}`)
+    .replace(LABELLED_COMMAND, `$1${cliBin}`);
 }
 
 const CONSOLE_METHODS = ['log', 'info', 'warn', 'error'] as const;

@@ -202,6 +202,25 @@ describe('item 5: CLI command name', () => {
     );
   });
 
+  it('rewrites commands introduced by an error or usage label', () => {
+    const text = [
+      'unknown subcommand: od marketplace login',
+      'usage: od media wait <taskId>',
+      '   or: od memory rule suggest --prompt-file <path|->',
+      'projectId is required: od deploy <projectId> --file <fileName>',
+      'error: od is not running',
+    ].join('\n');
+    expect(brandCliText(text, 'knowdesign')).toBe(
+      [
+        'unknown subcommand: knowdesign marketplace login',
+        'usage: knowdesign media wait <taskId>',
+        '   or: knowdesign memory rule suggest --prompt-file <path|->',
+        'projectId is required: knowdesign deploy <projectId> --file <fileName>',
+        'error: od is not running',
+      ].join('\n'),
+    );
+  });
+
   it('exposes both bins from the root and the daemon package, pointing at the same entry', () => {
     const root = JSON.parse(readFileSync(path.join(HERE, '..', '..', '..', 'package.json'), 'utf8'));
     const daemon = JSON.parse(readFileSync(path.join(HERE, '..', 'package.json'), 'utf8'));
