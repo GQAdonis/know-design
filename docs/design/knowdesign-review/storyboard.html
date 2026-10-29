@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KnowDesign Review — flows</title>
+  <meta name="description" content="Step-by-step flows for the KnowDesign Review hub: Pipeline, Inbox, Releases, Settings and the cloud Studio on the Universal Agent Runtime.">
+  <script>
+    (function () {
+      var p = localStorage.getItem("kd-review-theme") || "system";
+      var t = p === "system" ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") : p;
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="app/styles.css">
+  <style>
+    body { overflow-y: auto; }
+    .sb-top { position: sticky; top: 0; z-index: 10; background: var(--chrome); display: flex; align-items: center; gap: var(--s4); padding: var(--s3) var(--s5); flex-wrap: wrap; }
+    .sb-top nav { display: flex; gap: var(--s1); flex-wrap: wrap; }
+    .sb-top nav a { min-height: 40px; display: inline-flex; align-items: center; padding: 0 var(--s3); border-radius: var(--r-md); color: var(--fg-sub); font-weight: 600; font-size: var(--text-sm); }
+    @media (hover: hover) { .sb-top nav a:hover { background: var(--hover); color: var(--fg); } }
+    .sb-main { max-width: 1240px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s7); display: grid; gap: var(--s7); }
+    .sb-hero { display: grid; gap: var(--s3); max-width: 72ch; }
+    .sb-hero h1 { font-size: clamp(32px, 1.4rem + 2.4vw, 52px); letter-spacing: -0.02em; }
+    .sb-hero p { color: var(--fg-sub); font-size: var(--text-base); }
+    .sb-section { display: grid; gap: var(--s5); scroll-margin-top: 80px; }
+    .sb-head { display: grid; gap: var(--s2); max-width: 72ch; }
+    .sb-head h2 { font-size: var(--text-2xl); }
+    .sb-head p { color: var(--fg-sub); }
+    .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); counter-reset: step; }
+    .step { background: var(--surface); border-radius: var(--r-xl); padding: var(--s4); display: grid; gap: var(--s3); align-content: start; }
+    .step-n { display: flex; align-items: center; gap: var(--s2); }
+    .step-n b { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--ember-soft); color: var(--ember-ink); font-family: var(--font-mono); font-size: 13px; flex: none; }
+    .step h3 { font-size: var(--text-lg); }
+    .lab { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-sub); }
+    .does { display: grid; gap: 4px; }
+    .does p { font-size: var(--text-md); }
+    .sys { display: grid; gap: 4px; }
+    .code { margin: 0; background: var(--canvas); border-radius: var(--r-md); padding: var(--s2) var(--s3); font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: var(--fg-sub); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .code .k { color: var(--cyan-ink); }
+    .code .e { color: var(--ember-ink); }
+    .mock { background: var(--canvas); border-radius: var(--r-lg); padding: var(--s3); display: grid; gap: 6px; min-height: 120px; align-content: start; }
+    .mock .bar { height: 10px; border-radius: 4px; background: var(--muted); }
+    .mock .row { display: flex; gap: 6px; align-items: center; }
+    .mock .chip { height: 18px; padding: 0 8px; border-radius: 999px; background: var(--muted); font-family: var(--font-mono); font-size: 10px; display: inline-flex; align-items: center; color: var(--fg-sub); white-space: nowrap; }
+    .mock .chip.e { background: var(--ember-soft); color: var(--ember-ink); }
+    .mock .chip.c { background: var(--cyan-soft); color: var(--cyan-ink); }
+    .mock .chip.g { background: var(--success-soft); color: var(--success-ink); }
+    .mock .chip.w { background: var(--warning-soft); color: var(--warning-ink); }
+    .mock .tile { background: var(--surface); border-radius: 8px; padding: 6px 8px; display: grid; gap: 4px; flex: 1 1 0; min-width: 0; }
+    .mock .btnm { height: 22px; border-radius: 6px; background: var(--ember); padding: 0 10px; font-size: 10px; font-weight: 700; color: var(--on-ember); display: inline-flex; align-items: center; white-space: nowrap; }
+    .mock .tx { font-size: 11px; color: var(--fg); line-height: 1.35; }
+    .mock .tx.s { color: var(--fg-sub); }
+    .go { justify-self: start; }
+    .arch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); }
+    .lane-arch { background: var(--surface); border-radius: var(--r-xl); padding: var(--s4); display: grid; gap: var(--s3); align-content: start; }
+    .lane-arch h3 { font-size: var(--text-lg); display: flex; gap: var(--s2); align-items: center; }
+    .hop { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+    .node { background: var(--raised); border-radius: var(--r-md); padding: var(--s2) var(--s3); display: grid; gap: 2px; min-width: 0; }
+    .node b { font-size: var(--text-sm); }
+    .node span { font-family: var(--font-mono); font-size: 11px; color: var(--fg-sub); }
+    .node.c { background: var(--cyan-soft); }
+    .node.e { background: var(--ember-soft); }
+    .arrow { color: var(--fg-sub); font-family: var(--font-mono); }
+    .same { background: var(--success-soft); border-radius: var(--r-xl); padding: var(--s4); display: grid; gap: var(--s2); grid-column: 1 / -1; }
+    .same ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+    .note { font-size: var(--text-sm); color: var(--fg-sub); }
+    @media (max-width: 1023px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .arch { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 767px) { .steps { grid-template-columns: minmax(0, 1fr); } .sb-main { padding: var(--s5) var(--s4) var(--s6); } .sb-top { padding: var(--s3) var(--s4); } }
+  </style>
+</head>
+<body>
+  <header class="sb-top">
+    <a class="brand" href="index.html#/pipeline" aria-label="Open KnowDesign Review">
+      <svg viewBox="0 0 1024 1024" width="32" height="32" aria-hidden="true"><rect width="1024" height="1024" rx="225" fill="#0B0F14"/><rect x="272" y="212" width="100" height="600" rx="50" fill="#E8EDF3"/><path d="M322 262H452A250 250 0 0 1 452 762H322" fill="none" stroke="#E8EDF3" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"/><circle cx="322" cy="512" r="62" fill="#FF6A3D"/></svg>
+      <span class="wordmark" style="font-size:17px">Know<b>Design</b></span>
+    </a>
+    <nav aria-label="Flows" class="od-fill">
+      <a href="#architecture">Architecture</a><a href="#pipeline">Pipeline</a><a href="#inbox">Inbox</a><a href="#releases">Releases</a><a href="#settings">Settings</a><a href="#studio">Studio</a><a href="#admin">Admin &amp; server</a><a href="#projects">Projects</a><a href="#customer-links">Customer links</a>
+    </nav>
+    <div class="seg" role="group" aria-label="Theme" id="sb-theme">
+      <button type="button" data-t="system" aria-label="System theme">System</button><button type="button" data-t="light" aria-label="Light theme">Light</button><button type="button" data-t="dark" aria-label="Dark theme">Dark</button>
+    </div>
+  </header>
+
+  <main class="sb-main" id="content">
+    <section class="sb-hero" aria-labelledby="hero-h">
+      <div class="eyebrow">KnowDesign Review · flows</div>
+      <h1 id="hero-h">From a design in KnowDesign to a customer link, desktop or cloud</h1>
+      <p>Each flow below shows what you do, what the review hub or the Universal Agent Runtime does in response, and a link into that screen of the prototype. Hub endpoints are the proposed contract for <span class="mono">review.know-me.tools</span>. UAR requests follow <span class="mono">docs/AGUI_V1.md</span>.</p>
+    </section>
+
+    <!-- ── Architecture ── -->
+    <section class="sb-section" id="architecture" aria-labelledby="arch-h">
+      <div class="sb-head"><div class="eyebrow">Architecture</div><h2 id="arch-h">Same agent experience, two ways to run it</h2>
+        <p>The desktop app starts a CLI agent on your machine. In the cloud there's no CLI, so the hub asks UAR to run the agent. Both send the same AG-UI events to the same blocks on screen.</p></div>
+      <div class="arch">
+        <div class="lane-arch"><h3>Desktop</h3>
+          <div class="hop"><div class="node"><b>KnowDesign app</b><span>web UI</span></div><span class="arrow" aria-hidden="true">→</span><div class="node"><b>Local daemon</b><span>apps/daemon</span></div><span class="arrow" aria-hidden="true">→</span><div class="node e"><b>CLI agent</b><span>Claude Code · Codex</span></div></div>
+          <p class="note">Files land on your disk. Publishing uploads a snapshot to the hub.</p></div>
+        <div class="lane-arch"><h3>Cloud (Studio)</h3>
+          <div class="hop"><div class="node"><b>Browser</b><span>design.know-me.tools</span></div><span class="arrow" aria-hidden="true">→</span><div class="node"><b>Review hub</b><span>review.know-me.tools</span></div><span class="arrow" aria-hidden="true">→</span><div class="node c"><b>UAR</b><span>/api/uar/ag-ui/agents/{id}</span></div><span class="arrow" aria-hidden="true">→</span><div class="node"><b>Models + MCP tools</b><span>Cedar-gated</span></div></div>
+          <p class="note">Files land in the cloud workspace. Identity comes from Kratos; flint-gate issues the token UAR checks.</p></div>
+        <div class="same"><b>What stays the same</b><ul>
+          <li>Reasoning, tool steps, file writes and text show up as the same blocks.</li>
+          <li>Risky tools pause and wait for you. In UAR that pause is an interrupt; your answer is a resume.</li>
+          <li>Publish, comments, approval and release all run through the same review hub.</li></ul></div>
+      </div>
+    </section>
+
+    <!-- ── Pipeline ── -->
+    <section class="sb-section" id="pipeline" aria-labelledby="pl-h">
+      <div class="sb-head"><div class="eyebrow">Flow 1</div><h2 id="pl-h">Pipeline: publish and track</h2><p>Every design moves through five stages. The board is the author's home screen.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Publish from KnowDesign</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tx">Publish for review</div><div class="bar" style="width:80%"></div><div class="row"><span class="chip">14 days</span><span class="chip c">Anyone with link</span></div><div class="row"><span class="btnm">Publish and get link</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Pick a project, how long the link lasts, and who can open it.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">POST</span> /v1/publications
+{ project, expiresInDays: 14, access: "guest" }
+<span class="e">→ 201</span> { slug: "cc-7Hq2…", reviewUrl }</pre></div>
+          <a class="btn go" href="index.html#/pipeline">Open Pipeline</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Snapshot is isolated</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip">snap.know-me.tools</span><span class="chip g">sandbox</span></div><div class="bar"></div><div class="bar" style="width:60%"></div></div>
+          <div class="does"><span class="lab">You</span><p>Nothing to do. The card appears under In review.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code">store snapshot (≤ 25 MB)
+serve from snap origin · <span class="k">CSP: sandbox</span>
+no cookies shared with review host</pre></div>
+          <a class="btn go" href="index.html#/design/consult-capture">Open a review room</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>Gate decides the stage</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip c">In review</span><span class="chip w">Changes</span><span class="chip g">Approved</span><span class="chip e">Released</span></div><div class="tx s">2 of 2 approvals · 0 open</div></div>
+          <div class="does"><span class="lab">You</span><p>Approve or request changes. Open comments block approval if the policy says so.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">POST</span> /v1/publications/{id}/approvals
+{ version: 3, decision: "approve" }
+<span class="e">→</span> stage: "approved" when count ≥ policy</pre></div>
+          <a class="btn go" href="index.html#/design/global-policy">See an approved design</a></article>
+      </div>
+    </section>
+
+    <!-- ── Inbox ── -->
+    <section class="sb-section" id="inbox" aria-labelledby="ib-h">
+      <div class="sb-head"><div class="eyebrow">Flow 2</div><h2 id="ib-h">Inbox: hear from reviewers</h2><p>Guests comment without an account. Their comments come back to the author's inbox and the KnowDesign badge.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Guest pins a comment</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tx">Your name</div><div class="bar" style="width:70%"></div><div class="row"><span class="chip c">● 1</span><span class="tx s">“Make the on-device tag bigger.”</span></div></div>
+          <div class="does"><span class="lab">Reviewer</span><p>Opens the link, enters a name, clicks the spot, writes the comment.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">POST</span> /r/{slug}/comments
+{ x, y, anchor, text } · guest cookie
+rate limit 30/min · ≤ 2000 chars</pre></div>
+          <a class="btn go" href="index.html#/r/cc-7Hq2ZfL9wXv3TnKp4R8sJm" target="_blank" rel="noopener">Open as a guest</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Triage in one place</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip e">New · 4</span><span class="chip">Guests</span><span class="chip">All designs</span></div><div class="tile"><div class="tx">Clinic reviewer · Consult Capture #1</div><div class="tx s">“Stop &amp; draft note” reads like it sends…</div></div></div>
+          <div class="does"><span class="lab">You</span><p>Filter by guests or team and by design. Reply or resolve without leaving the inbox.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">GET</span> /teams/{t}/projects/{p}/comments
+If-None-Match → <span class="e">304</span> when nothing new
+replies keep the comment's seq</pre></div>
+          <a class="btn go" href="index.html#/inbox">Open Inbox</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>Jump to the pin</h3></div>
+          <div class="mock" aria-hidden="true"><div class="bar"></div><div class="row"><span class="chip e">● 3</span><span class="bar" style="flex:1"></span></div><div class="tx s">Thread highlighted beside the preview</div></div>
+          <div class="does"><span class="lab">You</span><p>“Show on design” opens the review room with that pin and thread selected.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code">comment marked read for you
+guest sees your reply on next visit</pre></div>
+          <a class="btn go" href="index.html#/design/consult-capture">Open the room</a></article>
+      </div>
+    </section>
+
+    <!-- ── Releases ── -->
+    <section class="sb-section" id="releases" aria-labelledby="rl-h">
+      <div class="sb-head"><div class="eyebrow">Flow 3</div><h2 id="rl-h">Releases: send approved work to customers</h2><p>Only approved designs can go out. Each customer link has its own expiry and optional passcode.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Fill in the release</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Northwind Clinic</div><div class="tx s">4 contacts</div></div><div class="row"><span class="chip">30 days</span><span class="chip e">Passcode</span><span class="chip c">Agent notes</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Choose the customer, expiry, passcode and watermark. The agent drafts release notes from the change log.</p></div>
+          <div class="sys"><span class="lab">UAR</span><pre class="code">tool <span class="k">release.draft_notes</span>
+inputs: version notes + resolved comments</pre></div>
+          <a class="btn go" href="index.html#/release/global-policy">Open a release form</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Confirm and share</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip g">✓ Shared</span></div><div class="row"><span class="tx s" style="font-family:var(--font-mono)">review.know-me.tools/c/c-…</span><span class="btnm">Copy</span></div></div>
+          <div class="does"><span class="lab">You</span><p>A confirmation lists exactly who gets access. Then copy the link; send the passcode separately.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">POST</span> /v1/publications/{id}/releases
+{ customer, expiresInDays, passcode?, watermark }
+<span class="e">→ 201</span> { customerUrl } · audit entry</pre></div>
+          <a class="btn go" href="index.html#/releases">Open Releases</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>Extend or revoke</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Build your bench · v4</div><div class="row"><span class="chip">Extend</span><span class="chip w">Revoke</span></div></div></div>
+          <div class="does"><span class="lab">You</span><p>Per customer, extend a link up to the 90-day limit or revoke it. Revoking keeps the design approved.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">PATCH</span> /v1/releases/{id} { expiresAt }
+<span class="k">DELETE</span> /v1/releases/{id} <span class="e">→</span> link returns 404</pre></div>
+          <a class="btn go" href="index.html#/releases">Manage customer links</a></article>
+      </div>
+    </section>
+
+    <!-- ── Settings ── -->
+    <section class="sb-section" id="settings" aria-labelledby="st-h">
+      <div class="sb-head"><div class="eyebrow">Flow 4</div><h2 id="st-h">Settings: the configuration portal</h2><p>One place for who can review, where things are hosted, limits, the approval gate, the agent and its runtime.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Who can review</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Guest links + KnowMe accounts</div></div><div class="row"><span class="chip">Kratos URL</span><span class="chip">flint-gate issuer</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Choose guest links, KnowMe accounts, or both. Approvers always sign in.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code">verifies flint-gate JWT via JWKS
+aud: knowdesign-review</pre></div>
+          <a class="btn go" href="index.html#/settings/identity">Open Admin › Identity</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Point Studio at UAR</h3></div>
+          <div class="mock" aria-hidden="true"><div class="bar" style="width:85%"></div><div class="row"><span class="chip">agent id</span><span class="chip">workspace</span><span class="chip c">Test connection</span></div><div class="row"><span class="chip g">✓ Runtime reachable</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Enter the runtime URL, agent ID and workspace. Test connection makes a real request and says exactly what failed.</p></div>
+          <div class="sys"><span class="lab">UAR</span><pre class="code"><span class="k">GET</span> {base}/health
+Authorization: Bearer •••
+x-uar-workspace-id: know-me-tools</pre></div>
+          <a class="btn go" href="index.html#/settings/runtime">Open Agent runtime</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>Policy changes behavior</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="tx od-fill">Block approval while comments are open</span><span class="chip e">On</span></div><div class="row"><span class="tx od-fill">Approvals needed</span><span class="chip">2</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Save, and the gate, the agent's tools and the limits change across the app immediately.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">PUT</span> /v1/workspace/settings/{section}
+applies to new publications</pre></div>
+          <a class="btn go" href="index.html#/settings/approvals">Open Approval policy</a></article>
+      </div>
+    </section>
+
+    <!-- ── Studio ── -->
+    <section class="sb-section" id="studio" aria-labelledby="sd-h">
+      <div class="sb-head"><div class="eyebrow">Flow 5</div><h2 id="sd-h">Studio: design with a cloud agent on UAR</h2>
+        <p>The web replacement for the desktop's CLI agents. Without a runtime URL the prototype plays back a recorded stream made of the same frames, so you can walk the whole flow.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Start a session</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tx">What should the agent design?</div><div class="bar"></div><div class="bar" style="width:70%"></div><div class="row"><span class="chip">Consult Capture</span><span class="btnm">Start session</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Write a brief and pick the project to start from.</p></div>
+          <div class="sys"><span class="lab">UAR</span><pre class="code"><span class="k">POST</span> /api/uar/ag-ui/agents/{agent_id}
+{ threadId, runId, protocolVersion: "1.0",
+  messages: [{ role: "user", content }],
+  tools: [], context: [...] }</pre></div>
+          <a class="btn go" href="index.html#/studio">Open Studio</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Watch it work</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip c">Thinking · 1.2 s</span></div><div class="tile"><div class="row"><span class="tx" style="font-family:var(--font-mono)">design_system.get_tokens</span><span class="chip g">Done</span></div></div><div class="tile"><div class="row"><span class="tx" style="font-family:var(--font-mono)">workspace.read_file</span><span class="chip g">Done</span></div></div></div>
+          <div class="does"><span class="lab">You</span><p>Reasoning streams in a collapsed block, and each tool call shows its state and arguments.</p></div>
+          <div class="sys"><span class="lab">UAR → SSE</span><pre class="code">RUN_STARTED
+REASONING_MESSAGE_START / CONTENT / END
+TOOL_CALL_START / ARGS / END / RESULT
+TEXT_MESSAGE_START / CONTENT / END</pre></div>
+          <a class="btn go" href="index.html#/studio">Try the demo stream</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>It asks before risky steps</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile" style="background:var(--ember-soft)"><div class="tx">The agent wants to run web.fetch</div><div class="tx s">Network request outside the workspace</div><div class="row"><span class="chip w">Deny</span><span class="btnm">Approve</span></div></div></div>
+          <div class="does"><span class="lab">You</span><p>The stream stops and shows the tool, its arguments and why it needs approval.</p></div>
+          <div class="sys"><span class="lab">UAR → SSE</span><pre class="code">RUN_FINISHED { outcome: { type: <span class="e">"interrupt"</span>,
+  interrupts: [{ id, reason: "tool_approval",
+                 toolCallId }] } }</pre></div>
+          <a class="btn go" href="index.html#/studio">See the approval</a></article>
+        <article class="step"><div class="step-n"><b>4</b><h3>Your answer resumes the run</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip g">✓ Approved · web.fetch</span></div><div class="tile"><div class="row"><span class="tx" style="font-family:var(--font-mono)">workspace.write_file</span><span class="chip c">Running</span></div></div></div>
+          <div class="does"><span class="lab">You</span><p>Approve or deny. A denied call is shown as never run, not as a success.</p></div>
+          <div class="sys"><span class="lab">UAR</span><pre class="code"><span class="k">POST</span> /api/uar/ag-ui/agents/{agent_id}
+{ threadId, runId: <span class="e">new</span>, parentRunId,
+  messages: [], resume: [{ interruptId,
+  status: "resolved", payload: { approved } }] }</pre></div>
+          <a class="btn go" href="index.html#/studio">Open Studio</a></article>
+        <article class="step"><div class="step-n"><b>5</b><h3>Files and live preview</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx" style="font-family:var(--font-mono)">screens/consult-history.html</div></div><div class="bar" style="height:44px"></div></div>
+          <div class="does"><span class="lab">You</span><p>Written files appear in the workspace panel with a sandboxed preview. Stop and Reconnect pick up from the last event.</p></div>
+          <div class="sys"><span class="lab">UAR</span><pre class="code">STATE_DELTA [{ op: "add", path: "/files/-" }]
+<span class="k">GET</span> …/threads/{t}/runs/{r}/stream
+Last-Event-ID: {cursor}</pre></div>
+          <a class="btn go" href="index.html#/studio">Open Studio</a></article>
+        <article class="step"><div class="step-n"><b>6</b><h3>Publish for review</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="btnm">Publish for review</span></div><div class="row"><span class="chip c">In review</span><span class="tx s">→ Inbox → Gate → Release</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Hand the result to the hub. From here it's the same pipeline as a desktop design.</p></div>
+          <div class="sys"><span class="lab">Hub</span><pre class="code"><span class="k">POST</span> /v1/publications
+{ source: "cloud-workspace", file }</pre></div>
+          <a class="btn go" href="index.html#/pipeline">Back to Pipeline</a></article>
+      </div>
+      <p class="note">Not yet in UAR: a cloud workspace file tool. <span class="mono">workspace.write_file</span> and <span class="mono">workspace.read_file</span> are the proposed tools, served by the hub as an MCP server that UAR admits under Cedar policy.</p>
+    </section>
+    <!-- ── Admin & server ── -->
+    <section class="sb-section" id="admin" aria-labelledby="ad-h">
+      <div class="sb-head"><div class="eyebrow">Flow 6</div><h2 id="ad-h">Admin and server: run an Open Design compliant server</h2>
+        <p>The admin console covers what the daemon's <span class="mono">/api/*</span> routes let a workspace admin do. The full route-by-route map is in <a href="server-interfaces.md">server-interfaces.md</a>.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Check conformance</h3></div>
+          <div class="mock" aria-hidden="true"><div class="bar" style="width:80%"></div><div class="row"><span class="chip g">Projects · 200</span><span class="chip g">Agents · 200</span></div><div class="row"><span class="chip w">Members · 401</span><span class="chip">Runs · …</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Enter a server URL and run the checks. Each API area shows as supported, needs sign-in, missing or unreachable.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">GET</span> /api/health · /api/version
+<span class="k">GET</span> /api/projects · /api/agents · /api/skills
+<span class="k">GET</span> /api/workspace/members · /api/runs …</pre></div>
+          <a class="btn go" href="index.html#/admin/conformance">Open Server conformance</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Invite a member</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">clinic.lead@northwind-clinic…</div><div class="tx s">Member · pending</div></div><div class="row"><span class="chip">Copy link</span><span class="chip w">Revoke</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Enter an email and role. Copy the invite link or revoke it; change roles or remove people from the same screen.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">POST</span> /api/workspace/invite
+{ email, role: "member" | "admin" }
+<span class="k">GET</span> /api/workspace/members</pre></div>
+          <a class="btn go" href="index.html#/admin/members">Open Members</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>Install and trust a plugin</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Next.js export · od-nextjs-export</div><div class="row"><span class="chip w">Not trusted</span><span class="chip">Doctor</span></div></div></div>
+          <div class="does"><span class="lab">You</span><p>Install from a registry, link or folder. Plugins start untrusted; trusting one asks for confirmation and says what it allows.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">POST</span> /api/plugins/install
+<span class="k">POST</span> /api/plugins/:id/trust
+<span class="k">POST</span> /api/plugins/:id/doctor</pre></div>
+          <a class="btn go" href="index.html#/admin/plugins">Open Plugins</a></article>
+        <article class="step"><div class="step-n"><b>4</b><h3>Add an MCP server</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip">Streamable HTTP</span><span class="chip c">OAuth</span></div><div class="bar"></div><div class="row"><span class="btnm">Save server</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Give it a name, transport and URL, then connect with OAuth. Agents get its tools; write tools still ask in every run.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">PUT</span> /api/mcp/servers
+<span class="k">POST</span> /api/mcp/oauth/start</pre></div>
+          <a class="btn go" href="index.html#/admin/mcp">Open MCP servers</a></article>
+        <article class="step"><div class="step-n"><b>5</b><h3>Watch and cancel a run</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="tx od-fill">Consult Capture · UAR cloud agent</span><span class="chip c">Running</span></div><div class="row"><span class="chip">Events</span><span class="chip w">Cancel</span></div></div>
+          <div class="does"><span class="lab">You</span><p>See every run on the server, open its events, cancel a running one, or replay a finished one from saved events.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">GET</span> /api/runs · /api/runs/:id/events
+<span class="k">POST</span> /api/runs/:id/cancel
+<span class="k">POST</span> /api/runs/:runId/replay</pre></div>
+          <a class="btn go" href="index.html#/admin/runs">Open Runs</a></article>
+        <article class="step"><div class="step-n"><b>6</b><h3>Use it as a client</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip">Files</span><span class="chip">Runs</span><span class="chip">Comments</span><span class="chip e">Share &amp; deploy</span></div><div class="bar" style="height:40px"></div></div>
+          <div class="does"><span class="lab">You</span><p>Projects lists everything on the server. Each project has files with preview, run history, comments, export and deploy.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">GET</span> /api/projects/:id/files
+<span class="k">POST</span> /api/projects/:id/export/pdf
+<span class="k">POST</span> /api/projects/:id/deploy</pre></div>
+          <a class="btn go" href="index.html#/projects">Open Projects</a></article>
+      </div>
+      <p class="note">Removed in KnowDesign: billing and wallet (<span class="mono">/api/workspace/billing</span>, Vela wallet). Replaced: Vela sign-in by Kratos/flint-gate, Vela publishing by the review hub.</p>
+    </section>
+    <!-- ── Projects ── -->
+    <section class="sb-section" id="projects" aria-labelledby="pj-h">
+      <div class="sb-head"><div class="eyebrow">Flow 7</div><h2 id="pj-h">Projects: create and manage</h2>
+        <p>Projects is the client view of the server. This flow covers a project's whole life, from creating it to deleting it. Every project tab has its own link.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Start a project</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip e">Blank</span><span class="chip">Template</span><span class="chip">Import</span></div><div class="bar" style="width:80%"></div><div class="row"><span class="chip">KnowMe team</span><span class="btnm">Create project</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Pick blank, a template (a scenario plugin such as <span class="mono">od-new-generation</span>) or an import, then name it. A duplicate name in the same workspace is caught before you submit.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">POST</span> /api/projects
+{ name, workspace, template? | import? }
+<span class="e">→ 201</span> { id } · opens Files</pre></div>
+          <a class="btn go" href="index.html#/projects/new">Open New project</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Set it up</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Design system · KnowMe Flat 2.0</div><div class="tx s">Agent · UAR cloud agent</div></div><div class="row"><span class="chip">Unsaved changes</span><span class="btnm">Save</span></div></div>
+          <div class="does"><span class="lab">You</span><p>In Settings, change the name, description, design system, and the default agent and model for new runs. Save or discard.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">PATCH</span> /api/projects/:id
+{ name, description, designSystem,
+  agent, model }</pre></div>
+          <a class="btn go" href="index.html#/projects/consult-capture/settings">Open project Settings</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>Decide who can open it</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="tx od-fill">Everyone in KnowMe team can view</span><span class="chip e">On</span></div><div class="tile"><div class="tx">Dana Reyes · Can edit</div></div><div class="row"><span class="chip">Invite</span></div></div>
+          <div class="does"><span class="lab">You</span><p>In Access, let the whole workspace view it or only listed people. Set view or edit per person, remove someone, or invite by email.</p></div>
+          <div class="sys"><span class="lab">Server (proposed)</span><pre class="code"><span class="k">PUT</span> /api/projects/:id/access
+{ link, people: [{ id, role }] }
+upstream shares per workspace only</pre></div>
+          <a class="btn go" href="index.html#/projects/consult-capture/access">Open project Access</a></article>
+        <article class="step"><div class="step-n"><b>4</b><h3>Rename, duplicate or move</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Rename…</div><div class="tx">Duplicate</div><div class="tx">Move to workspace…</div></div></div>
+          <div class="does"><span class="lab">You</span><p>Use the “…” menu on a card or in the project header. Duplicates get “(copy)”; moving shows who will see it in the new workspace.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">PATCH</span> /api/projects/:id { name }
+<span class="k">POST</span> /api/projects  (copy)
+<span class="k">POST</span> /api/workspaces/:id/projects/:pid/move</pre></div>
+          <a class="btn go" href="index.html#/projects">Open Projects</a></article>
+        <article class="step"><div class="step-n"><b>5</b><h3>Archive and restore</h3></div>
+          <div class="mock" aria-hidden="true"><div class="row"><span class="chip">Active · 7</span><span class="chip e">Archived · 1</span></div><div class="tile"><div class="tx">KnowMe moodboard</div><div class="tx s">Read-only</div></div></div>
+          <div class="does"><span class="lab">You</span><p>Archiving asks first, makes the project read-only and moves it to Archived. Review and customer links keep working until they expire. Restore brings it back.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">PATCH</span> /api/projects/:id
+{ archived: true | false }</pre></div>
+          <a class="btn go" href="index.html#/projects/archived">Open Archived</a></article>
+        <article class="step"><div class="step-n"><b>6</b><h3>Delete for good</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile" style="background:var(--error-soft)"><div class="tx">Type the project name to confirm</div><div class="bar" style="width:70%"></div></div><div class="row"><span class="btnm" style="background:var(--error-soft);color:var(--error-ink)">Delete project</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Deleting lists what is lost and only works after you type the project's exact name. Projects you can't open show a no-access page with Request access.</p></div>
+          <div class="sys"><span class="lab">Server</span><pre class="code"><span class="k">DELETE</span> /api/projects/:id
+<span class="e">→ 204</span> · review links return 404</pre></div>
+          <a class="btn go" href="index.html#/projects/northwind-intake">See the no-access page</a></article>
+      </div>
+      <p class="note">Per-project access is a proposed KnowDesign addition; upstream Open Design shares projects with the whole workspace. Every screen is also on the <a href="screens.html#projects">screen board</a> in light and dark.</p>
+    </section>
+
+    <!-- ── Customer links ── -->
+    <section class="sb-section" id="customer-links" aria-labelledby="cl-h">
+      <div class="sb-head"><div class="eyebrow">Flow 8</div><h2 id="cl-h">Customer links: manage a release and what the customer sees</h2>
+        <p>This continues Flow 3 after a release goes out: what you can do with a live link, and the customer's side of it.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-n"><b>1</b><h3>Open a link's details</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Build your bench · v4</div><div class="row"><span class="chip g">Live</span><span class="chip">3 views</span></div></div><div class="row"><span class="chip">Live</span><span class="chip">Expired</span><span class="chip">Revoked</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Releases lists every customer link by customer. Filter live, expired or revoked, then open one to see its settings and activity.</p></div>
+          <div class="sys"><span class="lab">Hub (proposed)</span><pre class="code"><span class="k">GET</span> /v1/releases?state=live
+<span class="k">GET</span> /v1/releases/:id</pre></div>
+          <a class="btn go" href="index.html#/releases/rel-bench-northwind">Open a live release</a></article>
+        <article class="step"><div class="step-n"><b>2</b><h3>Extend or revoke</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">Until Dec 18</div><div class="tx s">30 more days</div></div><div class="row"><span class="chip">Extend</span><span class="chip w">Revoke</span></div></div>
+          <div class="does"><span class="lab">You</span><p>Extend up to the 90-day limit, or revoke. Revoking asks first and says how many people lose access; the design stays approved.</p></div>
+          <div class="sys"><span class="lab">Hub (proposed)</span><pre class="code"><span class="k">PATCH</span> /v1/releases/:id { expiresAt }
+<span class="k">DELETE</span> /v1/releases/:id
+<span class="e">→</span> customer sees “turned off”</pre></div>
+          <a class="btn go" href="index.html#/releases/rel-bench-northwind">Open release detail</a></article>
+        <article class="step"><div class="step-n"><b>3</b><h3>Release again</h3></div>
+          <div class="mock" aria-hidden="true"><div class="blocked-panel" style="padding:8px;gap:4px"><span class="tx">This link expired on Sep 11</span></div><div class="row"><span class="btnm">Release again</span></div></div>
+          <div class="does"><span class="lab">You</span><p>An expired or revoked link can't come back, but “Release again” makes a new link with the same settings and a new expiry.</p></div>
+          <div class="sys"><span class="lab">Hub (proposed)</span><pre class="code"><span class="k">POST</span> /v1/publications/:id/releases
+{ customer, expiresInDays,
+  passcode, watermark, comments }</pre></div>
+          <a class="btn go" href="index.html#/releases/rel-chat-northwind">Open an expired release</a></article>
+        <article class="step"><div class="step-n"><b>4</b><h3>Customer enters the passcode</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tx">Enter the passcode</div><div class="bar" style="width:70%"></div><div class="row"><span class="chip w">2 tries left</span><span class="btnm">Open preview</span></div></div>
+          <div class="does"><span class="lab">You</span><p>The customer opens the link and enters the passcode sent separately. A wrong one shows tries left; after 5 it locks for a minute. Demo passcode: <span class="mono">bench-2026</span>.</p></div>
+          <div class="sys"><span class="lab">Hub (proposed)</span><pre class="code"><span class="k">POST</span> /c/:slug/unlock { passcode }
+<span class="e">→</span> signed view cookie · logs a view</pre></div>
+          <a class="btn go" href="index.html#/c/c-Bb7xK2mQ9vL4nT8wPd3a" target="_blank" rel="noopener">Open as the customer</a></article>
+        <article class="step"><div class="step-n"><b>5</b><h3>Customer reviews and comments</h3></div>
+          <div class="mock" aria-hidden="true"><div class="bar" style="height:44px"></div><div class="row"><span class="chip">Northwind · confidential</span></div><div class="row"><span class="chip c">Comment</span></div></div>
+          <div class="does"><span class="lab">You</span><p>They see the watermarked design, the release notes and, if allowed, a comment form. Their comment lands in your Inbox and the release's activity.</p></div>
+          <div class="sys"><span class="lab">Hub (proposed)</span><pre class="code"><span class="k">GET</span> /c/:slug  (sandboxed snapshot)
+<span class="k">POST</span> /c/:slug/comments { name, text }</pre></div>
+          <a class="btn go" href="index.html#/c/c-Pr4mT9xQ2wL7nV5kJ8sd" target="_blank" rel="noopener">Open a link without passcode</a></article>
+        <article class="step"><div class="step-n"><b>6</b><h3>Expired or turned off</h3></div>
+          <div class="mock" aria-hidden="true"><div class="tile"><div class="tx">This link has expired</div><div class="tx s">Ask the KnowMe team for a new link</div></div></div>
+          <div class="does"><span class="lab">You</span><p>Customers on an expired or revoked link get a plain page that says which, and what to do, instead of an error.</p></div>
+          <div class="sys"><span class="lab">Hub (proposed)</span><pre class="code"><span class="k">GET</span> /c/:slug
+<span class="e">→ 410</span> expired · revoked</pre></div>
+          <a class="btn go" href="index.html#/c/c-Rv2kL8mN5bV1cX7zQ3wx" target="_blank" rel="noopener">Open a revoked link</a></article>
+      </div>
+      <p class="note">Hub routes are the proposed contract. View counts and the activity timeline are simulated. See all release screens on the <a href="screens.html#releases">screen board</a>.</p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var KEY = "kd-review-theme";
+      var mq = matchMedia("(prefers-color-scheme: light)");
+      function apply() {
+        var p = localStorage.getItem(KEY) || "system";
+        document.documentElement.dataset.theme = p === "system" ? (mq.matches ? "light" : "dark") : p;
+        document.querySelectorAll("#sb-theme [data-t]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.t === p)); });
+      }
+      document.getElementById("sb-theme").addEventListener("click", function (e) {
+        var b = e.target.closest("[data-t]"); if (!b) return;
+        localStorage.setItem(KEY, b.dataset.t); apply();
+      });
+      mq.addEventListener("change", apply);
+      apply();
+    })();
+  </script>
+</body>
+</html>

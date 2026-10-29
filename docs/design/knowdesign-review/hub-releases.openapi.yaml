@@ -1,0 +1,545 @@
+openapi: 3.1.0
+info:
+  title: KnowDesign review hub — releases and customer links (DRAFT)
+  version: 0.1.0-draft
+  summary: Proposed routes for releasing approved designs to customers.
+  description: |
+    DRAFT. Nothing here is implemented. It turns the "Releases and customer links" and
+    "Customer view" tables in server-interfaces.md into a contract so the routes can be
+    reviewed before they're built. Merge it into docs/contract/openapi.yaml in
+    Know-Me-Tools/know-design-hub once agreed.
+
+    A release is a customer-facing link to one published, approved version of a design.
+    It's separate from the review link (HubPublication.reviewUrl in
+    packages/contracts/src/api/hub.ts). Error bodies reuse HubErrorBody and HubErrorCode
+    from the same file; `gate_not_passed`, `passcode_required` and `link_gone` are new
+    codes this draft adds.
+
+    Two audiences:
+      - Author API (/v1/...): signed-in KnowMe users, flint-gate JWT as a bearer token.
+      - Customer routes (/c/...): no account; a capability slug in the URL, an optional
+        passcode, then a signed view cookie scoped to that one release.
+  license:
+    name: Proprietary
+servers:
+  - url: https://review.know-me.tools
+    description: Review hub (author API and customer pages)
+tags:
+  - name: Releases
+    description: Author API for creating and managing customer links.
+  - name: Customer
+    description: Public routes a customer reaches from a release link.
+
+security:
+  - flintGate: []
+
+paths:
+  /v1/publications/{publicationId}/releases:
+    post:
+      tags: [Releases]
+      operationId: createRelease
+      summary: Release an approved publication to a customer
+      description: |
+        Only allowed when the publication's current version has passed the approval gate.
+        Also used by "Release again": a new release with a new slug; the old one is unchanged.
+      parameters:
+        - $ref: '#/components/parameters/PublicationId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateReleaseRequest' }
+            example:
+              customerId: northwind
+              expiresInDays: 30
+              passcode: bench-2026
+              watermark: true
+              commentsEnabled: true
+              notes: "Build your bench — version 4. This is a design preview, not working software."
+      responses:
+        '201':
+          description: Release created. The passcode is never echoed back.
+          headers:
+            Location:
+              schema: { type: string }
+              description: /v1/releases/{releaseId}
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubRelease' }
+        '400': { $ref: '#/components/responses/InvalidRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The approval gate hasn't passed for the current version (`gate_not_passed`), or the publication isn't live (`state_conflict`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubErrorBody' }
+              example: { error: gate_not_passed, message: "Version 3 has 1 of 2 approvals." }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v1/releases:
+    get:
+      tags: [Releases]
+      operationId: listReleases
+      summary: List customer links
+      parameters:
+        - name: state
+          in: query
+          description: Filter by computed state. Omit for all.
+          schema: { $ref: '#/components/schemas/ReleaseState' }
+        - name: customerId
+          in: query
+          schema: { type: string }
+        - name: publicationId
+          in: query
+          schema: { type: string }
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      responses:
+        '200':
+          description: Releases, newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [releases]
+                properties:
+                  releases:
+                    type: array
+                    items: { $ref: '#/components/schemas/HubRelease' }
+                  nextCursor:
+                    type: [string, 'null']
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v1/releases/{releaseId}:
+    parameters:
+      - $ref: '#/components/parameters/ReleaseId'
+    get:
+      tags: [Releases]
+      operationId: getRelease
+      summary: One release with its activity
+      responses:
+        '200':
+          description: The release and its recent events.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubReleaseDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Releases]
+      operationId: extendRelease
+      summary: Extend a live link
+      description: |
+        Only `expiresAt` can change. It must be later than the current expiry and no more than
+        HubLimits.maxExpiryDays from now. Expired or revoked releases can't be extended;
+        create a new release instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ExtendReleaseRequest' }
+      responses:
+        '200':
+          description: Updated release.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubRelease' }
+        '400': { $ref: '#/components/responses/InvalidRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Release is expired or revoked (`state_conflict`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubErrorBody' }
+    delete:
+      tags: [Releases]
+      operationId: revokeRelease
+      summary: Revoke a link
+      description: Immediate. The customer link answers 410 from then on. Comments already received stay.
+      responses:
+        '204': { description: Revoked. Repeating the call is a no-op. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /c/{slug}:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    get:
+      tags: [Customer]
+      operationId: getCustomerView
+      summary: Customer page for a release link
+      security:
+        - {}
+        - customerView: []
+      description: |
+        Returns the customer page. `Accept: application/json` returns the page data instead.
+        The design itself loads in a sandboxed iframe from snap.know-me.tools, the same way
+        review links work. Without the view cookie on a passcode-protected release, the page
+        data has `locked: true` and no design or notes.
+      responses:
+        '200':
+          description: Live link.
+          content:
+            text/html:
+              schema: { type: string }
+            application/json:
+              schema: { $ref: '#/components/schemas/CustomerView' }
+        '404':
+          description: No release with this slug.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubErrorBody' }
+        '410':
+          description: The link has expired or was revoked. The body says which so the page can explain it.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LinkGone' }
+              examples:
+                expired: { value: { error: link_gone, reason: expired, endedAt: '2026-09-11T00:00:00Z' } }
+                revoked: { value: { error: link_gone, reason: revoked, endedAt: '2026-10-12T15:04:00Z' } }
+
+  /c/{slug}/unlock:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Customer]
+      operationId: unlockCustomerView
+      summary: Enter the passcode
+      security:
+        - {}
+      description: |
+        On success sets the `kd_view` cookie (HttpOnly, Secure, SameSite=Lax, Path=/c/{slug},
+        lifetime no longer than the release) and logs a `view` event. 5 wrong tries per
+        minute per slug and client return 429.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [passcode]
+              additionalProperties: false
+              properties:
+                passcode: { type: string, minLength: 1, maxLength: 64 }
+      responses:
+        '204':
+          description: Unlocked.
+          headers:
+            Set-Cookie:
+              schema: { type: string }
+              description: kd_view=…; HttpOnly; Secure; SameSite=Lax; Path=/c/{slug}
+        '400': { $ref: '#/components/responses/InvalidRequest' }
+        '401':
+          description: Wrong passcode.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WrongPasscode' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '410':
+          description: Expired or revoked.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LinkGone' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /c/{slug}/comments:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Customer]
+      operationId: postCustomerComment
+      summary: Leave a comment on a released design
+      security:
+        - customerView: []
+        - {}
+      description: |
+        Only when the release has `commentsEnabled`. Needs the view cookie if the release has
+        a passcode. Same length and rate limits as guest comments (HubLimits.commentMaxChars,
+        commentsPerMinutePerGuest). The comment reaches the author's Inbox through the
+        collab-cloud comment feed and is logged as a `comment` event on the release.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CustomerCommentRequest' }
+      responses:
+        '201':
+          description: Comment stored.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [commentId, createdAt]
+                properties:
+                  commentId: { type: string }
+                  createdAt: { type: string, format: date-time }
+        '400': { $ref: '#/components/responses/InvalidRequest' }
+        '401':
+          description: Passcode-protected release and no valid view cookie (`passcode_required`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubErrorBody' }
+        '403':
+          description: Comments are off for this release (`forbidden_scope`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HubErrorBody' }
+        '410':
+          description: Expired or revoked.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LinkGone' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+components:
+  securitySchemes:
+    flintGate:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Session JWT minted by flint-gate after Kratos sign-in. Audience `knowdesign-review`.
+    customerView:
+      type: apiKey
+      in: cookie
+      name: kd_view
+      description: Signed view cookie set by POST /c/{slug}/unlock, valid for one release only.
+
+  parameters:
+    PublicationId:
+      name: publicationId
+      in: path
+      required: true
+      schema: { type: string }
+    ReleaseId:
+      name: releaseId
+      in: path
+      required: true
+      schema: { type: string }
+    Slug:
+      name: slug
+      in: path
+      required: true
+      description: Capability slug, at least 128 bits of randomness, prefixed `c-`.
+      schema: { type: string, pattern: '^c-[A-Za-z0-9_-]{22,}$' }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: Retrying with the same key returns the original release instead of making a second link.
+      schema: { type: string, maxLength: 128 }
+
+  responses:
+    InvalidRequest:
+      description: Body or parameters failed validation (`invalid_request`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/HubErrorBody' }
+    Unauthorized:
+      description: Missing or invalid flint-gate token (`unauthorized`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/HubErrorBody' }
+    Forbidden:
+      description: Signed in but not allowed (`forbidden_scope`), e.g. not a member of the publication's workspace.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/HubErrorBody' }
+    NotFound:
+      description: Nothing with that id (`not_found`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/HubErrorBody' }
+    RateLimited:
+      description: Too many requests (`rate_limited`).
+      headers:
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/HubErrorBody' }
+
+  schemas:
+    HubErrorCode:
+      description: Existing codes from hub.ts plus three new ones (gate_not_passed, passcode_required, link_gone).
+      type: string
+      enum:
+        - invalid_request
+        - invalid_path
+        - unauthorized
+        - forbidden_scope
+        - not_found
+        - state_conflict
+        - manifest_mismatch
+        - too_large
+        - rate_limited
+        - gate_not_passed
+        - passcode_required
+        - link_gone
+
+    HubErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          anyOf:
+            - $ref: '#/components/schemas/HubErrorCode'
+            - type: string
+        message: { type: string }
+        retryAfterSeconds: { type: integer, minimum: 0 }
+
+    ReleaseState:
+      description: Computed. `expired` when expiresAt has passed; `revoked` wins over `expired`.
+      type: string
+      enum: [live, expired, revoked]
+
+    ReleaseCustomer:
+      type: object
+      required: [id, name, workspace]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        workspace: { type: string }
+
+    CreateReleaseRequest:
+      type: object
+      required: [customerId, expiresInDays, watermark, commentsEnabled, notes]
+      additionalProperties: false
+      properties:
+        customerId: { type: string }
+        expiresInDays:
+          type: integer
+          minimum: 1
+          description: Must not exceed HubLimits.maxExpiryDays.
+        passcode:
+          type: string
+          pattern: '^\S{6,32}$'
+          description: Optional. Stored hashed; never returned.
+        watermark:
+          type: boolean
+          description: Overlay the customer's name on every screen.
+        commentsEnabled: { type: boolean }
+        notes:
+          type: string
+          minLength: 20
+          maxLength: 4000
+          description: Release notes shown above the design.
+
+    ExtendReleaseRequest:
+      type: object
+      required: [expiresAt]
+      additionalProperties: false
+      properties:
+        expiresAt: { type: string, format: date-time }
+
+    HubRelease:
+      type: object
+      required: [releaseId, publicationId, version, customer, slug, customerUrl, state, createdAt, createdBy, expiresAt, passcodeRequired, watermark, commentsEnabled, notes]
+      properties:
+        releaseId: { type: string }
+        publicationId: { type: string }
+        version:
+          type: integer
+          minimum: 1
+          description: The publication version this link shows. Later versions need a new release.
+        customer: { $ref: '#/components/schemas/ReleaseCustomer' }
+        slug: { type: string }
+        customerUrl:
+          type: string
+          format: uri
+          examples: ['https://review.know-me.tools/c/c-Bb7xK2mQ9vL4nT8wPd3a']
+        state: { $ref: '#/components/schemas/ReleaseState' }
+        createdAt: { type: string, format: date-time }
+        createdBy:
+          type: string
+          description: Author id from HubMeResponse.authorId.
+        expiresAt: { type: string, format: date-time }
+        extendedAt: { type: [string, 'null'], format: date-time }
+        revokedAt: { type: [string, 'null'], format: date-time }
+        revokedBy: { type: [string, 'null'] }
+        passcodeRequired:
+          type: boolean
+          description: Whether a passcode is set. The passcode itself is never returned.
+        watermark: { type: boolean }
+        commentsEnabled: { type: boolean }
+        notes: { type: string }
+        viewCount: { type: integer, minimum: 0 }
+        commentCount: { type: integer, minimum: 0 }
+
+    ReleaseEvent:
+      type: object
+      required: [at, kind]
+      properties:
+        at: { type: string, format: date-time }
+        kind: { type: string, enum: [view, comment, created, extended, revoked] }
+        actor:
+          type: string
+          description: Display name for customers, author id for author actions.
+        commentId: { type: string }
+
+    HubReleaseDetail:
+      allOf:
+        - $ref: '#/components/schemas/HubRelease'
+        - type: object
+          required: [events]
+          properties:
+            events:
+              type: array
+              description: Newest first, most recent 100.
+              items: { $ref: '#/components/schemas/ReleaseEvent' }
+
+    CustomerView:
+      type: object
+      required: [locked, customerName, designName, version, expiresAt, commentsEnabled]
+      properties:
+        locked:
+          type: boolean
+          description: True when a passcode is set and no valid view cookie was sent.
+        customerName: { type: string }
+        designName: { type: string }
+        version: { type: integer }
+        expiresAt: { type: string, format: date-time }
+        watermark: { type: boolean }
+        commentsEnabled: { type: boolean }
+        notes:
+          type: string
+          description: Omitted while locked.
+        snapshotUrl:
+          type: string
+          format: uri
+          description: Sandboxed snapshot on snap.know-me.tools. Omitted while locked.
+
+    LinkGone:
+      type: object
+      required: [error, reason, endedAt]
+      properties:
+        error: { type: string, const: link_gone }
+        reason: { type: string, enum: [expired, revoked] }
+        endedAt: { type: string, format: date-time }
+
+    WrongPasscode:
+      type: object
+      required: [error, triesLeft]
+      properties:
+        error: { type: string, const: unauthorized }
+        message: { type: string }
+        triesLeft: { type: integer, minimum: 0, maximum: 4 }
+
+    CustomerCommentRequest:
+      type: object
+      required: [name, text]
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 2, maxLength: 60 }
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Default limit; the hub enforces HubLimits.commentMaxChars.

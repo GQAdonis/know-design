@@ -58,6 +58,7 @@ const residualSkippedDirectories = new Set([
   ".od-e2e",
   ".opencode",
   // Local agent deepwork/worktree scratch (git-ignored; not product source).
+  ".prometheus",
   ".slim",
   ".task",
   ".tmp",
@@ -214,6 +215,11 @@ const residualAllowedPathPrefixes = [
   "docs/design/chat-sim/",
   "docs/design/chat-panel-diagrams/",
   "docs/design/chat-mirror/",
+  // KnowDesign review-hub prototype: the same kind of double-click-to-open
+  // review carrier as the chat-sim pages above. `index.html` loads `app/*.js`
+  // directly with no build step, so those files stay browser-loadable
+  // JavaScript. Design artifact only; not part of the product runtime.
+  "docs/design/knowdesign-review/",
   "test-results/",
   "vendor/",
 ];
@@ -619,7 +625,9 @@ async function checkTestLayout(): Promise<boolean> {
 }
 
 const e2ePackageJsonPath = path.join(repoRoot, "e2e", "package.json");
-const e2eSkippedDirectories = new Set([".od-data", "node_modules", "reports", "test-results"]);
+// `.prometheus` is local agent-memory scratch written when a session runs from
+// the package directory (git-ignored; not e2e source).
+const e2eSkippedDirectories = new Set([".od-data", ".prometheus", "node_modules", "reports", "test-results"]);
 const e2eAllowedScripts = [
   "test",
   "test:p0",

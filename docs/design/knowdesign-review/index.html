@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KnowDesign Review</title>
+  <meta name="description" content="KnowDesign Review — publish designs for review, collect comments, pass the approval gate, and release to customers.">
+  <meta name="theme-color" content="#0B0F14">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Crect width='1024' height='1024' rx='225' fill='%230B0F14'/%3E%3Crect x='272' y='212' width='100' height='600' rx='50' fill='%23E8EDF3'/%3E%3Cpath d='M322 262H452A250 250 0 0 1 452 762H322' fill='none' stroke='%23E8EDF3' stroke-width='100' stroke-linecap='round'/%3E%3Ccircle cx='322' cy='512' r='62' fill='%23FF6A3D'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      var lock = new URLSearchParams(location.search).get("theme");
+      var p = localStorage.getItem("kd-review-theme") || "system";
+      var t = lock === "light" || lock === "dark" ? lock : p === "system" ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") : p;
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="app/styles.css">
+</head>
+<body>
+  <a href="#content" class="sr-only">Skip to content</a>
+  <div id="app" aria-live="off"></div>
+  <noscript><p style="padding:24px">KnowDesign Review needs JavaScript to run this prototype.</p></noscript>
+  <script src="app/ui.js"></script>
+  <script src="app/data.js"></script>
+  <script src="app/app.js"></script>
+  <script src="app/admin-data.js"></script>
+  <script src="app/admin.js"></script>
+  <script src="app/projects.js"></script>
+  <script src="app/uar.js"></script>
+  <script src="app/lists.js"></script>
+  <script src="app/releases.js"></script>
+  <script src="app/studio.js"></script>
+  <script src="app/room.js"></script>
+  <script src="app/agent.js"></script>
+  <script src="app/release.js"></script>
+  <script src="app/settings.js"></script>
+  <script src="app/guest.js"></script>
+</body>
+</html>

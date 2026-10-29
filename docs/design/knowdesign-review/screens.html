@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KnowDesign — Projects, Releases and Admin screens</title>
+  <meta name="description" content="Every Projects, Releases and Admin screen of the KnowDesign prototype, in light and dark.">
+  <script>
+    (function () {
+      var p = localStorage.getItem("kd-review-theme") || "system";
+      document.documentElement.dataset.theme = p === "system" ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") : p;
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="app/styles.css">
+  <style>
+    body { overflow-y: auto; }
+    .bd-top { position: sticky; top: 0; z-index: 10; background: var(--chrome); display: flex; align-items: center; gap: var(--s4); padding: var(--s3) var(--s5); flex-wrap: wrap; }
+    .bd-top nav { display: flex; gap: var(--s1); flex-wrap: wrap; }
+    .bd-top nav a { min-height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 0 var(--s3); border-radius: var(--r-md); color: var(--fg-sub); font-weight: 600; font-size: var(--text-sm); }
+    .bd-top nav a .mono { color: var(--fg-sub); }
+    @media (hover: hover) { .bd-top nav a:hover { background: var(--hover); color: var(--fg); } }
+    .bd-main { max-width: 1600px; margin: 0 auto; padding: var(--s6) var(--s5) var(--s7); display: grid; gap: var(--s7); }
+    .bd-hero { display: grid; gap: var(--s3); max-width: 76ch; }
+    .bd-hero h1 { font-size: clamp(30px, 1.3rem + 2vw, 48px); letter-spacing: -0.02em; }
+    .bd-hero p { color: var(--fg-sub); font-size: var(--text-base); }
+    .bd-section { display: grid; gap: var(--s5); scroll-margin-top: 84px; }
+    .bd-section > header { display: grid; gap: var(--s2); }
+    .bd-section > header h2 { font-size: var(--text-2xl); }
+    .bd-group { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--fg-sub); padding-top: var(--s3); }
+    .scr { background: var(--surface); border-radius: var(--r-xl); padding: var(--s4); display: grid; gap: var(--s3); }
+    .scr-head { display: flex; align-items: flex-start; gap: var(--s3); flex-wrap: wrap; }
+    .scr-head h3 { font-size: var(--text-lg); }
+    .scr-route { font-family: var(--font-mono); font-size: 12px; color: var(--fg-sub); overflow-wrap: anywhere; }
+    .scr-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+    .scr-fig { margin: 0; display: grid; gap: var(--s2); }
+    .scr-fig figcaption { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-sub); }
+    .scr-view { position: relative; aspect-ratio: 1440 / 900; border-radius: var(--r-lg); overflow: hidden; background: var(--canvas); }
+    .scr-view iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; pointer-events: none; }
+    .scr-view .scr-wait { position: absolute; inset: 0; display: grid; place-items: center; color: var(--fg-sub); font-size: var(--text-sm); }
+    .scr-notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+    .scr-notes > div { background: var(--raised); border-radius: var(--r-lg); padding: var(--s3); display: grid; gap: 6px; align-content: start; }
+    .scr-notes ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: var(--text-sm); }
+    .scr-notes .lab { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-sub); }
+    .bd-filter { max-width: 360px; }
+    .bd-count { color: var(--fg-sub); font-size: var(--text-sm); }
+    @media (max-width: 1023px) { .scr-pair, .scr-notes { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 767px) { .bd-main { padding: var(--s5) var(--s4) var(--s6); } .bd-top { padding: var(--s3) var(--s4); } }
+  </style>
+</head>
+<body>
+  <header class="bd-top">
+    <a class="brand" href="index.html#/projects" aria-label="Open the KnowDesign prototype">
+      <svg viewBox="0 0 1024 1024" width="32" height="32" aria-hidden="true"><rect width="1024" height="1024" rx="225" fill="#0B0F14"/><rect x="272" y="212" width="100" height="600" rx="50" fill="#E8EDF3"/><path d="M322 262H452A250 250 0 0 1 452 762H322" fill="none" stroke="#E8EDF3" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"/><circle cx="322" cy="512" r="62" fill="#FF6A3D"/></svg>
+      <span class="wordmark" style="font-size:17px">Know<b>Design</b></span>
+    </a>
+    <nav aria-label="Areas" class="od-fill" id="bd-nav"></nav>
+    <div class="seg" role="group" aria-label="Board theme" id="bd-theme">
+      <button type="button" data-t="system">System</button><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button>
+    </div>
+  </header>
+
+  <main class="bd-main" id="content">
+    <section class="bd-hero" aria-labelledby="bd-h">
+      <div class="eyebrow">Screen board</div>
+      <h1 id="bd-h">Projects, Releases and Admin — every screen, light and dark</h1>
+      <p>Each tile is the live prototype at that address, pinned to one theme, so the board can't drift from the app. Click “Open” to use a screen. Menus, dialogs and form errors only exist after a click, so each screen lists them under “On this screen”.</p>
+      <div class="field bd-filter"><label for="bd-q">Find a screen</label><input id="bd-q" class="input" type="search" placeholder="Name or route" autocomplete="off"></div>
+      <p class="bd-count" id="bd-count" aria-live="polite"></p>
+    </section>
+    <div id="bd-sections"></div>
+  </main>
+
+  <script>
+  (function () {
+    "use strict";
+    /* name, route, actions (what you can do), states (dialogs, errors, empty) */
+    const SECTIONS = [
+      { id: "projects", title: "Projects", lede: "The client view of the server plus all project management: create, configure, share, and the lifecycle actions.", groups: [
+        { title: "Lists and creation", screens: [
+          ["Projects", "#/projects", ["Search and filter by workspace", "New project", "“…” menu on every card"], ["Actions menu: Rename, Duplicate, Move, Archive, Delete", "No-match empty state with Clear filters", "Cards show stage, owner, files, last update"]],
+          ["Archived projects", "#/projects/archived", ["Restore", "Delete"], ["Empty state when nothing is archived", "Archived cards are dimmed"]],
+          ["New project", "#/projects/new", ["Blank, template or import", "Pick workspace", "Create"], ["Templates are the repo's scenario plugins", "Import accepts .zip or .html", "Name required and unique: inline error on blur and error summary on submit"]],
+        ] },
+        { title: "Project detail", screens: [
+          ["Files", "#/projects/consult-capture/files", ["Pick a file", "Preview HTML"], ["Non-HTML files show a source notice", "“…” menu in the header"]],
+          ["Runs", "#/projects/consult-capture/runs", ["Open run details", "Open in Studio"], ["Empty state with Start in Studio"]],
+          ["Comments", "#/projects/consult-capture/comments", ["Open the review room"], ["Resolved comments dimmed", "Empty state before publishing"]],
+          ["Share and deploy", "#/projects/global-policy/share", ["Copy review link", "Release to customer", "Export", "Deploy"], ["Unpublished: Publish for review", "Deploy blocked until an admin sets a Cloudflare target"]],
+          ["Settings", "#/projects/consult-capture/settings", ["Rename, describe", "Default design system, agent, model", "Save or discard"], ["Unsaved-changes state", "Name error on blur", "Saved confirmation"]],
+          ["Access", "#/projects/consult-capture/access", ["Workspace can view switch", "Change view/edit", "Remove person", "Invite by email"], ["Proposed KnowDesign feature, labelled on screen", "Remove asks first", "Email and duplicate errors inline"]],
+        ] },
+        { title: "Project states", screens: [
+          ["Archived project", "#/projects/knowme-moodboard/files", ["Restore"], ["Read-only banner", "Menu offers Restore and Delete only"]],
+          ["No access", "#/projects/northwind-intake", ["Request access"], ["Shows owner and workspace"]],
+          ["Not found", "#/projects/missing-project", ["Back to Projects"], ["Deleted or moved project"]],
+        ] },
+      ] },
+      { id: "releases", title: "Releases", lede: "Sending approved work to customers, managing each customer link, and what the customer sees.", groups: [
+        { title: "Author side", screens: [
+          ["Releases", "#/releases", ["Release an approved design", "Filter live, expired, revoked, all", "Open a link's details"], ["Grouped by customer", "Empty state per filter"]],
+          ["Release form", "#/release/global-policy", ["Customer, expiry, passcode, watermark, comments", "Redraft notes with the agent", "Release"], ["Error summary linking to each field", "Confirmation listing who gets access"]],
+          ["Release blocked", "#/release/consult-capture", ["Back to the review"], ["Only approved designs can be released"]],
+          ["Released summary", "#/release/build-your-bench", ["Copy link", "Open release details", "Open as customer"], ["Passcode is never shown again"]],
+          ["Release detail · live", "#/releases/rel-bench-northwind", ["Copy link", "Extend", "Revoke", "Open as customer"], ["Extend dialog capped at the 90-day limit", "Revoke asks first", "Activity timeline (simulated)"]],
+          ["Release detail · expired", "#/releases/rel-chat-northwind", ["Release again"], ["Explains what the customer sees", "Release again dialog: new link, same settings"]],
+          ["Release detail · revoked", "#/releases/rel-policy-prom", ["Release again"], ["Shows when and by whom"]],
+        ] },
+        { title: "Customer side", screens: [
+          ["Customer · passcode", "#/c/c-Bb7xK2mQ9vL4nT8wPd3a", ["Enter passcode"], ["Wrong passcode error with tries left", "Locks after 5 tries", "Demo passcode: bench-2026"]],
+          ["Customer · open link", "#/c/c-Pr4mT9xQ2wL7nV5kJ8sd", ["Read release notes"], ["No watermark, comments off for this release"]],
+          ["Customer · expired", "#/c/c-Ex9pR3dT6yU1iO4pA7sd", [], ["Shows the date it ended"]],
+          ["Customer · revoked", "#/c/c-Rv2kL8mN5bV1cX7zQ3wx", [], ["Says the sender turned it off"]],
+        ] },
+      ] },
+      { id: "admin", title: "Admin", lede: "Every admin screen for an Open Design compliant server, including the detail pages behind list rows and the review-hub settings.", groups: [
+        { title: "Server", screens: [
+          ["Status & health", "#/admin/status", ["Check again", "Check integrity", "Compact database", "Shut down"], ["Compact and Shut down ask first"]],
+          ["Server conformance", "#/admin/conformance", ["Enter URL", "Run checks"], ["Real GET requests", "Per-area result and summary", "CORS explanation when nothing answers"]],
+          ["Runs", "#/admin/runs", ["Search", "Filter", "Events", "Cancel", "Replay"], ["Cancel asks first"]],
+          ["Run detail", "#/admin/runs/run-8f21", ["Cancel run", "Open in Studio"], ["Full event timeline"]],
+        ] },
+        { title: "People", screens: [
+          ["Members & invites", "#/admin/members", ["Search", "Change role", "Remove", "Invite", "Copy link", "Revoke invite"], ["Email and duplicate errors inline"]],
+          ["Member detail", "#/admin/members/dana", ["Change role", "Remove from workspace"], ["Projects owned, recent runs"]],
+          ["Team projects", "#/admin/team-projects", ["Search", "Filter by workspace", "Select, move, delete"], ["Bulk delete asks first"]],
+        ] },
+        { title: "Agents & models", screens: [
+          ["Agents", "#/admin/agents", ["Default agent", "Fix actions (sign in)"], ["CLI agents marked not installed on cloud servers"]],
+          ["Model providers", "#/admin/providers", ["Add or replace key", "Test", "Remove"], ["Keys never shown after saving"]],
+        ] },
+        { title: "Extensions", screens: [
+          ["Plugins", "#/admin/plugins", ["Install", "Trust", "Upgrade", "Doctor", "Uninstall"], ["Trust and Uninstall ask first", "Doctor results inline"]],
+          ["Plugin detail", "#/admin/plugins/od-nextjs-export", ["Trust", "Run doctor", "Uninstall"], ["What it can do, versions"]],
+          ["Registries", "#/admin/marketplaces", ["Add", "Refresh", "Trust", "Remove"], ["URL validation"]],
+          ["Skills & design systems", "#/admin/skills", ["Import skill", "Enable/disable", "Make default", "Cancel brand extraction"], []],
+        ] },
+        { title: "Integrations", screens: [
+          ["MCP servers", "#/admin/mcp", ["Add server", "Connect/disconnect", "Enable", "Remove"], ["Fields change with transport"]],
+          ["MCP server detail", "#/admin/mcp/github", ["Turn tools on/off", "Test", "Disconnect"], ["Write tools labelled; they ask in every run"]],
+          ["Connectors", "#/admin/connectors", ["Connect", "Disconnect", "Reconnect"], ["Error state for expired tokens"]],
+          ["Connector detail", "#/admin/connectors/figma", ["Reconnect"], ["Shows the error and its tools"]],
+          ["Deploy targets", "#/admin/deploy", ["Save Cloudflare account, project, token"], ["Inline validation, token masked"]],
+        ] },
+        { title: "Data", screens: [
+          ["Memory", "#/admin/memory", ["Toggle settings", "Keep or discard suggestions"], []],
+          ["Asset library", "#/admin/library", ["Search", "Remove"], ["Empty state"]],
+          ["Routines", "#/admin/automations", ["Run now", "Enable"], []],
+        ] },
+        { title: "Review hub", screens: [
+          ["Identity", "#/settings/identity", ["Reviewer access", "Kratos and flint-gate"], ["Fields depend on mode"]],
+          ["Hosting & storage", "#/settings/hosting", ["Hosts", "CSP", "Storage backend"], ["Warning when CSP sandbox is off"]],
+          ["Limits", "#/settings/limits", ["Snapshot and comment limits"], ["Range errors inline"]],
+          ["Approval policy", "#/settings/approvals", ["Approvals needed", "Gate rules"], ["Release rule is locked"]],
+          ["Agent runtime", "#/settings/runtime", ["UAR URL, agent, workspace", "Token", "Test connection"], ["Real request; token never shown"]],
+          ["Notifications", "#/settings/notifications", ["Channels", "Digest"], ["Email address required when email is on"]],
+        ] },
+      ] },
+    ];
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const host = document.getElementById("bd-sections");
+    let total = 0;
+    host.innerHTML = SECTIONS.map((sec) => `<section class="bd-section" id="${sec.id}" aria-labelledby="h-${sec.id}">
+      <header><div class="eyebrow">${sec.groups.reduce((n, g) => n + g.screens.length, 0)} screens</div><h2 id="h-${sec.id}">${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${sec.groups.map((g) => `<div class="bd-group">${esc(g.title)}</div>${g.screens.map(([name, route, acts, states]) => {
+        total++;
+        const tile = (theme) => `<figure class="scr-fig"><figcaption>${theme === "light" ? "Light" : "Dark"}</figcaption><div class="scr-view" data-src="index.html?theme=${theme}${route}"><span class="scr-wait">Loads when visible</span></div></figure>`;
+        return `<article class="scr" data-text="${esc((sec.title + " " + g.title + " " + name + " " + route).toLowerCase())}" aria-labelledby="s-${total}">
+          <div class="scr-head"><div class="od-stack od-fill" style="--od-gap:2px"><h3 id="s-${total}">${esc(name)}</h3><span class="scr-route">${esc(route)}</span></div><a class="btn" href="index.html${route}" target="_blank" rel="noopener">Open</a></div>
+          <div class="scr-pair">${tile("light")}${tile("dark")}</div>
+          <div class="scr-notes"><div><span class="lab">What you can do</span>${acts.length ? `<ul>${acts.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>` : `<p class="sub" style="font-size:14px">Read only.</p>`}</div>
+            <div><span class="lab">On this screen</span>${states.length ? `<ul>${states.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>` : `<p class="sub" style="font-size:14px">No extra states.</p>`}</div></div>
+        </article>`;
+      }).join("")}`).join("")}
+    </section>`).join("");
+    document.getElementById("bd-nav").innerHTML = SECTIONS.map((s) => `<a href="#${s.id}">${esc(s.title)} <span class="mono">${s.groups.reduce((n, g) => n + g.screens.length, 0)}</span></a>`).join("");
+    const count = document.getElementById("bd-count");
+    count.textContent = `${total} screens · ${total * 2} tiles`;
+
+    /* Scale each 1440×900 app view to its tile; load near the viewport, unload far away. */
+    const fit = (view) => { const f = view.querySelector("iframe"); if (f) f.style.transform = `scale(${view.clientWidth / 1440})`; };
+    const ro = new ResizeObserver((es) => es.forEach((e) => fit(e.target)));
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      const v = e.target;
+      if (e.isIntersecting && !v.querySelector("iframe")) {
+        const f = document.createElement("iframe");
+        f.src = v.dataset.src; f.title = `Preview: ${v.closest(".scr").querySelector("h3").textContent} (${v.dataset.src.includes("theme=light") ? "light" : "dark"})`;
+        f.tabIndex = -1; f.setAttribute("aria-hidden", "true");
+        v.querySelector(".scr-wait").textContent = "Loading…";
+        f.addEventListener("load", () => { const w = v.querySelector(".scr-wait"); w && w.remove(); });
+        v.appendChild(f); fit(v); ro.observe(v);
+      }
+    }), { rootMargin: "600px 0px" });
+    const far = new IntersectionObserver((es) => es.forEach((e) => {
+      const v = e.target, f = v.querySelector("iframe");
+      if (!e.isIntersecting && f) { f.remove(); ro.unobserve(v); if (!v.querySelector(".scr-wait")) v.insertAdjacentHTML("afterbegin", '<span class="scr-wait">Loads when visible</span>'); else v.querySelector(".scr-wait").textContent = "Loads when visible"; }
+    }), { rootMargin: "2400px 0px" });
+    document.querySelectorAll(".scr-view").forEach((v) => { io.observe(v); far.observe(v); });
+
+    /* Filter */
+    const q = document.getElementById("bd-q");
+    q.addEventListener("input", () => {
+      const v = q.value.trim().toLowerCase();
+      let n = 0;
+      document.querySelectorAll(".scr").forEach((a) => { const show = !v || a.dataset.text.includes(v); a.hidden = !show; if (show) n++; });
+      document.querySelectorAll(".bd-group").forEach((g) => { let el = g.nextElementSibling, any = false; while (el && el.classList.contains("scr")) { if (!el.hidden) any = true; el = el.nextElementSibling; } g.hidden = !any; });
+      count.textContent = v ? (n ? `${n} of ${total} screens match` : `No screens match “${q.value.trim()}”`) : `${total} screens · ${total * 2} tiles`;
+    });
+
+    /* Board theme (the tiles keep their own) */
+    const KEY = "kd-review-theme", mq = matchMedia("(prefers-color-scheme: light)");
+    function apply() {
+      const p = localStorage.getItem(KEY) || "system";
+      document.documentElement.dataset.theme = p === "system" ? (mq.matches ? "light" : "dark") : p;
+      document.querySelectorAll("#bd-theme [data-t]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.t === p)));
+    }
+    document.getElementById("bd-theme").addEventListener("click", (e) => { const b = e.target.closest("[data-t]"); if (!b) return; localStorage.setItem(KEY, b.dataset.t); apply(); });
+    mq.addEventListener("change", apply);
+    apply();
+  })();
+  </script>
+</body>
+</html>

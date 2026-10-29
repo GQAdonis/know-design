@@ -101,6 +101,11 @@ deploy/agent-bins/
 # and raw staging are agent runtime data
 .prometheus/events.jsonl
 .prometheus/knowledge/raw/
+# Agent-memory scratch written when a session runs from a package directory.
+# The root .prometheus/ is tracked; nested copies are local only.
+apps/**/.prometheus/
+packages/**/.prometheus/
+e2e/.prometheus/
 
 # Deepwork local progress (git-local; OpenCode-readable via .ignore)
 .slim/deepwork/
