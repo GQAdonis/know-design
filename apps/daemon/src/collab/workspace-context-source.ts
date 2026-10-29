@@ -40,6 +40,8 @@ export interface WorkspaceContextSource {
   /** Read the workspace directory (call sites gate on `directoryAuthority`). */
   fetchDirectory(options: {
     configuredEnv?: Record<string, string>;
+    /** Injectable transport; callers may wrap it to observe the raw response. */
+    fetch?: typeof fetch;
   }): Promise<WorkspaceDirectoryFetchResult>;
   /** Resolve the hub-events endpoint (call sites gate on `hubEvents`). */
   resolveHubEventsEndpoint(
@@ -140,7 +142,7 @@ export function createWorkspaceContextProviderFromEnv(
  *   Vela session exists.
  */
 export function fetchWorkspaceDirectoryFromSource(
-  options: { configuredEnv?: Record<string, string> },
+  options: Parameters<WorkspaceContextSource['fetchDirectory']>[0],
   env: NodeJS.ProcessEnv = process.env,
   registry: WorkspaceContextSourceRegistry = WORKSPACE_CONTEXT_SOURCE_REGISTRY,
 ): Promise<WorkspaceDirectoryFetchResult> {

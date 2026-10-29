@@ -1,6 +1,8 @@
 import { access, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
+import { type AmrEndpointBinding, parseAmrEndpointBinding } from "@open-design/contracts";
+
 import { SIDECAR_DEFAULTS, normalizeNamespace } from "@open-design/sidecar-proto";
 
 import { applyBakedBuildProfile } from "./build-profile.js";
@@ -30,6 +32,7 @@ export type RawPackagedConfig = {
   // Baked by tools/pack when the build is made under OD_BUILD_PROFILE=knowdesign, so the
   // packaged app selects the profile without depending on how it was launched.
   buildProfile?: string;
+  amrEndpointBinding?: AmrEndpointBinding;
   appVersion?: string;
   daemonCliEntryRelative?: string;
   daemonSidecarEntryRelative?: string;
@@ -64,6 +67,7 @@ export type RawPackagedConfig = {
 
 export type PackagedConfig = {
   amrProfile: PackagedAmrProfile | null;
+  amrEndpointBinding?: AmrEndpointBinding;
   appVersion: string | null;
   daemonCliEntry: string | null;
   daemonSidecarEntry: string | null;
@@ -192,6 +196,7 @@ export async function readPackagedConfig(): Promise<PackagedConfig> {
   const raw = await readRawPackagedConfig();
   // First, before the daemon/web sidecars or any profile check can read the environment.
   applyBakedBuildProfile(raw.buildProfile);
+  const amrEndpointBinding = parseAmrEndpointBinding(raw.amrEndpointBinding);
   const namespace = normalizeNamespace(
     process.env[PACKAGED_NAMESPACE_ENV] ?? raw.namespace ?? SIDECAR_DEFAULTS.namespace,
   );
@@ -224,7 +229,8 @@ export async function readPackagedConfig(): Promise<PackagedConfig> {
   const webSidecarEntry = await resolvePackagedRelativeEntry(raw.webSidecarEntryRelative);
 
   return {
-    amrProfile: resolvePackagedAmrProfile(raw.amrProfile),
+    amrEndpointBinding,
+    amrProfile: amrEndpointBinding?.profile ?? resolvePackagedAmrProfile(raw.amrProfile),
     appVersion: cleanOptionalString(raw.appVersion),
     daemonCliEntry,
     daemonSidecarEntry,
@@ -236,8 +242,11 @@ export async function readPackagedConfig(): Promise<PackagedConfig> {
     updateMetadataUrl: cleanOptionalString(raw.updateMetadataUrl),
     posthogKey: cleanOptionalString(raw.posthogKey),
     posthogHost: cleanOptionalString(raw.posthogHost),
-    velaWebUrl: cleanOptionalString(raw.velaWebUrl),
-    velaWebUrls: cleanVelaWebUrls(raw.velaWebUrls),
+    velaWebUrl: amrEndpointBinding?.webUrl ?? cleanOptionalString(raw.velaWebUrl),
+    velaWebUrls: {
+      ...cleanVelaWebUrls(raw.velaWebUrls),
+      ...(amrEndpointBinding ? { [amrEndpointBinding.profile]: amrEndpointBinding.webUrl } : {}),
+    },
     webSidecarEntry,
     webStandaloneRoot,
     webOutputMode,
