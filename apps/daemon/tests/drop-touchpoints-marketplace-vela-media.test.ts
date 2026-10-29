@@ -63,7 +63,9 @@ describe('knowdesign profile: touchpoint routes', () => {
   });
 
   it('keeps the touchpoint runtimes registered with the profile off', async () => {
-    const base = await boot({});
+    // Pin AMR_HOME to the empty temp dir: a developer's real ~/.amr login would
+    // otherwise be proxied to the live CMS, whose own 404 masks registration.
+    const base = await boot({ AMR_HOME: dataDir });
     const response = await fetch(
       `${base}/api/touchpoints/production-runtime?placementKey=opend.home.campaign-modal&locale=en-US`,
     );
@@ -150,11 +152,13 @@ describe('knowdesign profile: CLI surface', () => {
   }
 
   it('hides plugin login/publish from `od plugin --help` under the profile', async () => {
+    // Under the profile help is rebranded (`od` -> the brand's CLI name), so the
+    // absence checks match on the command-name-free suffix.
     const on = await run(['plugin', '--help'], true);
-    expect(on.stdout).not.toContain('od plugin login');
-    expect(on.stdout).not.toContain('od plugin publish ');
-    expect(on.stdout).not.toContain('od plugin publish-repo');
-    expect(on.stdout).not.toContain('od plugin open-design-pr');
+    expect(on.stdout).not.toContain('plugin login');
+    expect(on.stdout).not.toContain('plugin publish ');
+    expect(on.stdout).not.toContain('plugin publish-repo');
+    expect(on.stdout).not.toContain('plugin open-design-pr');
     const off = await run(['plugin', '--help'], false);
     expect(off.stdout).toContain('od plugin login');
     expect(off.stdout).toContain('od plugin publish ');
@@ -171,8 +175,8 @@ describe('knowdesign profile: CLI surface', () => {
 
   it('hides `od marketplace login` under the profile', async () => {
     const on = await run(['marketplace', '--help'], true);
-    expect(on.stdout).not.toContain('od marketplace login');
-    expect(on.stdout).toContain('od marketplace add');
+    expect(on.stdout).not.toContain('marketplace login');
+    expect(on.stdout).toContain('knowdesign marketplace add');
     const off = await run(['marketplace', '--help'], false);
     expect(off.stdout).toContain('od marketplace login');
     const rejected = await run(['marketplace', 'login', 'x'], true);
