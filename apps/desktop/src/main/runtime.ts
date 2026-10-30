@@ -41,7 +41,8 @@ import { openValidatedDirectory } from "./open-path.js";
 import { exportArtifact as exportArtifactFromHtml } from "./artifact-export.js";
 import { createElectronPdfTarget, exportPdfFromHtml, savePrintReadyDocumentAsPdf } from "./pdf-export.js";
 import {
-  SPLASH_PIXEL_SCAN_MARKUP,
+  splashBrandTheme,
+  splashPixelScanMarkup,
   SPLASH_PIXEL_SCAN_STYLE,
   splashPixelScanScript,
 } from "./splash-pixel-scan.js";
@@ -948,6 +949,7 @@ const MAC_WINDOW_CHROME_CSS = `
 // wait on a frozen frame.
 function createPendingHtml(): string {
   const productTitle = brandCompactName();
+  const splashTheme = splashBrandTheme();
   const start = splashStagePayload("starting");
   const initialPct = Math.max(0, Math.min(100, Math.round((start.step / start.total) * 100)));
   return `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html>
@@ -1021,7 +1023,7 @@ ${SPLASH_PIXEL_SCAN_STYLE}
     </style>
   </head>
   <body>
-${SPLASH_PIXEL_SCAN_MARKUP}
+${splashPixelScanMarkup(splashTheme)}
     <div class="boot-progress" aria-hidden="true">
       <div class="boot-progress-fill" id="boot-progress-fill" data-pct="${initialPct}" style="width: ${initialPct}%;"></div>
     </div>
@@ -1029,7 +1031,7 @@ ${SPLASH_PIXEL_SCAN_MARKUP}
       <span class="boot-stage-step" id="boot-stage-step">${start.step}/${start.total}</span><span id="boot-stage-text">${start.label}</span><span class="boot-dots" aria-hidden="true"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>
     </div>
     <script>
-${splashPixelScanScript()}
+${splashPixelScanScript(splashTheme)}
       // Accepts the structured { step, total, label } payload (and tolerates a
       // bare label string for back-compat). The step counter + progress bar give
       // a slow cold boot a sense of how far along it is; the bar only ever grows
