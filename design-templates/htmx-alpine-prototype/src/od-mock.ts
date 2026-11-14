@@ -22,6 +22,10 @@
  * escaped), `data-od-each="path"`, `data-od-if="path"`, `data-od-unless="path"`.
  * Scope: `params` (path params), `form` (request body), `query`, `data` (the
  * store), `item` / `index` (inside each, or the item an action touched).
+ * Guards: `data-od-when="path"` / `data-od-when-not="path"` skip the template
+ * unless the path is truthy / falsy, so one route can answer differently
+ * (e.g. a 422 for an empty title). Templates are tried in document order.
+ * `data-od-item="<list>"` loads the record at `:id` into `item` for read routes.
  * Route options: `data-od-status`, `data-od-delay` (ms),
  * `data-od-headers` (JSON, e.g. `{"HX-Trigger":"saved"}`),
  * `data-od-action` = `create:<list>` | `update:<list>` | `delete:<list>` |
@@ -284,12 +288,26 @@ export function respond(doc: Document, method: string, url: string, body: unknow
     });
     const form = method === 'GET' || method === 'DELETE' ? query : parseBody(body);
     const data = readStore(doc);
+    // Guards let several templates share one route: e.g. a 422 template with
+    // data-od-when-not="form.title" before the create template.
+    const guardScope: Scope = { params, form, query, data };
+    const when = route.template.getAttribute('data-od-when');
+    if (when !== null && !truthy(resolvePath(guardScope, when))) continue;
+    const whenNot = route.template.getAttribute('data-od-when-not');
+    if (whenNot !== null && truthy(resolvePath(guardScope, whenNot))) continue;
     const action = route.template.getAttribute('data-od-action');
     let item: Record<string, unknown> | null = null;
     if (action) {
       const result = applyAction(action, data, params, form);
       if (result.missing) return { status: 404, body: '', headers: {} };
       item = result.item;
+    } else {
+      const itemList = route.template.getAttribute('data-od-item');
+      if (itemList) {
+        const list = Array.isArray(data[itemList]) ? data[itemList] as Array<Record<string, unknown>> : [];
+        item = list.find((candidate) => String(candidate.id) === String(params.id)) ?? null;
+        if (!item) return { status: 404, body: '', headers: {} };
+      }
     }
     const scope: Scope = { params, form, query, data, item };
     let headers: Record<string, string> = {};

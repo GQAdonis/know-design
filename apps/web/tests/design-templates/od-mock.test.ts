@@ -192,6 +192,33 @@ describe('od-mock with real htmx 2.0.8', () => {
     expect(document.querySelector('#errors .err')?.textContent).toBe('Title taken');
   });
 
+  it('uses data-od-when-not guards to answer a 422 for invalid input', async () => {
+    document.querySelector('template[data-od-action="create:items"]')?.insertAdjacentHTML(
+      'beforebegin',
+      '<template data-od-route="POST /api/items" data-od-status="422" data-od-when-not="form.title"><p class="err">Title is required</p></template>',
+    );
+    (document.querySelector('#add input') as HTMLInputElement).value = '';
+    const loaded = waitFor('htmx:afterOnLoad');
+    (document.getElementById('add') as HTMLFormElement).requestSubmit();
+    await loaded;
+    await settle();
+    expect(document.querySelector('#errors .err')?.textContent).toBe('Title is required');
+    expect((window as unknown as { odMock: MockGlobal }).odMock.data().items).toHaveLength(2);
+
+    (document.querySelector('#add input') as HTMLInputElement).value = 'Valid';
+    const created = waitFor('htmx:afterSettle');
+    (document.getElementById('add') as HTMLFormElement).requestSubmit();
+    await created;
+    expect(document.getElementById('item-3')?.textContent).toBe('Valid');
+  });
+
+  it('loads one record with data-od-item and 404s a missing id', async () => {
+    document.body.insertAdjacentHTML('beforeend', '<template data-od-route="GET /api/items/:id" data-od-item="items"><h2>{{item.title}}</h2></template>');
+    const odMock = window as unknown as { odMock: { respond: (m: string, u: string) => { status: number; body: string } } };
+    expect(odMock.odMock.respond('GET', '/api/items/2')).toMatchObject({ status: 200, body: '<h2>Second</h2>' });
+    expect(odMock.odMock.respond('GET', '/api/items/99').status).toBe(404);
+  });
+
   it('answers unknown routes with a 404 instead of reaching the network', async () => {
     const failed = waitFor('htmx:responseError');
     (document.getElementById('missing') as HTMLButtonElement).click();

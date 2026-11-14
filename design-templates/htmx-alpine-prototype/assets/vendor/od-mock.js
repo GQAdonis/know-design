@@ -182,7 +182,7 @@
     return routes.sort((a, b) => b.segments.length - a.segments.length || a.keys.length - b.keys.length);
   }
   function respond(doc, method, url, body) {
-    var _a;
+    var _a, _b;
     let parsed;
     try {
       parsed = new URL(url, MOCK_ORIGIN);
@@ -200,12 +200,24 @@
       });
       const form = method === "GET" || method === "DELETE" ? query : parseBody(body);
       const data = readStore(doc);
+      const guardScope = { params, form, query, data };
+      const when = route.template.getAttribute("data-od-when");
+      if (when !== null && !truthy(resolvePath(guardScope, when))) continue;
+      const whenNot = route.template.getAttribute("data-od-when-not");
+      if (whenNot !== null && truthy(resolvePath(guardScope, whenNot))) continue;
       const action = route.template.getAttribute("data-od-action");
       let item = null;
       if (action) {
         const result = applyAction(action, data, params, form);
         if (result.missing) return { status: 404, body: "", headers: {} };
         item = result.item;
+      } else {
+        const itemList = route.template.getAttribute("data-od-item");
+        if (itemList) {
+          const list = Array.isArray(data[itemList]) ? data[itemList] : [];
+          item = (_a = list.find((candidate) => String(candidate.id) === String(params.id))) != null ? _a : null;
+          if (!item) return { status: 404, body: "", headers: {} };
+        }
       }
       const scope = { params, form, query, data, item };
       let headers = {};
@@ -217,7 +229,7 @@
           headers = {};
         }
       }
-      const status = Number((_a = route.template.getAttribute("data-od-status")) != null ? _a : 200) || 200;
+      const status = Number((_b = route.template.getAttribute("data-od-status")) != null ? _b : 200) || 200;
       return { status, body: renderTemplate(route.template, scope), headers };
     }
     console.warn(`[od-mock] no route for ${method} ${parsed.pathname}; add <template data-od-route="${method} ${parsed.pathname}">`);
