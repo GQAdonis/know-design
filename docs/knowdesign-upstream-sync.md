@@ -76,3 +76,5 @@ Provider logic lives in new files (`apps/daemon/src/deploy/ipfs.ts`, `apps/web/s
 - `apps/web/src/i18n/types.ts` + 19 locales: 17 `fileViewer.ipfs*` keys appended after `fileViewer.cloudflarePagesProvider`.
 - `apps/daemon/src/deploy.ts`: one-line `prototypeManifestWarnings` call in `prepareDeployPreflight` (logic in new `apps/daemon/src/deploy/prototype-manifest.ts`).
 - `plugins/_official/scenarios/od-axum-export/` is a new KnowDesign scenario folder; `apps/daemon/tests/plugins-bundled-scenarios-roster.test.ts` registers it as a `tune-collab` sibling (one line).
+- `apps/daemon/src/project-ignored-dirs.ts`: appended `isPrototypeRuntimeDir` / `shouldSkipProjectDir`, which keep a `vendor/` folder visible when it holds the htmx prototype runtime markers (`MANIFEST.json` and `od-mock.js`). `IGNORED_PROJECT_DIR_NAMES` is unchanged.
+- `apps/daemon/src/projects.ts`: `listFiles`, `listProjectFolders` and `collectArchiveEntries` use `shouldSkipProjectDir`; the two directory collectors take an async `(name, fullPath)` filter.

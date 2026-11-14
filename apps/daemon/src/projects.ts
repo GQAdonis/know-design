@@ -28,7 +28,7 @@ import {
   isPublicationGuardedArtifactKind,
 } from './artifacts/publication-guard.js';
 import { normalizeArtifactRuntimeImports } from './artifacts/runtime-compat.js';
-import { isIgnoredProjectDirName } from './project-ignored-dirs.js';
+import { isIgnoredProjectDirName, shouldSkipProjectDir } from './project-ignored-dirs.js';
 import {
   isSandboxImportedProjectRootAllowed,
   isSandboxModeEnabled,
@@ -62,6 +62,8 @@ export function isRunTouchedProjectFile(fileMtimeMs, runStartTimeMs) {
   if (!Number.isFinite(fileMtimeMs) || !Number.isFinite(runStartTimeMs)) return false;
   return fileMtimeMs + RUN_ARTIFACT_RECONCILE_MTIME_GRACE_MS >= runStartTimeMs;
 }
+
+type ProjectDirFilter = (name: string, fullPath: string) => boolean | Promise<boolean>;
 
 function containsIgnoredProjectDirSegment(name: string): boolean {
   return name
@@ -153,7 +155,7 @@ export async function listFiles(projectsRoot, projectId, opts = {}) {
   // Skip generated dependency/build trees for all project roots. Standard OD
   // projects can contain framework installs too; surfacing package HTML like
   // node_modules/tslib/*.html as artifacts produces blank previews.
-  await collectFiles(dir, '', out, isIgnoredProjectDirName, dir);
+  await collectFiles(dir, '', out, shouldSkipProjectDir, dir);
   // Newest first — matches the visual order users expect after generating.
   out.sort((a, b) => b.mtime - a.mtime);
   const since = Number(opts.since);
@@ -167,12 +169,12 @@ export async function listProjectFolders(projectsRoot, projectId, opts = {}) {
   const metadata = opts?.metadata;
   const dir = resolveProjectDir(projectsRoot, projectId, metadata);
   const out = [];
-  await collectFolders(dir, '', out, isIgnoredProjectDirName);
+  await collectFolders(dir, '', out, shouldSkipProjectDir);
   out.sort((a, b) => a.name.localeCompare(b.name));
   return out;
 }
 
-async function collectFolders(dir, relDir, out, shouldSkipDir?: (name: string) => boolean) {
+async function collectFolders(dir, relDir, out, shouldSkipDir?: ProjectDirFilter) {
   let entries = [];
   try {
     entries = await readdir(dir, { withFileTypes: true });
@@ -183,9 +185,9 @@ async function collectFolders(dir, relDir, out, shouldSkipDir?: (name: string) =
   for (const e of entries) {
     if (!e.isDirectory()) continue;
     if (e.name.startsWith('.')) continue;
-    if (shouldSkipDir?.(e.name)) continue;
     const rel = relDir ? `${relDir}/${e.name}` : e.name;
     const full = path.join(dir, e.name);
+    if (await shouldSkipDir?.(e.name, full)) continue;
     let st;
     try {
       st = await stat(full);
@@ -280,7 +282,7 @@ export async function detectEntryFile(dir: string): Promise<string | null> {
   return null;
 }
 
-async function collectFiles(dir, relDir, out, shouldSkipDir?: (name: string) => boolean, projectRoot = dir) {
+async function collectFiles(dir, relDir, out, shouldSkipDir?: ProjectDirFilter, projectRoot = dir) {
   let entries = [];
   try {
     entries = await readdir(dir, { withFileTypes: true });
@@ -293,7 +295,7 @@ async function collectFiles(dir, relDir, out, shouldSkipDir?: (name: string) => 
     const rel = relDir ? `${relDir}/${e.name}` : e.name;
     const full = path.join(dir, e.name);
     if (e.isDirectory()) {
-      if (shouldSkipDir?.(e.name)) continue;
+      if (await shouldSkipDir?.(e.name, full)) continue;
       await collectFiles(full, rel, out, shouldSkipDir, projectRoot);
       continue;
     }
@@ -563,7 +565,7 @@ async function collectArchiveEntries(dir, relDir, out) {
     const rel = relDir ? `${relDir}/${e.name}` : e.name;
     const full = path.join(dir, e.name);
     if (e.isDirectory()) {
-      if (isIgnoredProjectDirName(e.name)) continue;
+      if (await shouldSkipProjectDir(e.name, full)) continue;
       await collectArchiveEntries(full, rel, out);
       continue;
     }
