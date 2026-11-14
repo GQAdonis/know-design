@@ -396,6 +396,9 @@
     const content = (_b = (_a = doc.querySelector(`meta[name="${BACKEND_META}"]`)) == null ? void 0 : _a.getAttribute("content")) == null ? void 0 : _b.trim();
     return content ? content.replace(/\/+$/, "") : null;
   }
+  function hasHttpOrigin(protocol) {
+    return protocol === "http:" || protocol === "https:";
+  }
   function absolutize(path, base, doc) {
     if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return path;
     const basePath = (() => {
@@ -421,7 +424,7 @@
     doc.addEventListener("htmx:configRequest", (event) => {
       const detail = event.detail;
       if (backend) detail.path = absolutize(detail.path, backend, doc);
-      else if (win.location.protocol === "about:") detail.path = absolutize(detail.path, MOCK_ORIGIN, doc);
+      else if (!hasHttpOrigin(win.location.protocol)) detail.path = absolutize(detail.path, MOCK_ORIGIN, doc);
     });
     if (backend) return "backend";
     htmx.config.historyEnabled = false;

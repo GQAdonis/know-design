@@ -500,6 +500,16 @@ function backendBase(doc: Document): string | null {
   return content ? content.replace(/\/+$/, '') : null;
 }
 
+/**
+ * True when htmx can resolve a root-relative request path against the document
+ * URL. Preview documents are about:srcdoc in the web app and blob:od://app/…
+ * in the packaged desktop app; `new URL('/x', <that URL>)` throws for both, so
+ * every non-http(s) document gets absolute request URLs.
+ */
+export function hasHttpOrigin(protocol: string): boolean {
+  return protocol === 'http:' || protocol === 'https:';
+}
+
 /** Turns a relative or root-relative request path into an absolute URL under `base`. */
 export function absolutize(path: string, base: string, doc: Document): string {
   if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return path;
@@ -523,15 +533,16 @@ export function installOdMock(win: Window & { htmx?: HtmxLike; odMock?: unknown 
     return 'unavailable';
   }
   const backend = backendBase(doc);
-  // Absolute request URLs are required in an about:srcdoc document (htmx would
-  // resolve a relative path against the opaque origin and throw) and when a
+  // Absolute request URLs are required in a preview document (about:srcdoc in
+  // the web app, blob: in the desktop app), where htmx would
+  // resolve a relative path against the document URL and throw, and when a
   // separate backend serves the requests; same-origin checks therefore cannot
   // apply in either mode.
   htmx.config.selfRequestsOnly = false;
   doc.addEventListener('htmx:configRequest', (event) => {
     const detail = (event as CustomEvent<{ path: string }>).detail;
     if (backend) detail.path = absolutize(detail.path, backend, doc);
-    else if (win.location.protocol === 'about:') detail.path = absolutize(detail.path, MOCK_ORIGIN, doc);
+    else if (!hasHttpOrigin(win.location.protocol)) detail.path = absolutize(detail.path, MOCK_ORIGIN, doc);
   });
   if (backend) return 'backend';
   // The preview frame cannot rewrite its own history.

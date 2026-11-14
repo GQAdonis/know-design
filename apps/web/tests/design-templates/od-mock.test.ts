@@ -11,6 +11,7 @@ import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import {
   applyAction,
+  installOdMock,
   interpolate,
   matchPattern,
   parseBody,
@@ -78,6 +79,36 @@ describe('od-mock pure helpers', () => {
     expect(applyAction('delete:items', store, { id: '2' }, {}).item).toMatchObject({ title: 'B' });
     expect(store.items).toHaveLength(1);
     expect(applyAction('delete:items', store, { id: '99' }, {})).toEqual({ item: null, missing: true });
+  });
+});
+
+describe('od-mock request paths in documents without an http origin', () => {
+  // htmx resolves a request path with `new URL(path, document.location.href)`.
+  // That throws for root-relative paths when the document URL is about:srcdoc
+  // (web preview) or blob:od://app/… (packaged desktop preview), so no request
+  // is ever made. od-mock must hand htmx an absolute URL in both.
+  function configuredPath(protocol: string, requestPath: string): string {
+    const doc = document.implementation.createHTMLDocument('preview');
+    const fakeWin = {
+      document: doc,
+      location: { protocol },
+      htmx: { config: {} as Record<string, unknown> },
+      XMLHttpRequest: class {},
+    };
+    installOdMock(fakeWin as unknown as Parameters<typeof installOdMock>[0]);
+    const detail = { path: requestPath };
+    doc.dispatchEvent(new CustomEvent('htmx:configRequest', { detail }));
+    return detail.path;
+  }
+
+  it.each(['about:', 'blob:', 'data:'])('makes root-relative paths absolute in a %s document', (protocol) => {
+    const resolved = configuredPath(protocol, '/api/books');
+    expect(() => new URL(resolved)).not.toThrow();
+    expect(new URL(resolved).pathname).toBe('/api/books');
+  });
+
+  it('leaves paths alone on an http(s) page, where htmx can resolve them', () => {
+    expect(configuredPath('https:', '/api/books')).toBe('/api/books');
   });
 });
 

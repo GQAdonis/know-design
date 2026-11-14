@@ -90,8 +90,8 @@
       "license": "Apache-2.0 (repository license)",
       "source": "src/od-mock.ts",
       "build": "pnpm --filter @open-design/tools-pack exec esbuild \"$PWD/design-templates/htmx-alpine-prototype/src/od-mock.ts\" --bundle --format=iife --target=es2019 --legal-comments=none --outfile=\"$PWD/design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js\"",
-      "sha256": "071d90af90c5c0be493759a00988165eef78037759d34dafe73cbdb962c51a59",
-      "bytes": 17504
+      "sha256": "4003c55f25ac555e0d17473fefca7959dda73031bd033a2051c889e38a0de8a9",
+      "bytes": 17606
     }
   ]
 }
