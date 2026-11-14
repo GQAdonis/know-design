@@ -34,10 +34,10 @@
     },
     {
       "id": "MOCK-1",
-      "status": "BLOCKED",
-      "attempted": "jsdom with real htmx; top-level Chromium; sandboxed srcdoc probes in external browser and packaged renderer",
-      "observed": "CRUD works top-level and in jsdom; external browser blocks loopback scripts in opaque frames; packaged renderer loads them, but full CRUD inside the real preview iframe was not executed",
-      "evidence": "review/boundary-2026-11-14/README.md"
+      "status": "PASS",
+      "attempted": "packaged app file viewer preview (blob: sandboxed frame) on the TPL-1 project; real clicks/typing via macOS accessibility: empty-title submit, create, edit, delete",
+      "observed": "before fix: htmx URL construction threw in the blob: document and the list stayed empty; after the od-mock fix the list loads and every mutation is reflected in the list and count; no mocked-route request in daemon/web/desktop logs",
+      "evidence": "review/boundary-2026-11-14/README.md; review/boundary-2026-11-14/mock1/*.png|jpg; apps/web/tests/design-templates/od-mock.test.ts"
     },
     {
       "id": "MOCK-2",
@@ -76,36 +76,40 @@
     }
   ],
   "budgetConsumption": {
-    "source": "agent estimate (no harness meter)",
+    "source": "agent estimate for time and tool calls (no harness meter); repair attempts and no-progress counted from the session record",
     "values": {
       "timeMinutes": {
         "class": "estimated",
-        "value": 420
+        "value": 560
       },
       "toolCalls": {
         "class": "estimated",
-        "value": 640
+        "value": 830
       },
       "repairAttempts": {
         "class": "measured",
-        "value": 3
+        "value": 4,
+        "note": "3 recorded before this run, plus the od-mock blob: request-path fix found by MOCK-1"
       },
-      "noProgressLimit": {
+      "noProgress": {
         "class": "measured",
         "value": 0
       }
     }
   },
   "sourceDigests": {
-    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/README.md": "d7d17ff098ac0d64dbc422d0f19c0201b1673b21645559f0de0b2386294e2de8",
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/README.md": "0cbbdd3be95b44164f527bcbfc93ac060b5ddf985c9073ba326944e1397fd89c",
     ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/adopted-contract.json": "15f2692d4e8a5bd7be9016302d6b4ed5bde71d702c4c6175ce2e611813222619",
     "apps/daemon/src/deploy/ipfs.ts": "c2b06ca4f22c0410ea8f2cb1d9c29f21e60e79b4bfb59d4047f8d7ce7b06d0ee",
     "apps/daemon/src/deploy/prototype-manifest.ts": "b78b1d12ea94ad80048db528e4634d697e7f4b4ff0c722ed2574024e80188377",
-    "design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js": "071d90af90c5c0be493759a00988165eef78037759d34dafe73cbdb962c51a59",
+    "design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js": "4003c55f25ac555e0d17473fefca7959dda73031bd033a2051c889e38a0de8a9",
     "design-templates/htmx-alpine-prototype/od-prototype.json": "df900c7920bd08ed7bfbbcccf6c74c847814bf734fc3dadc27881189c65369ac",
     "plugins/_official/scenarios/od-axum-export/scripts/export-axum.ts": "4464b5285530c10c7ad4fa33ef4ab7ee07e3f1feff47824749945ba82c85f546",
     "docs/knowdesign/htmx-conversion.md": "c242e156369215fa0fb93d624839af8044f40b45b5a2c28aa5aaae2136f9b29d",
     ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/tpl1/od-prototype.json": "6adbff1689ec480442db5ac93041f76ff7861a4dbb0c45c69c89769be3bf3369",
-    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/tpl1/validate-manifest.log": "1c895e415d7626f7153c9a2d8455e8e10bc7d4bf2381be2a53f0503f742c7fd8"
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/tpl1/validate-manifest.log": "1c895e415d7626f7153c9a2d8455e8e10bc7d4bf2381be2a53f0503f742c7fd8",
+    "design-templates/htmx-alpine-prototype/src/od-mock.ts": "1814839378bdbc13d6eac9f1d2880b89db681e118a5cb3dfe9b86e370277d5ac",
+    "apps/web/tests/design-templates/od-mock.test.ts": "da1f722bbba345b3bf14e1c01a4c7f393bbc69621ea5aed6e05bc6c00556bc76",
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/mock1/06-deleted.jpg": "ba6f053da149ea69117d5ab04672668849fe0410d6f8d161c741072044a88ba1"
   }
 }
