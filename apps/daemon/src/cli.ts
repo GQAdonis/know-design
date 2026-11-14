@@ -302,8 +302,10 @@ const DEPLOY_STRING_FLAGS = new Set([
   'daemon-url', 'file', 'provider', 'target',
   'cf-zone-id', 'cf-zone-name', 'cf-domain-prefix',
   'workspace', 'workspace-member',
+  // KnowDesign ipfs-kubo provider (see runDeployConfig).
+  'rpc-url', 'username', 'gateway-url',
 ]);
-const DEPLOY_BOOLEAN_FLAGS = new Set(['help', 'h', 'json']);
+const DEPLOY_BOOLEAN_FLAGS = new Set(['help', 'h', 'json', 'ipns', 'no-ipns', 'from-env', 'password-stdin']);
 // `od automation …` mirrors the Automations tab. Same surface, same
 // /api/routines store. The CLI form is the embeddability contract:
 // external agents (hermes-agent, openclaw, etc.) can drive OpenDesign
@@ -12931,6 +12933,11 @@ async function runAutomation(args) {
 // ---------------------------------------------------------------------------
 
 async function runDeploy(args) {
+  // KnowDesign: `od deploy config …` manages provider settings (UI parity with
+  // the deploy modal); everything else is a deploy.
+  if (positionalArgs(args, DEPLOY_STRING_FLAGS)[0] === 'config') {
+    return runDeployConfig(args.filter((arg, index) => index !== args.indexOf('config')));
+  }
   let flags;
   try {
     flags = parseFlags(args, { string: DEPLOY_STRING_FLAGS, boolean: DEPLOY_BOOLEAN_FLAGS });
@@ -12946,7 +12953,8 @@ Required:
   --file <fileName>        File name within the project to deploy.
 
 Options:
-  --provider vercel-self|cloudflare-pages   Deploy provider (default: vercel-self).
+  --provider vercel-self|cloudflare-pages|ipfs-kubo   Deploy provider (default: vercel-self).
+  --ipns / --no-ipns                        ipfs-kubo: publish (or skip) the project's IPNS name.
   --target preview|production               Deployment target (default: server decides).
   --cf-zone-id <id>                         Cloudflare Pages: zone id.
   --cf-zone-name <name>                     Cloudflare Pages: zone name.
@@ -12954,7 +12962,9 @@ Options:
   --workspace <id>                          Explicit Workspace id for a bound project.
   --workspace-member <id>                   Explicit Workspace member id for a bound project.
   --json                                    Emit raw JSON response.
-  --daemon-url <url>                        OpenDesign daemon HTTP base.`);
+  --daemon-url <url>                        OpenDesign daemon HTTP base.
+
+Settings: od deploy config --help`);
     return;
   }
 
@@ -12995,6 +13005,8 @@ Options:
   if (zoneId !== undefined || zoneName !== undefined || domainPrefix !== undefined) {
     body.cloudflarePages = { zoneId, zoneName, domainPrefix };
   }
+  if (flags.ipns) body.ipns = true;
+  if (flags['no-ipns']) body.ipns = false;
 
   const base = await cliDaemonBaseUrl(flags);
   const workspaceHeaders = workspaceHeadersFromExplicitFlags(flags) ?? {};
@@ -13014,4 +13026,88 @@ Options:
   if (flags.json) return process.stdout.write(JSON.stringify(data) + '\n');
   const url = data?.url ?? data?.deploymentUrl ?? '';
   console.log(`[deploy] ${data?.id ?? 'done'}${url ? ` → ${url}` : ''}`);
+  if (data?.ipfs?.cid) console.log(`[deploy] cid ${data.ipfs.cid}`);
+  if (data?.ipfs?.ipnsUrl) console.log(`[deploy] ipns ${data.ipfs.ipnsUrl}`);
+  if (data?.statusMessage && data?.status !== 'ready') console.log(`[deploy] ${data.statusMessage}`);
+}
+
+// `od deploy config` reads or writes deploy provider settings through
+// /api/deploy/config, the same endpoints the deploy modal uses. Passwords are
+// accepted only on stdin so they never appear in argv or shell history.
+async function runDeployConfig(args) {
+  let flags;
+  try {
+    flags = parseFlags(args, { string: DEPLOY_STRING_FLAGS, boolean: DEPLOY_BOOLEAN_FLAGS });
+  } catch (err) {
+    console.error(err.message);
+    process.exit(2);
+  }
+  if (flags.help || flags.h) {
+    console.log(`Usage: od deploy config --provider <id> [options]
+
+Without settings flags, prints the saved (masked) settings.
+
+ipfs-kubo options:
+  --from-env               Import IPFS_RPC_USER / IPFS_RPC_PASSWORD from the daemon
+                           environment or your login shell profile.
+  --rpc-url <url>          Kubo RPC base URL (https, or http for localhost).
+  --username <name>        RPC basic-auth user name.
+  --password-stdin         Read the RPC password from stdin.
+  --gateway-url <url>      Public gateway base URL for links.
+  --ipns / --no-ipns       Publish the project's IPNS name by default.
+
+Common:
+  --json                   Emit raw JSON response.
+  --daemon-url <url>       OpenDesign daemon HTTP base.`);
+    return;
+  }
+  const providerId = typeof flags.provider === 'string' ? flags.provider : 'vercel-self';
+  const base = await cliDaemonBaseUrl(flags);
+
+  let request: { url: string; init?: RequestInit };
+  if (flags['from-env']) {
+    request = {
+      url: `${base}/api/deploy/config/import-env`,
+      init: { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ providerId }) },
+    };
+  } else {
+    const update: Record<string, unknown> = { providerId };
+    if (typeof flags['rpc-url'] === 'string') update.rpcUrl = flags['rpc-url'];
+    if (typeof flags.username === 'string') update.username = flags.username;
+    if (typeof flags['gateway-url'] === 'string') update.gatewayUrl = flags['gateway-url'];
+    if (flags.ipns) update.ipnsDefault = true;
+    if (flags['no-ipns']) update.ipnsDefault = false;
+    if (flags['password-stdin']) {
+      const chunks: Buffer[] = [];
+      for await (const chunk of process.stdin) chunks.push(Buffer.from(chunk));
+      const password = Buffer.concat(chunks).toString('utf8').replace(/\r?\n$/, '');
+      if (!password) {
+        console.error('--password-stdin given but stdin was empty');
+        process.exit(2);
+      }
+      update.password = password;
+    }
+    request = Object.keys(update).length > 1
+      ? {
+          url: `${base}/api/deploy/config`,
+          init: { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(update) },
+        }
+      : { url: `${base}/api/deploy/config?providerId=${encodeURIComponent(providerId)}` };
+  }
+
+  let resp;
+  try {
+    resp = await fetch(request.url, request.init);
+  } catch (err) {
+    surfaceFetchError(err, base);
+    process.exit(3);
+  }
+  if (!resp.ok) return structuredHttpFailure(resp);
+  const data = await resp.json();
+  if (flags.json) return process.stdout.write(JSON.stringify(data) + '\n');
+  const config = data?.config ?? data;
+  const source = data?.source ? ` (imported from ${data.source === 'login-shell' ? 'your login shell' : 'the daemon environment'})` : '';
+  console.log(`[deploy config] ${config?.providerId ?? providerId}: ${config?.configured ? 'configured' : 'not configured'}${source}`);
+  if (config?.rpcUrl) console.log(`[deploy config] rpc ${config.rpcUrl} as ${config.username || '(no user)'}`);
+  if (config?.gatewayUrl) console.log(`[deploy config] gateway ${config.gatewayUrl}${config.ipnsDefault ? ', IPNS on by default' : ''}`);
 }

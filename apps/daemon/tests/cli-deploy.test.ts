@@ -378,3 +378,79 @@ describe('od deploy CLI', () => {
     expect(stub.requests).toHaveLength(0);
   });
 });
+
+// KnowDesign ipfs-kubo provider (phase htmx-prototypes-and-ipfs-deploy, IPFS-1).
+describe('od deploy CLI · ipfs-kubo', () => {
+  let stub: StubServer;
+
+  beforeAll(async () => {
+    stub = await startStubServer();
+  });
+
+  afterAll(async () => {
+    await stub.close();
+  });
+
+  beforeEach(() => {
+    stub.requests.length = 0;
+    stub.setResponder(() => null);
+  });
+
+  it('sends ipns=true with --ipns and prints the CID and IPNS link', async () => {
+    stub.setResponder(() => ({
+      status: 200,
+      body: {
+        ...STUB_DEPLOYMENT,
+        providerId: 'ipfs-kubo',
+        url: 'https://gw.example/ipfs/bafyroot/',
+        ipfs: { cid: 'bafyroot', gatewayUrl: 'https://gw.example/ipfs/bafyroot/', ipnsUrl: 'https://gw.example/ipns/k51x/' },
+      },
+    }));
+    const result = await runCli([
+      'deploy', 'proj-1', '--file', 'index.html', '--provider', 'ipfs-kubo', '--ipns', '--daemon-url', stub.baseUrl,
+    ]);
+    expect(result.code).toBe(0);
+    expect(JSON.parse(stub.requests[0]!.body)).toEqual({ fileName: 'index.html', providerId: 'ipfs-kubo', ipns: true });
+    expect(result.stdout).toContain('cid bafyroot');
+    expect(result.stdout).toContain('ipns https://gw.example/ipns/k51x/');
+  });
+
+  it('sends ipns=false with --no-ipns', async () => {
+    const result = await runCli([
+      'deploy', 'proj-1', '--file', 'index.html', '--provider', 'ipfs-kubo', '--no-ipns', '--daemon-url', stub.baseUrl,
+    ]);
+    expect(result.code).toBe(0);
+    expect(JSON.parse(stub.requests[0]!.body)).toMatchObject({ ipns: false });
+  });
+
+  it('config --from-env posts to the import-env endpoint', async () => {
+    stub.setResponder(() => ({
+      status: 200,
+      body: { source: 'login-shell', imported: ['IPFS_RPC_USER', 'IPFS_RPC_PASSWORD'], config: { providerId: 'ipfs-kubo', configured: true, rpcUrl: 'https://rpc.example/api/v0', username: 'u' } },
+    }));
+    const result = await runCli(['deploy', 'config', '--provider', 'ipfs-kubo', '--from-env', '--daemon-url', stub.baseUrl]);
+    expect(result.code).toBe(0);
+    expect(stub.requests[0]).toMatchObject({ method: 'POST', url: '/api/deploy/config/import-env' });
+    expect(JSON.parse(stub.requests[0]!.body)).toEqual({ providerId: 'ipfs-kubo' });
+    expect(result.stdout).toContain('configured (imported from your login shell)');
+  });
+
+  it('config with settings flags PUTs them without a password', async () => {
+    const result = await runCli([
+      'deploy', 'config', '--provider', 'ipfs-kubo',
+      '--rpc-url', 'https://rpc.example/api/v0', '--username', 'u', '--gateway-url', 'https://gw.example', '--ipns',
+      '--daemon-url', stub.baseUrl,
+    ]);
+    expect(result.code).toBe(0);
+    expect(stub.requests[0]).toMatchObject({ method: 'PUT', url: '/api/deploy/config' });
+    expect(JSON.parse(stub.requests[0]!.body)).toEqual({
+      providerId: 'ipfs-kubo', rpcUrl: 'https://rpc.example/api/v0', username: 'u', gatewayUrl: 'https://gw.example', ipnsDefault: true,
+    });
+  });
+
+  it('config without settings flags GETs the masked settings', async () => {
+    const result = await runCli(['deploy', 'config', '--provider', 'ipfs-kubo', '--json', '--daemon-url', stub.baseUrl]);
+    expect(result.code).toBe(0);
+    expect(stub.requests[0]).toMatchObject({ method: 'GET', url: '/api/deploy/config?providerId=ipfs-kubo' });
+  });
+});

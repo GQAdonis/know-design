@@ -9,6 +9,8 @@ import { listFiles, readProjectFile, resolveProjectFilePath, validateProjectPath
 import { userStateDirName } from './brand.js';
 import type { EntryIndexConflict, EntryIndexConflictDetails, EntryIndexConflictReferrer } from '@open-design/contracts';
 import { findRealTagOffset, HTML_TAG_PATTERNS } from '@open-design/contracts/runtime/html-injection-points';
+// KnowDesign: IPFS (Kubo) provider lives in its own module; see docs/knowdesign-upstream-sync.md.
+import { IPFS_KUBO_PROVIDER_ID, publicIpfsConfig, readIpfsConfig, writeIpfsConfig, type IpfsDeployConfig } from './deploy/ipfs.js';
 
 export const VERCEL_PROVIDER_ID = 'vercel-self';
 export const CLOUDFLARE_PAGES_PROVIDER_ID = 'cloudflare-pages';
@@ -16,7 +18,7 @@ export const SAVED_TOKEN_MASK = 'saved-vercel-token';
 export const SAVED_CLOUDFLARE_TOKEN_MASK = 'saved-cloudflare-token';
 
 type JsonObject = Record<string, any>;
-type DeployProviderId = typeof VERCEL_PROVIDER_ID | typeof CLOUDFLARE_PAGES_PROVIDER_ID;
+type DeployProviderId = typeof VERCEL_PROVIDER_ID | typeof CLOUDFLARE_PAGES_PROVIDER_ID | typeof IPFS_KUBO_PROVIDER_ID;
 type DeployErrorDetails = JsonObject | string | undefined;
 type DeployConfig = {
   token: string;
@@ -211,23 +213,32 @@ export function publicCloudflarePagesConfig(config: Partial<DeployConfig>) {
   return body;
 }
 
-export async function readDeployConfig(providerId: DeployProviderId = VERCEL_PROVIDER_ID) {
+export async function readDeployConfig(providerId: typeof IPFS_KUBO_PROVIDER_ID): Promise<IpfsDeployConfig>;
+export async function readDeployConfig(providerId?: Exclude<DeployProviderId, typeof IPFS_KUBO_PROVIDER_ID>): Promise<DeployConfig>;
+export async function readDeployConfig(providerId?: DeployProviderId): Promise<DeployConfig | IpfsDeployConfig>;
+export async function readDeployConfig(providerId: DeployProviderId = VERCEL_PROVIDER_ID): Promise<DeployConfig | IpfsDeployConfig> {
+  if (providerId === IPFS_KUBO_PROVIDER_ID) return readIpfsConfig();
   if (providerId === CLOUDFLARE_PAGES_PROVIDER_ID) return readCloudflarePagesConfig();
   return readVercelConfig();
 }
 
 export async function writeDeployConfig(providerId: DeployProviderId = VERCEL_PROVIDER_ID, input: Partial<DeployConfig> = {}) {
+  if (providerId === IPFS_KUBO_PROVIDER_ID) return writeIpfsConfig(input as unknown as Record<string, unknown>);
   if (providerId === CLOUDFLARE_PAGES_PROVIDER_ID) return writeCloudflarePagesConfig(input);
   return writeVercelConfig(input);
 }
 
-export function publicDeployConfigForProvider(providerId: DeployProviderId = VERCEL_PROVIDER_ID, config: Partial<DeployConfig> = {}) {
-  if (providerId === CLOUDFLARE_PAGES_PROVIDER_ID) return publicCloudflarePagesConfig(config);
-  return publicDeployConfig(config);
+export function publicDeployConfigForProvider(
+  providerId: DeployProviderId = VERCEL_PROVIDER_ID,
+  config: Partial<DeployConfig> | Partial<IpfsDeployConfig> = {},
+) {
+  if (providerId === IPFS_KUBO_PROVIDER_ID) return publicIpfsConfig(config as Partial<IpfsDeployConfig>);
+  if (providerId === CLOUDFLARE_PAGES_PROVIDER_ID) return publicCloudflarePagesConfig(config as Partial<DeployConfig>);
+  return publicDeployConfig(config as Partial<DeployConfig>);
 }
 
 export function isDeployProviderId(value: unknown): value is DeployProviderId {
-  return value === VERCEL_PROVIDER_ID || value === CLOUDFLARE_PAGES_PROVIDER_ID;
+  return value === VERCEL_PROVIDER_ID || value === CLOUDFLARE_PAGES_PROVIDER_ID || value === IPFS_KUBO_PROVIDER_ID;
 }
 
 function normalizeCloudflarePagesConfigHints(input: unknown, fallback: CloudflarePagesConfigHints = {}): CloudflarePagesConfigHints {
