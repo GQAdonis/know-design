@@ -59,3 +59,18 @@ the sync PR so reviewers know where to look.
 
 If a weekly sync produces more than about five non-mechanical conflicts, stop and re-evaluate regenerating the
 fork branch from upstream with the brand layer re-applied (spike report, option 2).
+
+## KnowDesign ipfs-kubo deploy provider (htmx-prototypes-and-ipfs-deploy, 2026-11-14)
+
+Provider logic lives in new files (`apps/daemon/src/deploy/ipfs.ts`, `apps/web/src/components/IpfsDeployFields.tsx` + `.module.css`). Additive edits to upstream-owned files, each a branch or list entry tagged `KnowDesign`:
+
+- `packages/contracts/src/api/projects.ts`: `'ipfs-kubo'` in `DeployProviderId`; `IpfsDeploymentInfo`; optional IPFS fields on `DeployConfigResponse` / `UpdateDeployConfigRequest`; `ImportDeployEnvResponse`; `DeploymentInfo.ipfs`; `DeployProjectFileRequest.ipns`; preflight code `prototype-manifest-mismatch`.
+- `packages/contracts/src/analytics/events/result-events.ts`: `'ipfs_kubo'` in `TrackingDeployProvider`.
+- `apps/daemon/src/deploy.ts`: import of the IPFS module; provider union; `readDeployConfig` overloads + branch; `writeDeployConfig`, `publicDeployConfigForProvider`, `isDeployProviderId` branches.
+- `apps/daemon/src/deploy/cloudflare-pages-helpers.ts`: `publicDeployment` derives `ipfs` from provider metadata.
+- `apps/daemon/src/routes/deploy.ts`: `POST /api/deploy/config/import-env`; IPFS branch in `POST /api/projects/:id/deploy` (`share-relative` assets, no hook script, IPFS metadata).
+- `apps/daemon/src/server.ts`: IPFS entries in `deployDeps`.
+- `apps/daemon/src/cli.ts`: IPFS flags; `od deploy config` subcommand.
+- `apps/web/src/providers/registry.ts`: `IPFS_KUBO_PROVIDER_ID`; `importDeployEnv`.
+- `apps/web/src/components/FileViewer.tsx`: option entry, provider-option key unions, tracking map, config-save skip for IPFS, settings branch in the deploy modal, share-menu icon, `IpfsDeploymentDetails` in the result block.
+- `apps/web/src/i18n/types.ts` + 19 locales: 17 `fileViewer.ipfs*` keys appended after `fileViewer.cloudflarePagesProvider`.

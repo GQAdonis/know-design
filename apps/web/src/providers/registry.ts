@@ -10,6 +10,7 @@ import {
   type ShareUnpublishResponse,
   type SharePublishRequest,
 } from '@open-design/contracts';
+import type { ImportDeployEnvResponse } from '@open-design/contracts';
 import { boundedRequestErrorCode } from '../analytics/workspace';
 import { publishReceiptObservation } from '@open-design/contracts/analytics';
 import type {
@@ -142,9 +143,12 @@ const IN_FLIGHT_SHARE_ONLY_MS = 0;
 
 export const DEFAULT_DEPLOY_PROVIDER_ID = 'vercel-self';
 export const CLOUDFLARE_PAGES_PROVIDER_ID = 'cloudflare-pages';
+/** KnowDesign: deploy to the user's own IPFS (Kubo) node. */
+export const IPFS_KUBO_PROVIDER_ID = 'ipfs-kubo';
 export const DEPLOY_PROVIDER_IDS = [
   DEFAULT_DEPLOY_PROVIDER_ID,
   CLOUDFLARE_PAGES_PROVIDER_ID,
+  IPFS_KUBO_PROVIDER_ID,
 ] as const;
 
 export type WebDeployProviderId = (typeof DEPLOY_PROVIDER_IDS)[number];
@@ -1827,6 +1831,27 @@ export async function fetchDeployConfig(
   } catch {
     return null;
   }
+}
+
+/**
+ * KnowDesign: import IPFS RPC credentials from the daemon environment or the
+ * user's login shell. The response never contains the credential values.
+ */
+export async function importDeployEnv(
+  providerId: WebDeployProviderId = IPFS_KUBO_PROVIDER_ID,
+): Promise<ImportDeployEnvResponse> {
+  const resp = await fetch('/api/deploy/config/import-env', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ providerId }),
+  });
+  if (!resp.ok) {
+    const payload = (await resp.json().catch(() => null)) as
+      | { error?: { message?: string } }
+      | null;
+    throw new Error(payload?.error?.message || `Could not import settings (${resp.status})`);
+  }
+  return (await resp.json()) as ImportDeployEnvResponse;
 }
 
 export async function updateDeployConfig(
