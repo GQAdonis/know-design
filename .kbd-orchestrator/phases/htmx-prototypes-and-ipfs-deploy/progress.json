@@ -2,17 +2,17 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 473,
-  "derivedRevision": 473,
+  "sourceRevision": 474,
+  "derivedRevision": 474,
   "frontier": {
     "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
-    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 128
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 129
   },
   "conflictCount": 0,
   "phase": "htmx-prototypes-and-ipfs-deploy",
   "phaseId": "htmx-prototypes-and-ipfs-deploy",
   "parentPhase": null,
-  "last_updated": "2026-11-14T17:41:57.302376Z",
+  "last_updated": "2026-11-14T18:01:33.998541Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 6,
   "changes_completed": 6,
