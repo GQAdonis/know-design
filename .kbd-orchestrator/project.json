@@ -40,6 +40,6 @@
       }
     ]
   },
-  "activePhase": "deploy-web-to-knowme-k8s",
-  "updatedAt": "2026-09-14T09:52:49Z"
+  "activePhase": "htmx-prototypes-and-ipfs-deploy",
+  "updatedAt": "2026-11-14T14:08:48Z"
 }

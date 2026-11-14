@@ -1,0 +1,11 @@
+200 /ipfs/
+200 /ipfs/index.html
+200 /ipfs/od-prototype.json
+200 /ipfs/vendor/htmx.min.js
+200 /ipfs/vendor/alpine.min.js
+200 /ipfs/vendor/od-mock.js
+200 /ipfs/vendor/ext/response-targets.min.js
+200 /ipfs/vendor/ext/loading-states.min.js
+200 /ipfs/vendor/ext/idiomorph-ext.min.js
+404 /ipfs/vendor/not-uploaded.js
+200 /ipns/

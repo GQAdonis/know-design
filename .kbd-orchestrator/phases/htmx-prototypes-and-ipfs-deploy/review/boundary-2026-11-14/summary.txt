@@ -1,0 +1,6 @@
+guard exit=0
+typecheck exit=0
+daemon-tests exit=0
+web-tests exit=0
+validate-manifest exit=0
+lint-craft exit=0

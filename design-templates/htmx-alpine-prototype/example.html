@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task tracker — htmx + Alpine prototype</title>
+  <script src="assets/vendor/htmx.min.js"></script>
+  <script src="assets/vendor/ext/response-targets.min.js"></script>
+  <script src="assets/vendor/ext/loading-states.min.js"></script>
+  <script src="assets/vendor/od-mock.js"></script>
+  <script defer src="assets/vendor/alpine.min.js"></script>
+  <style>
+    :root {
+      --canvas: #f6f5f2; --chrome: #efede8; --surface: #ffffff; --raised: #f3f2ee; --hover: #e9e7e1;
+      --text: #1d1c1a; --muted: #6b6862; --accent: #2f5bea; --accent-text: #ffffff;
+      --destructive: #c4342d; --focus: #2f5bea;
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
+      --radius: 10px; --duration-fast: 140ms; --duration-normal: 200ms; --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --canvas: #141413; --chrome: #1b1b19; --surface: #22221f; --raised: #2a2a26; --hover: #32322d;
+        --text: #f1efe9; --muted: #a3a097; --accent: #7d9bff; --accent-text: #0e1220; --destructive: #ff7a70; --focus: #7d9bff; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 var(--font); color: var(--text); background: var(--canvas); }
+    .app { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+    .app-nav { background: var(--chrome); padding: var(--space-6) var(--space-4); display: grid; align-content: start; gap: var(--space-2); }
+    .app-nav a { color: var(--muted); text-decoration: none; padding: var(--space-2) var(--space-3); border-radius: 8px; }
+    .app-nav a[aria-current] { background: var(--surface); color: var(--text); }
+    .app-main { padding: var(--space-8); max-width: 760px; }
+    header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
+    h1 { margin: 0; font-size: 26px; letter-spacing: -0.01em; }
+    .count { color: var(--muted); }
+    .panel { background: var(--surface); border-radius: var(--radius); padding: var(--space-4); }
+    button { font: inherit; border: 0; border-radius: 8px; padding: var(--space-2) var(--space-3); background: var(--raised);
+      color: var(--text); cursor: pointer; transition: background-color var(--duration-fast) var(--ease-out); }
+    button:hover { background: var(--hover); }
+    button.primary { background: var(--accent); color: var(--accent-text); }
+    button.danger { color: var(--destructive); }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    input[type="text"] { font: inherit; border: 0; border-radius: 8px; padding: var(--space-2) var(--space-3); background: var(--raised); color: var(--text); min-width: 0; flex: 1; }
+    form.add { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+    .errors:empty { display: none; }
+    .errors p { margin: 0 0 var(--space-3); color: var(--destructive); }
+    ul.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+    .task-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: 8px; background: var(--raised); }
+    .task-row .title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .task-row.done-true .title { color: var(--muted); text-decoration: line-through; }
+    .check { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border-radius: 50%;
+      background: transparent; color: transparent; box-shadow: inset 0 0 0 2px var(--muted); }
+    .check:hover { background: var(--hover); color: var(--muted); }
+    .done-true .check { background: var(--accent); color: var(--accent-text); box-shadow: none; }
+    .empty { color: var(--muted); margin: var(--space-4) 0 0; }
+    .empty:empty { display: none; }
+    .htmx-indicator { opacity: 0; transition: opacity var(--duration-normal) var(--ease-out); color: var(--muted); }
+    .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { opacity: 1; }
+    .tips { margin-top: var(--space-6); color: var(--muted); }
+    .tips[hidden] { display: none; }
+    [x-cloak] { display: none !important; }
+    @media (max-width: 640px) { .app { grid-template-columns: 1fr; } .app-nav { display: none; } .app-main { padding: var(--space-4); } }
+  </style>
+</head>
+<body hx-ext="response-targets, loading-states">
+  <div class="app">
+    <nav class="app-nav" aria-label="Main navigation" data-od-component="AppNav">
+      <strong>Tasks</strong>
+      <a href="#" aria-current="page">Inbox</a>
+      <a href="#">Projects</a>
+    </nav>
+
+    <main class="app-main">
+      <header>
+        <h1 id="tasks-heading">Inbox</h1>
+        <span class="count" id="task-count">3 tasks</span>
+      </header>
+
+      <section class="panel" aria-labelledby="tasks-heading" data-od-component="TaskList">
+        <form class="add" data-od-component="TaskForm"
+              hx-post="/api/tasks" hx-target="#tasks" hx-swap="beforeend"
+              hx-target-422="#form-errors" hx-on::after-request="if (event.detail.successful) this.reset()">
+          <input id="new-title" type="text" name="title" placeholder="Add a task…" autocomplete="off" aria-label="New task">
+          <button class="primary" type="submit">Add <span class="htmx-indicator">…</span></button>
+        </form>
+        <div id="form-errors" class="errors" role="alert"></div>
+
+        <ul class="tasks" id="tasks" hx-get="/api/tasks" hx-trigger="load" hx-swap="innerHTML">
+          <li class="htmx-indicator">Loading tasks…</li>
+        </ul>
+        <p class="empty" id="empty-state"></p>
+      </section>
+
+      <!-- UI-only state lives in Alpine; nothing here is saved. -->
+      <div x-data="{ showTips: false }" class="tips-wrap" data-od-component="TipsPanel">
+        <button type="button" @click="showTips = !showTips" x-text="showTips ? 'Hide tips' : 'Show tips'">Show tips</button>
+        <p class="tips" x-show="showTips" x-cloak>Click a task's circle to complete it, Edit to rename it, and Delete to remove it. Everything works without a server: requests are answered by the page's mock router.</p>
+      </div>
+    </main>
+  </div>
+
+  <script type="application/json" id="od-mock-data">
+    {"tasks": [
+      {"id": "1", "title": "Draft the onboarding checklist", "done": false},
+      {"id": "2", "title": "Review pricing page copy", "done": true},
+      {"id": "3", "title": "Book user interviews for Thursday", "done": false}
+    ]}
+  </script>
+
+  <!-- List -->
+  <template data-od-route="GET /api/tasks" data-od-delay="250">
+    <li data-od-each="data.tasks" id="task-{{item.id}}" class="task-row done-{{item.done}}" data-od-component="TaskRow">
+      <button class="check" type="button" aria-label="Toggle {{item.title}}" hx-post="/api/tasks/{{item.id}}/toggle" hx-target="#task-{{item.id}}" hx-swap="outerHTML">✓</button>
+      <span class="title">{{item.title}}</span>
+      <button type="button" hx-get="/api/tasks/{{item.id}}/edit" hx-target="#task-{{item.id}}" hx-swap="outerHTML">Edit</button>
+      <button class="danger" type="button" hx-delete="/api/tasks/{{item.id}}" hx-target="#task-{{item.id}}" hx-swap="outerHTML" hx-confirm="Delete “{{item.title}}”?">Delete</button>
+    </li>
+    <p id="empty-state" class="empty" hx-swap-oob="true"><span data-od-unless="data.tasks">No tasks yet. Add your first one above.</span></p>
+  </template>
+
+  <!-- Create: validation first (guarded), then the real create. -->
+  <template data-od-route="POST /api/tasks" data-od-status="422" data-od-when-not="form.title">
+    <p>Give the task a title.</p>
+  </template>
+  <template data-od-route="POST /api/tasks" data-od-action="create:tasks" data-od-delay="200" data-od-headers='{"HX-Trigger":"task-saved"}'>
+    <li id="task-{{item.id}}" class="task-row done-{{item.done}}" data-od-component="TaskRow">
+      <button class="check" type="button" aria-label="Toggle {{item.title}}" hx-post="/api/tasks/{{item.id}}/toggle" hx-target="#task-{{item.id}}" hx-swap="outerHTML">✓</button>
+      <span class="title">{{item.title}}</span>
+      <button type="button" hx-get="/api/tasks/{{item.id}}/edit" hx-target="#task-{{item.id}}" hx-swap="outerHTML">Edit</button>
+      <button class="danger" type="button" hx-delete="/api/tasks/{{item.id}}" hx-target="#task-{{item.id}}" hx-swap="outerHTML" hx-confirm="Delete “{{item.title}}”?">Delete</button>
+    </li>
+    <span id="task-count" class="count" hx-swap-oob="true">{{data.tasks.length}} tasks</span>
+    <div id="form-errors" class="errors" role="alert" hx-swap-oob="true"></div>
+    <p id="empty-state" class="empty" hx-swap-oob="true"></p>
+  </template>
+
+  <!-- Toggle -->
+  <template data-od-route="POST /api/tasks/:id/toggle" data-od-action="toggle:tasks:done">
+    <li id="task-{{item.id}}" class="task-row done-{{item.done}}" data-od-component="TaskRow">
+      <button class="check" type="button" aria-label="Toggle {{item.title}}" hx-post="/api/tasks/{{item.id}}/toggle" hx-target="#task-{{item.id}}" hx-swap="outerHTML">✓</button>
+      <span class="title">{{item.title}}</span>
+      <button type="button" hx-get="/api/tasks/{{item.id}}/edit" hx-target="#task-{{item.id}}" hx-swap="outerHTML">Edit</button>
+      <button class="danger" type="button" hx-delete="/api/tasks/{{item.id}}" hx-target="#task-{{item.id}}" hx-swap="outerHTML" hx-confirm="Delete “{{item.title}}”?">Delete</button>
+    </li>
+  </template>
+
+  <!-- Edit in place: form, save, cancel -->
+  <template data-od-route="GET /api/tasks/:id/edit" data-od-item="tasks">
+    <li id="task-{{item.id}}" class="task-row" data-od-component="TaskEditRow">
+      <form class="add" style="margin: 0; flex: 1" hx-put="/api/tasks/{{item.id}}" hx-target="#task-{{item.id}}" hx-swap="outerHTML">
+        <input type="text" name="title" value="{{item.title}}" aria-label="Task title" autofocus>
+        <button class="primary" type="submit">Save</button>
+        <button type="button" hx-get="/api/tasks/{{item.id}}" hx-target="#task-{{item.id}}" hx-swap="outerHTML">Cancel</button>
+      </form>
+    </li>
+  </template>
+  <template data-od-route="PUT /api/tasks/:id" data-od-action="update:tasks">
+    <li id="task-{{item.id}}" class="task-row done-{{item.done}}" data-od-component="TaskRow">
+      <button class="check" type="button" aria-label="Toggle {{item.title}}" hx-post="/api/tasks/{{item.id}}/toggle" hx-target="#task-{{item.id}}" hx-swap="outerHTML">✓</button>
+      <span class="title">{{item.title}}</span>
+      <button type="button" hx-get="/api/tasks/{{item.id}}/edit" hx-target="#task-{{item.id}}" hx-swap="outerHTML">Edit</button>
+      <button class="danger" type="button" hx-delete="/api/tasks/{{item.id}}" hx-target="#task-{{item.id}}" hx-swap="outerHTML" hx-confirm="Delete “{{item.title}}”?">Delete</button>
+    </li>
+  </template>
+  <template data-od-route="GET /api/tasks/:id" data-od-item="tasks">
+    <li id="task-{{item.id}}" class="task-row done-{{item.done}}" data-od-component="TaskRow">
+      <button class="check" type="button" aria-label="Toggle {{item.title}}" hx-post="/api/tasks/{{item.id}}/toggle" hx-target="#task-{{item.id}}" hx-swap="outerHTML">✓</button>
+      <span class="title">{{item.title}}</span>
+      <button type="button" hx-get="/api/tasks/{{item.id}}/edit" hx-target="#task-{{item.id}}" hx-swap="outerHTML">Edit</button>
+      <button class="danger" type="button" hx-delete="/api/tasks/{{item.id}}" hx-target="#task-{{item.id}}" hx-swap="outerHTML" hx-confirm="Delete “{{item.title}}”?">Delete</button>
+    </li>
+  </template>
+
+  <!-- Delete -->
+  <template data-od-route="DELETE /api/tasks/:id" data-od-action="delete:tasks">
+    <span id="task-count" class="count" hx-swap-oob="true">{{data.tasks.length}} tasks</span>
+    <p id="empty-state" class="empty" hx-swap-oob="true"><span data-od-unless="data.tasks">No tasks yet. Add your first one above.</span></p>
+  </template>
+</body>
+</html>

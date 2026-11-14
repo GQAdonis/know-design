@@ -2,41 +2,39 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 383,
-  "derivedRevision": 383,
+  "sourceRevision": 473,
+  "derivedRevision": 473,
   "frontier": {
     "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
-    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 38
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 128
   },
   "conflictCount": 0,
   "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
   "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
   "path": [
-    "deploy-web-to-knowme-k8s",
-    "hosted-publish-and-review"
+    "htmx-prototypes-and-ipfs-deploy"
   ],
   "phaseIds": [
-    "deploy-web-to-knowme-k8s",
-    "deploy-web-to-knowme-k8s::hosted-publish-and-review"
+    "htmx-prototypes-and-ipfs-deploy"
   ],
-  "activePhaseId": "deploy-web-to-knowme-k8s::hosted-publish-and-review",
-  "activePhase": "hosted-publish-and-review",
-  "phase": "deploy-web-to-knowme-k8s",
-  "parentPhase": "deploy-web-to-knowme-k8s",
-  "childPointer": "hosted-publish-and-review",
-  "change": "hub-core-service",
+  "activePhaseId": "htmx-prototypes-and-ipfs-deploy",
+  "activePhase": "htmx-prototypes-and-ipfs-deploy",
+  "phase": "htmx-prototypes-and-ipfs-deploy",
+  "parentPhase": null,
+  "childPointer": null,
+  "change": null,
   "currentTask": null,
   "status": "ready",
   "lifecycle": "ready",
-  "stageId": "execute",
+  "stageId": "reflect",
   "stageStatus": "IN_PROGRESS",
   "completionMetric": "implementation",
-  "implementationCompleted": 13,
-  "implementationTotal": 59,
+  "implementationCompleted": 19,
+  "implementationTotal": 65,
   "planRevision": 6,
-  "revision": 383,
-  "exactNextCommand": "Changes 02 hub-core-service (Rust, hub repo) and 06 daemon-publish-client (this repo) can run in parallel",
-  "nextChange": "hub-core-service",
+  "revision": 473,
+  "exactNextCommand": "/kbd-assess htmx-prototypes-and-ipfs-deploy",
+  "nextChange": null,
   "nextTask": null,
-  "updatedAt": "2026-10-19T09:38:29.207235Z"
+  "updatedAt": "2026-11-14T17:41:57.302376Z"
 }

@@ -1,0 +1,5 @@
+200 /
+200 /vendor/htmx.min.js
+200 /vendor/od-mock.js
+200 /vendor/alpine.min.js
+200 /od-prototype.json

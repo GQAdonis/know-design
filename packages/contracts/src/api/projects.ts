@@ -844,7 +844,20 @@ export type MessagesStreamRecord =
   | { type: 'message'; message: ChatMessage }
   | { type: 'end'; count: number };
 
-export type DeployProviderId = 'vercel-self' | 'cloudflare-pages';
+export type DeployProviderId = 'vercel-self' | 'cloudflare-pages' | 'ipfs-kubo';
+
+/**
+ * IPFS (Kubo RPC) deploy result. `cid` is the pinned CIDv1 of the wrapped site
+ * directory; `ipnsName` is present when the deploy also published the
+ * project's IPNS key.
+ */
+export interface IpfsDeploymentInfo {
+  cid: string;
+  gatewayUrl: string;
+  ipnsKey?: string;
+  ipnsName?: string;
+  ipnsUrl?: string;
+}
 export type DeploymentStatus =
   | 'deploying'
   | 'preparing-link'
@@ -948,6 +961,16 @@ export interface DeployConfigResponse {
   accountId?: string;
   projectName?: string;
   cloudflarePages?: CloudflarePagesConfigHints;
+  /** ipfs-kubo: Kubo RPC base URL, e.g. https://rpc.example/api/v0. */
+  rpcUrl?: string;
+  /** ipfs-kubo: basic-auth user name (not secret). */
+  username?: string;
+  /** ipfs-kubo: non-empty sentinel when a password is saved; never the password. */
+  passwordMask?: string;
+  /** ipfs-kubo: public gateway base URL used to build links. */
+  gatewayUrl?: string;
+  /** ipfs-kubo: whether deploys publish the project's IPNS key by default. */
+  ipnsDefault?: boolean;
   target: 'preview' | 'production';
 }
 
@@ -959,6 +982,22 @@ export interface UpdateDeployConfigRequest {
   accountId?: string;
   projectName?: string;
   cloudflarePages?: CloudflarePagesConfigHints;
+  rpcUrl?: string;
+  username?: string;
+  /** Send the saved mask (or omit) to keep the stored password. */
+  password?: string;
+  gatewayUrl?: string;
+  ipnsDefault?: boolean;
+}
+
+/**
+ * Response of `POST /api/deploy/config/import-env`. Reports which variables
+ * were found and where; the values themselves are never returned.
+ */
+export interface ImportDeployEnvResponse {
+  config: DeployConfigResponse;
+  source: 'daemon-env' | 'login-shell';
+  imported: string[];
 }
 
 export interface DeploymentInfo {
@@ -974,6 +1013,7 @@ export interface DeploymentInfo {
   statusMessage?: string;
   reachableAt?: number;
   cloudflarePages?: CloudflarePagesDeploymentInfo;
+  ipfs?: IpfsDeploymentInfo;
   createdAt: number;
   updatedAt: number;
 }
@@ -987,6 +1027,8 @@ export interface DeployProjectFileRequest {
   providerId?: DeployProviderId;
   cloudflarePages?: CloudflarePagesDeploySelection;
   target?: 'preview' | 'production';
+  /** ipfs-kubo: publish the project's IPNS key; defaults to the saved `ipnsDefault`. */
+  ipns?: boolean;
 }
 
 export interface DeployProjectFileResponse extends DeploymentInfo {}
@@ -1008,7 +1050,9 @@ export type DeployPreflightWarningCode =
   | 'no-doctype'
   | 'no-viewport'
   /** The entry would collide with the project's root index.html; deploy is refused with ENTRY_INDEX_CONFLICT. */
-  | 'entry-index-conflict';
+  | 'entry-index-conflict'
+  /** od-prototype.json routes differ from the entry's data-od-route templates (warning only). */
+  | 'prototype-manifest-mismatch';
 
 export interface DeployPreflightWarning {
   code: DeployPreflightWarningCode;

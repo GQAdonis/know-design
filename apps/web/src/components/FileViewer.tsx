@@ -150,6 +150,7 @@ import {
 } from '../collab/public-file-publish';
 import { moveWorkspaceProject, workspaceProjectMoveErrorCode } from '../state/projects';
 import { MoveToTeamConfirmDialog, moveConfirmSkipped } from './MoveToTeamConfirmDialog';
+import { IpfsDeployFields, IpfsDeploymentDetails } from './IpfsDeployFields';
 import type { Dict, Locale } from '../i18n/types';
 import {
   fetchLiveArtifact,
@@ -157,6 +158,7 @@ import {
   fetchLiveArtifactRefreshes,
   checkDeploymentLink,
   CLOUDFLARE_PAGES_PROVIDER_ID,
+  IPFS_KUBO_PROVIDER_ID,
   createSocialSharePayload,
   DEFAULT_DEPLOY_PROVIDER_ID,
   deployProjectFile,
@@ -407,17 +409,19 @@ const IMAGE_EXPORT_FORMAT_OPTIONS: Array<{
 ];
 export type DeployProviderOption = {
   id: WebDeployProviderId;
-  labelKey: 'fileViewer.vercelProvider' | 'fileViewer.cloudflarePagesProvider';
+  labelKey: 'fileViewer.vercelProvider' | 'fileViewer.cloudflarePagesProvider' | 'fileViewer.ipfsProvider';
   tokenLink: string;
-  tokenLinkKey: 'fileViewer.vercelTokenGetLink' | 'fileViewer.cloudflareApiTokenGetLink';
+  tokenLinkKey: 'fileViewer.vercelTokenGetLink' | 'fileViewer.cloudflareApiTokenGetLink' | 'fileViewer.ipfsRpcDocsLink';
   tokenPlaceholderKey:
     | 'fileViewer.vercelTokenPlaceholder'
-    | 'fileViewer.cloudflareApiTokenPlaceholder';
-  tokenReuseHintKey: 'fileViewer.vercelTokenReuseHint' | 'fileViewer.cloudflareApiTokenReuseHint';
-  tokenRequiredKey: 'fileViewer.vercelTokenRequired' | 'fileViewer.cloudflareApiTokenRequired';
+    | 'fileViewer.cloudflareApiTokenPlaceholder'
+    | 'fileViewer.ipfsPasswordPlaceholder';
+  tokenReuseHintKey: 'fileViewer.vercelTokenReuseHint' | 'fileViewer.cloudflareApiTokenReuseHint' | 'fileViewer.ipfsPasswordReuseHint';
+  tokenRequiredKey: 'fileViewer.vercelTokenRequired' | 'fileViewer.cloudflareApiTokenRequired' | 'fileViewer.ipfsConfigRequired';
   tokenLabelKey:
     | 'fileViewer.vercelToken'
-    | 'fileViewer.cloudflareApiToken';
+    | 'fileViewer.cloudflareApiToken'
+    | 'fileViewer.ipfsPassword';
   accountIdLabelKey?: 'fileViewer.cloudflareAccountId';
   accountIdHintKey?: 'fileViewer.cloudflareAccountIdHint';
 };
@@ -734,6 +738,17 @@ const DEPLOY_PROVIDER_OPTIONS: DeployProviderOption[] = [
     tokenLabelKey: 'fileViewer.cloudflareApiToken',
     accountIdLabelKey: 'fileViewer.cloudflareAccountId',
     accountIdHintKey: 'fileViewer.cloudflareAccountIdHint',
+  },
+  // KnowDesign: the user's own IPFS (Kubo) node; settings render in IpfsDeployFields.
+  {
+    id: IPFS_KUBO_PROVIDER_ID,
+    labelKey: 'fileViewer.ipfsProvider',
+    tokenLink: 'https://docs.ipfs.tech/reference/kubo/rpc/',
+    tokenLinkKey: 'fileViewer.ipfsRpcDocsLink',
+    tokenPlaceholderKey: 'fileViewer.ipfsPasswordPlaceholder',
+    tokenReuseHintKey: 'fileViewer.ipfsPasswordReuseHint',
+    tokenRequiredKey: 'fileViewer.ipfsConfigRequired',
+    tokenLabelKey: 'fileViewer.ipfsPassword',
   },
 ];
 
@@ -15078,7 +15093,9 @@ function HtmlViewer({
     const deployStarted = performance.now();
     const deployRequestId = analytics.newRequestId();
     const providerForTracking: TrackingDeployProvider =
-      deployProviderId === CLOUDFLARE_PAGES_PROVIDER_ID ? 'cloudflare_pages' : 'vercel';
+      deployProviderId === CLOUDFLARE_PAGES_PROVIDER_ID
+        ? 'cloudflare_pages'
+        : deployProviderId === IPFS_KUBO_PROVIDER_ID ? 'ipfs_kubo' : 'vercel';
     const firstConfigure = !deployConfig?.configured;
     let savedNewToken = false;
     const fireDeployResult = (
@@ -15113,13 +15130,17 @@ function HtmlViewer({
         cloudflareHints?.lastZoneName !== deployConfig?.cloudflarePages?.lastZoneName ||
         cloudflareHints?.lastDomainPrefix !== deployConfig?.cloudflarePages?.lastDomainPrefix,
       );
-      const needsConfigSave =
+      // KnowDesign: IPFS settings are saved from IpfsDeployFields, not the token row.
+      if (deployProviderId === IPFS_KUBO_PROVIDER_ID && !deployConfig?.configured) {
+        throw new Error(t('fileViewer.ipfsConfigRequired'));
+      }
+      const needsConfigSave = deployProviderId !== IPFS_KUBO_PROVIDER_ID && (
         hasNewToken ||
         teamId.trim() !== (deployConfig?.teamId || '') ||
         teamSlug.trim() !== (deployConfig?.teamSlug || '') ||
         cloudflareAccountId.trim() !== (deployConfig?.accountId || '') ||
         cloudflareHintsChanged ||
-        !deployConfig?.configured;
+        !deployConfig?.configured);
       if (needsConfigSave) {
         const nextConfig = await saveDeployConfig();
         if (!nextConfig) {
@@ -17898,6 +17919,8 @@ function HtmlViewer({
                           icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
                             {option.id === CLOUDFLARE_PAGES_PROVIDER_ID
                               ? <><rect x="4" y="3" width="16" height="18" rx="1.5" /><path d="M4 8h16M8 12h8M8 16h5" /></>
+                              : option.id === IPFS_KUBO_PROVIDER_ID
+                              ? <><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7z" /><path d="M12 12v9.5M12 12l8.5-5M12 12 3.5 7" /></>
                               : <path d="M7 18H6a4 4 0 0 1-.6-8A7 7 0 0 1 19 9a4.5 4.5 0 0 1-1 9h-1M12 21V11m-3 3 3-3 3 3" />}
                           </svg>,
                           disabled: streaming || viewerOnly,
@@ -19042,6 +19065,14 @@ function HtmlViewer({
                   </select>
                 </label>
               ) : null}
+              {deployProviderId === IPFS_KUBO_PROVIDER_ID ? (
+                <IpfsDeployFields
+                  config={deployConfig}
+                  onConfigChange={(next) => syncDeployFormFromConfig(IPFS_KUBO_PROVIDER_ID, next)}
+                  onError={setDeployError}
+                />
+              ) : (
+                <>
               <div className="field-label-row deploy-token-label-row">
                 <label htmlFor="deploy-token" className="deploy-field-title required">{t(deployProvider.tokenLabelKey)}</label>
                 <a
@@ -19082,6 +19113,8 @@ function HtmlViewer({
                   ) : null}
                 </div>
               ) : null}
+                </>
+              )}
               {deployProviderId === CLOUDFLARE_PAGES_PROVIDER_ID ? (
                 <>
                   <div className="deploy-field-grid single-field">
@@ -19257,6 +19290,7 @@ function HtmlViewer({
                         );
                       })}
                     </div>
+                    <IpfsDeploymentDetails deployment={activeDeployment} />
                   </div>
                 </div>
               ) : null}

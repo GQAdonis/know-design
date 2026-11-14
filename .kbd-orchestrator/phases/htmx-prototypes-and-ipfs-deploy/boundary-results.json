@@ -1,0 +1,115 @@
+{
+  "phase": "htmx-prototypes-and-ipfs-deploy",
+  "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
+  "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
+  "contractDigest": "f0197e0e46b4b8bdf6e7042c1ceb1c83bcab2e12c08a5cdec1de5dfbdbe88c95",
+  "scenarios": [
+    {
+      "id": "IPFS-1",
+      "status": "PASS",
+      "attempted": "fake-Kubo route tests + od deploy --provider ipfs-kubo --ipns against rpc.prometheusags.ai",
+      "observed": "pinned CIDv1, directory parts, Basic auth, IPNS key reused, auth failure leaves no row",
+      "evidence": "review/boundary-2026-11-14/README.md; review/boundary-2026-11-14/daemon-tests.log; deploy.json"
+    },
+    {
+      "id": "IPFS-2",
+      "status": "PASS",
+      "attempted": "sentinel password scan across responses, logs, uploads, deployments; planted-sentinel negative control",
+      "observed": "no surface contained the password; negative control detected the sentinel",
+      "evidence": "review/boundary-2026-11-14/daemon-tests.log"
+    },
+    {
+      "id": "IPFS-3",
+      "status": "PASS",
+      "attempted": "packaged KnowDesign app with 0 IPFS_RPC_* vars in the daemon env; POST /api/deploy/config/import-env then deploy",
+      "observed": "source=login-shell, configured, password masked; deploy authenticated, assets 200",
+      "evidence": "review/boundary-2026-11-14/packaged-deploy.json; packaged-gateway-status.txt"
+    },
+    {
+      "id": "IPFS-4",
+      "status": "PASS",
+      "attempted": "live od deploy of the example with IPNS",
+      "observed": "gateway and all assets 200, un-uploaded path 404, IPNS root 200",
+      "evidence": "review/boundary-2026-11-14/deploy.json; gateway-status.txt"
+    },
+    {
+      "id": "MOCK-1",
+      "status": "PASS",
+      "attempted": "packaged app file viewer preview (blob: sandboxed frame) on the TPL-1 project; real clicks/typing via macOS accessibility: empty-title submit, create, edit, delete",
+      "observed": "before fix: htmx URL construction threw in the blob: document and the list stayed empty; after the od-mock fix the list loads and every mutation is reflected in the list and count; no mocked-route request in daemon/web/desktop logs",
+      "evidence": "review/boundary-2026-11-14/README.md; review/boundary-2026-11-14/mock1/*.png|jpg; apps/web/tests/design-templates/od-mock.test.ts"
+    },
+    {
+      "id": "MOCK-2",
+      "status": "PASS",
+      "attempted": "Chromium at the public gateway URL",
+      "observed": "list, 422, create+OOB, toggle, edit, delete, Alpine panel; only page and vendored files requested",
+      "evidence": "review/boundary-2026-11-14/README.md"
+    },
+    {
+      "id": "TPL-1",
+      "status": "PASS",
+      "attempted": "packaged app: od project create --skill htmx-alpine-prototype; Claude Code run on OD Next (plan turn, then build turn); validator; browser flows at daemon URL and IPFS; od deploy --provider ipfs-kubo --ipns",
+      "observed": "vendor/ identical to template MANIFEST files; index.html with data-od-route templates and data-od-component roots; od-prototype.json with routes, components, state, entities, tokens passes validate-manifest.ts; CRUD works locally and on IPFS",
+      "evidence": "review/boundary-2026-11-14/README.md; review/boundary-2026-11-14/tpl1/file-listing.txt; review/boundary-2026-11-14/tpl1/validate-manifest.log; review/boundary-2026-11-14/tpl1/vendor-diff.txt; review/boundary-2026-11-14/tpl1/deploy.json; review/boundary-2026-11-14/tpl1/gateway-status.txt"
+    },
+    {
+      "id": "MAN-1",
+      "status": "PASS",
+      "attempted": "validate-manifest.ts on template and deployed project; route-removed negative control; preflight tests",
+      "observed": "ok / exit 1 with named route / warning emitted",
+      "evidence": "review/boundary-2026-11-14/validate-manifest.log; daemon-tests.log"
+    },
+    {
+      "id": "AXUM-1",
+      "status": "PASS",
+      "attempted": "export-axum.ts, cargo build/fmt/clippy, curl every route, Chromium against the server with mock off",
+      "observed": "all routes behave as od-mock; CRUD works against real handlers",
+      "evidence": "review/boundary-2026-11-14/README.md"
+    },
+    {
+      "id": "CONV-1",
+      "status": "PASS",
+      "attempted": "spec doc + two skill PRs",
+      "observed": "every manifest field mapped; gaps listed; PRs open",
+      "evidence": "docs/knowdesign/htmx-conversion.md; prometheus-skills-mini#86; hybrid-mobile-architecture-skill#28"
+    }
+  ],
+  "budgetConsumption": {
+    "source": "agent estimate for time and tool calls (no harness meter); repair attempts and no-progress counted from the session record",
+    "values": {
+      "timeMinutes": {
+        "class": "estimated",
+        "value": 560
+      },
+      "toolCalls": {
+        "class": "estimated",
+        "value": 830
+      },
+      "repairAttempts": {
+        "class": "measured",
+        "value": 4,
+        "note": "3 recorded before this run, plus the od-mock blob: request-path fix found by MOCK-1"
+      },
+      "noProgress": {
+        "class": "measured",
+        "value": 0
+      }
+    }
+  },
+  "sourceDigests": {
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/README.md": "0cbbdd3be95b44164f527bcbfc93ac060b5ddf985c9073ba326944e1397fd89c",
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/adopted-contract.json": "15f2692d4e8a5bd7be9016302d6b4ed5bde71d702c4c6175ce2e611813222619",
+    "apps/daemon/src/deploy/ipfs.ts": "c2b06ca4f22c0410ea8f2cb1d9c29f21e60e79b4bfb59d4047f8d7ce7b06d0ee",
+    "apps/daemon/src/deploy/prototype-manifest.ts": "b78b1d12ea94ad80048db528e4634d697e7f4b4ff0c722ed2574024e80188377",
+    "design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js": "4003c55f25ac555e0d17473fefca7959dda73031bd033a2051c889e38a0de8a9",
+    "design-templates/htmx-alpine-prototype/od-prototype.json": "df900c7920bd08ed7bfbbcccf6c74c847814bf734fc3dadc27881189c65369ac",
+    "plugins/_official/scenarios/od-axum-export/scripts/export-axum.ts": "4464b5285530c10c7ad4fa33ef4ab7ee07e3f1feff47824749945ba82c85f546",
+    "docs/knowdesign/htmx-conversion.md": "c242e156369215fa0fb93d624839af8044f40b45b5a2c28aa5aaae2136f9b29d",
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/tpl1/od-prototype.json": "6adbff1689ec480442db5ac93041f76ff7861a4dbb0c45c69c89769be3bf3369",
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/tpl1/validate-manifest.log": "1c895e415d7626f7153c9a2d8455e8e10bc7d4bf2381be2a53f0503f742c7fd8",
+    "design-templates/htmx-alpine-prototype/src/od-mock.ts": "1814839378bdbc13d6eac9f1d2880b89db681e118a5cb3dfe9b86e370277d5ac",
+    "apps/web/tests/design-templates/od-mock.test.ts": "da1f722bbba345b3bf14e1c01a4c7f393bbc69621ea5aed6e05bc6c00556bc76",
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/mock1/06-deleted.jpg": "ba6f053da149ea69117d5ab04672668849fe0410d6f8d161c741072044a88ba1"
+  }
+}

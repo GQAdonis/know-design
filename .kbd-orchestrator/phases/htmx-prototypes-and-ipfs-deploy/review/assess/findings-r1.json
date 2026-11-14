@@ -1,0 +1,43 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3.1-pro",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "claim": "Goal 1's saved-config and per-project IPNS requirements lack a current-state and integration-gap assessment.",
+      "evidence": "The goal requires \"credentials live in the saved deploy config with an import from the shell env\" and \"an optional per-project IPNS name.\" The assessment reduces the provider gap to \"IPFS deploy provider: MISSING\" and notes only that \"`od deploy config` subcommand existence is UNKNOWN.\" It does not assess the existing deploy-config schema/routes/UI, whether `provider_metadata_json` is suitable for secret persistence, or any Kubo key/name-publish workflow and per-project IPNS mapping needed for republishing.",
+      "suggested_fix": "Assess the existing deploy-config persistence and response surfaces, the UI and CLI env-import entry points for each supported launch environment, and the required Kubo add/pin/key/name-publish operations, including where each project's IPNS key or name is stored and reused."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "claim": "The od-prototype.json goal is restated as missing without assessing how manifest emission can be integrated into prototype generation.",
+      "evidence": "The entire implementation finding is \"Conversion contract (manifest): MISSING.\", and goal progress repeats \"od-prototype.json manifest: NOT MET.\" No artifact-writing or generation-output hook, schema/validation ownership, existing analogous manifest, or mechanism ensuring emission through the legacy and OD Next generation paths is identified, despite the goal requiring the manifest to be \"emitted with each prototype.\"",
+      "suggested_fix": "Identify the concrete generation/output path that will write the manifest, assess both legacy and OD Next behavior, determine where its schema and validation belong, and establish how the same emitted artifact becomes input to od-mock, Axum export, and the conversion specs."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "claim": "Goal 6 omits assessment of the required hybrid-mobile-architecture skill and does not assess manifest consumption by either conversion target.",
+      "evidence": "The goal requires \"updates to convert-htmx-react and the hybrid-mobile-architecture skills,\" but the assessment instead says \"`convert-htmx-react` converts Alpine forms but sends every `hx-*` to a TODO sidecar; `scaffold-flutter-a2ui` takes A2UI JSON, not HTMX.\" `hybrid-mobile-architecture` is never mentioned, and no current support or gap for consuming od-prototype.json is recorded for either required skill.",
+      "suggested_fix": "Locate the external skill checkouts, assess both named target skills and their current conversion/spec inputs, and record the concrete gaps for consuming the manifest's routes, components, state, entities, and tokens in the React and Flutter specifications."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The constraint check misstates the JavaScript-file rule as absolute and leaves the vendored runtime's required exception unresolved.",
+      "evidence": "The assessment says \"no new `.js`\", while the blocking constraint permits new JavaScript files \"with an explicit generated/vendor/compat reason that passes `pnpm guard`.\" Goal 2 requires vendoring htmx, Alpine, and extensions, but the assessment never records the vendor justification or guard handling needed for those runtime files.",
+      "suggested_fix": "Record the vendored runtime as an explicit vendor exception, identify the intended vendored files and their upstream versions/licenses, and require the relevant guard validation rather than presenting all new JavaScript files as prohibited."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "kimi-coding-plan",
+    "providerId": "moonshot",
+    "modelId": "k3.1-pro"
+  }
+}

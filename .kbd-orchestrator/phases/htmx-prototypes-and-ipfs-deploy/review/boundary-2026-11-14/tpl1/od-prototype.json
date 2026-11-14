@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "entry": "index.html",
+  "title": "Reading list",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/books",
+      "entity": "books",
+      "kind": "list",
+      "params": [],
+      "fields": [],
+      "responses": [
+        { "status": 200, "component": "BookRow", "oob": ["book-count"] }
+      ],
+      "target": "#books",
+      "swap": "innerHTML"
+    },
+    {
+      "method": "POST",
+      "path": "/api/books",
+      "entity": "books",
+      "kind": "create",
+      "params": [],
+      "fields": ["title", "author", "read"],
+      "responses": [
+        { "status": 422, "when": "!form.title", "oob": ["add-status"] },
+        { "status": 200, "component": "BookRow", "triggers": ["book-added"], "oob": ["book-count", "title-error", "add-status"] }
+      ],
+      "target": "#books",
+      "swap": "beforeend"
+    },
+    {
+      "method": "POST",
+      "path": "/api/books/:id/toggle",
+      "entity": "books",
+      "kind": "toggle",
+      "params": ["id"],
+      "fields": [],
+      "responses": [
+        { "status": 200, "component": "BookRow" }
+      ],
+      "target": "#book-:id",
+      "swap": "outerHTML"
+    },
+    {
+      "method": "GET",
+      "path": "/api/books/:id/edit",
+      "entity": "books",
+      "kind": "form",
+      "params": ["id"],
+      "fields": [],
+      "responses": [
+        { "status": 200, "component": "BookEditRow" }
+      ],
+      "target": "#book-:id",
+      "swap": "outerHTML"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/books/:id",
+      "entity": "books",
+      "kind": "update",
+      "params": ["id"],
+      "fields": ["title"],
+      "responses": [
+        { "status": 422, "when": "!form.title" },
+        { "status": 200, "component": "BookRow" }
+      ],
+      "target": "#book-:id",
+      "swap": "outerHTML"
+    },
+    {
+      "method": "GET",
+      "path": "/api/books/:id",
+      "entity": "books",
+      "kind": "detail",
+      "params": ["id"],
+      "fields": [],
+      "responses": [
+        { "status": 200, "component": "BookRow" }
+      ],
+      "target": "#book-:id",
+      "swap": "outerHTML"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/books/:id",
+      "entity": "books",
+      "kind": "delete",
+      "params": ["id"],
+      "fields": [],
+      "responses": [
+        { "status": 200, "oob": ["book-count", "add-status"] }
+      ],
+      "target": "#book-:id",
+      "swap": "outerHTML"
+    }
+  ],
+  "components": [
+    { "name": "BookCount", "description": "Total number of books on the list; updated out of band by list, create and delete.", "entity": "books", "repeats": false, "routes": [] },
+    { "name": "BookForm", "description": "Add-a-book form: required title, optional author, inline validation error and success status.", "entity": "books", "repeats": false, "routes": ["POST /api/books"] },
+    { "name": "BookList", "description": "The list section; owns the client-side All / Unread / Read filter and the filter-aware empty state.", "entity": "books", "repeats": false, "routes": ["GET /api/books"] },
+    { "name": "BookFilter", "description": "Segmented All / Unread / Read control bound to BookList.filter.", "repeats": false, "routes": [] },
+    { "name": "BookRow", "description": "One book: read toggle, title, author (or Unknown author), read status tag and row actions.", "entity": "books", "repeats": true, "routes": ["POST /api/books/:id/toggle", "GET /api/books/:id/edit"] },
+    { "name": "BookEditRow", "description": "In-place title editor; Enter saves, Escape or Cancel restores the row.", "entity": "books", "repeats": false, "routes": ["PUT /api/books/:id", "GET /api/books/:id"] },
+    { "name": "RowActions", "description": "Edit and two-step Delete (Delete, then confirm or Keep).", "entity": "books", "repeats": true, "routes": ["GET /api/books/:id/edit", "DELETE /api/books/:id"] }
+  ],
+  "state": [
+    { "component": "BookList", "fields": { "filter": "string" } },
+    { "component": "RowActions", "fields": { "confirming": "boolean" } }
+  ],
+  "entities": [
+    {
+      "name": "books",
+      "fields": { "id": "string", "title": "string", "author": "string", "read": "boolean" }
+    }
+  ],
+  "tokens": {
+    "source": "index.html :root",
+    "roles": [
+      "canvas", "chrome", "surface", "raised", "hover", "text", "muted",
+      "accent", "accent-text", "accent-soft", "destructive", "destructive-text", "focus",
+      "space-1", "space-2", "space-3", "space-4", "space-6", "space-8", "space-12",
+      "radius", "duration-fast", "duration-normal", "ease-out",
+      "font", "font-display", "text-sm", "text-base", "text-lg", "text-hero", "text-stat"
+    ]
+  }
+}

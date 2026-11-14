@@ -231,6 +231,11 @@ const residualAllowedPathPatterns: RegExp[] = [
   // JavaScript under these design-template directories must still be converted
   // to TypeScript or explicitly listed in `residualAllowedExactPaths`.
   /^design-templates\/html-ppt-zhangzara-[^/]+\/assets\/deck-stage\.js$/,
+  // KnowDesign htmx-alpine-prototype runtime kit: unmodified vendored browser
+  // builds (htmx, Alpine, htmx extensions; versions, sha256 and licenses in
+  // assets/vendor/MANIFEST.json) plus od-mock.js compiled from the template's
+  // TypeScript source. Copied into generated projects; never project-owned code.
+  /^design-templates\/htmx-alpine-prototype\/assets\/vendor\/(?:ext\/)?[a-z0-9.-]+\.js$/,
   // Bundled example/skill plugins copy the upstream skill's `assets/`
   // and `references/` directories verbatim so the daemon's preview
   // surface can render the baked HTML without staging detours. Those

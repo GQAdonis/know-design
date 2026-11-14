@@ -1202,6 +1202,7 @@ import {
   VERCEL_PROVIDER_ID,
   writeDeployConfig,
 } from './deploy.js';
+import { deployToIpfs, importIpfsEnv, IPFS_KUBO_PROVIDER_ID } from './deploy/ipfs.js';
 import {
   checkCloudflarePagesDeploymentLinks,
   cloudflarePagesDeploymentMetadata,
@@ -9170,6 +9171,10 @@ export async function startServer({
     publicDeployment,
     cloudflarePagesDeploymentMetadata,
     prepareDeployPreflight,
+    // KnowDesign IPFS provider (docs/knowdesign-upstream-sync.md).
+    IPFS_KUBO_PROVIDER_ID,
+    deployToIpfs,
+    importIpfsEnv,
   };
   const mediaDeps = {
     MEDIA_PROVIDERS,

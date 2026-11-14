@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://knowdesign.local/schemas/od-prototype.schema.json",
+  "title": "od-prototype.json",
+  "description": "Machine-readable description of an htmx + Alpine prototype: the contract that Axum, React and Flutter conversions read. It must describe what the page actually does: every route here has a matching <template data-od-route> in the entry page, and vice versa.",
+  "type": "object",
+  "required": ["version", "entry", "routes", "components", "state", "entities", "tokens"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "entry": { "type": "string", "description": "Entry HTML file, relative to this manifest (usually index.html)." },
+    "title": { "type": "string" },
+    "routes": {
+      "type": "array",
+      "description": "One entry per <template data-od-route>. Several templates on the same method+path (guards) share one entry.",
+      "items": {
+        "type": "object",
+        "required": ["method", "path", "entity", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "method": { "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+          "path": { "type": "string", "pattern": "^/", "description": "Root-relative, with :param segments, e.g. /api/tasks/:id" },
+          "entity": { "type": "string", "description": "Name of the entity (from entities[]) this route reads or writes." },
+          "kind": {
+            "enum": ["list", "detail", "create", "update", "delete", "toggle", "form", "action"],
+            "description": "list/detail read; create/update/delete/toggle write; form returns an editing fragment; action is anything else."
+          },
+          "params": { "type": "array", "items": { "type": "string" } },
+          "fields": { "type": "array", "items": { "type": "string" }, "description": "Request body / query field names." },
+          "responses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["status"],
+              "additionalProperties": false,
+              "properties": {
+                "status": { "type": "integer" },
+                "when": { "type": "string", "description": "Guard, e.g. \"!form.title\"." },
+                "component": { "type": "string", "description": "Component the fragment renders." },
+                "triggers": { "type": "array", "items": { "type": "string" }, "description": "HX-Trigger event names." },
+                "oob": { "type": "array", "items": { "type": "string" }, "description": "Ids updated out of band." }
+              }
+            }
+          },
+          "target": { "type": "string" },
+          "swap": { "type": "string" }
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "description": "One entry per data-od-component name in the page.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+          "description": { "type": "string" },
+          "entity": { "type": "string" },
+          "repeats": { "type": "boolean", "description": "Rendered once per record." },
+          "routes": { "type": "array", "items": { "type": "string" }, "description": "\"METHOD /path\" routes this component calls." },
+          "listens": { "type": "array", "items": { "type": "string" }, "description": "Events (HX-Trigger names) it reacts to." }
+        }
+      }
+    },
+    "state": {
+      "type": "array",
+      "description": "Alpine x-data scopes (UI-only state).",
+      "items": {
+        "type": "object",
+        "required": ["component", "fields"],
+        "additionalProperties": false,
+        "properties": {
+          "component": { "type": "string" },
+          "fields": {
+            "type": "object",
+            "additionalProperties": { "enum": ["boolean", "string", "number"] }
+          }
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "fields"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "description": "Plural, matching the od-mock-data key, e.g. tasks." },
+          "fields": {
+            "type": "object",
+            "required": ["id"],
+            "additionalProperties": { "enum": ["string", "number", "boolean", "date", "datetime", "text", "url", "email"] }
+          }
+        }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "required": ["source", "roles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string", "description": "Where the token values live, e.g. \"index.html :root\"." },
+        "roles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "CSS custom property names used, without the leading --."
+        }
+      }
+    }
+  }
+}

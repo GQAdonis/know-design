@@ -14,7 +14,7 @@ export function registerDeployRoutes(app: Express, ctx: RegisterDeployRoutesDeps
   const { PROJECTS_DIR } = ctx.paths;
   const { randomUUID } = ctx.ids;
   const { getProject } = ctx.projectStore;
-  const { VERCEL_PROVIDER_ID, CLOUDFLARE_PAGES_PROVIDER_ID, isDeployProviderId, publicDeployConfigForProvider, readDeployConfig, writeDeployConfig, listCloudflarePagesZones, DeployError, listDeployments, publicDeployments, getDeployment, buildDeployFileSet, cloudflarePagesProjectNameForDeploy, deployToCloudflarePages, deployToVercel, upsertDeployment, publicDeployment, cloudflarePagesDeploymentMetadata, prepareDeployPreflight } = ctx.deploy;
+  const { VERCEL_PROVIDER_ID, CLOUDFLARE_PAGES_PROVIDER_ID, isDeployProviderId, publicDeployConfigForProvider, readDeployConfig, writeDeployConfig, listCloudflarePagesZones, DeployError, listDeployments, publicDeployments, getDeployment, buildDeployFileSet, cloudflarePagesProjectNameForDeploy, deployToCloudflarePages, deployToVercel, upsertDeployment, publicDeployment, cloudflarePagesDeploymentMetadata, prepareDeployPreflight, IPFS_KUBO_PROVIDER_ID, deployToIpfs, importIpfsEnv } = ctx.deploy;
 
   /**
    * A DeployError now carries a specific `code` (MISSING_REFERENCES,
@@ -67,6 +67,24 @@ export function registerDeployRoutes(app: Express, ctx: RegisterDeployRoutesDeps
     }
   });
 
+  // KnowDesign: import IPFS RPC credentials from the daemon env or the user's
+  // login shell. Values are written to the 0600 provider config and never
+  // returned; the response carries only the public config and the source.
+  app.post('/api/deploy/config/import-env', async (req, res) => {
+    try {
+      const providerId = typeof req.body?.providerId === 'string' ? req.body.providerId : IPFS_KUBO_PROVIDER_ID;
+      if (providerId !== IPFS_KUBO_PROVIDER_ID) {
+        return sendApiError(res, 400, 'BAD_REQUEST', 'env import is only supported for ipfs-kubo');
+      }
+      /** @type {import('@open-design/contracts').ImportDeployEnvResponse} */
+      const body = await importIpfsEnv();
+      res.json(body);
+    } catch (err: any) {
+      const status = err instanceof DeployError ? err.status : 400;
+      sendApiError(res, status, deployErrorCodeFor(err, status), String(err?.message || err));
+    }
+  });
+
   app.get('/api/deploy/cloudflare-pages/zones', async (_req, res) => {
     try {
       /** @type {import('@open-design/contracts').CloudflarePagesZonesResponse} */
@@ -100,7 +118,7 @@ export function registerDeployRoutes(app: Express, ctx: RegisterDeployRoutesDeps
     const startedAt = Date.now();
     let stage: 'file_plan' | 'provider' = 'file_plan';
     try {
-      const { fileName, providerId = VERCEL_PROVIDER_ID, cloudflarePages, target: rawTarget } = req.body || {};
+      const { fileName, providerId = VERCEL_PROVIDER_ID, cloudflarePages, target: rawTarget, ipns } = req.body || {};
       // Omitted target defaults to production; any supplied value must be exact.
       if (rawTarget !== undefined && rawTarget !== 'preview' && rawTarget !== 'production') {
         return sendApiError(res, 400, 'BAD_REQUEST', 'invalid target: expected "preview" or "production"');
@@ -144,11 +162,16 @@ export function registerDeployRoutes(app: Express, ctx: RegisterDeployRoutesDeps
       )) return;
 
       const prior = getDeployment(db, req.params.id, fileName, providerId);
+      const isIpfs = providerId === IPFS_KUBO_PROVIDER_ID;
       const files = await buildDeployFileSet(
         PROJECTS_DIR,
         req.params.id,
         fileName,
-        { metadata: deployProject?.metadata, includeProjectFiles: true },
+        // IPFS gateways mount the site under /ipfs/<cid>/, so asset URLs must
+        // stay relative, and no hosted hook script is injected.
+        isIpfs
+          ? { metadata: deployProject?.metadata, includeProjectFiles: true, assetUrlPolicy: 'share-relative', hookScriptUrl: '' }
+          : { metadata: deployProject?.metadata, includeProjectFiles: true },
       );
       const project = getProject(db, req.params.id);
       stage = 'provider';
@@ -156,7 +179,14 @@ export function registerDeployRoutes(app: Express, ctx: RegisterDeployRoutesDeps
         providerId === CLOUDFLARE_PAGES_PROVIDER_ID
           ? cloudflarePagesProjectNameForDeploy(db, req.params.id, project?.name, prior)
           : '';
-      const result = providerId === CLOUDFLARE_PAGES_PROVIDER_ID
+      const result = isIpfs
+        ? await deployToIpfs({
+            config: await readDeployConfig(IPFS_KUBO_PROVIDER_ID),
+            files,
+            projectId: req.params.id,
+            ipns: typeof ipns === 'boolean' ? ipns : undefined,
+          })
+        : providerId === CLOUDFLARE_PAGES_PROVIDER_ID
         ? await deployToCloudflarePages({
             config: {
               ...await readDeployConfig(CLOUDFLARE_PAGES_PROVIDER_ID),
@@ -189,7 +219,9 @@ export function registerDeployRoutes(app: Express, ctx: RegisterDeployRoutesDeps
         reachableAt: result.reachableAt,
         cloudflarePages: result.cloudflarePages,
         providerMetadata:
-          providerId === CLOUDFLARE_PAGES_PROVIDER_ID
+          isIpfs
+            ? result.providerMetadata
+            : providerId === CLOUDFLARE_PAGES_PROVIDER_ID
             ? (result.providerMetadata ?? cloudflarePagesDeploymentMetadata(cloudflarePagesProjectName))
             : prior?.providerMetadata,
         createdAt: prior?.createdAt ?? now,

@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reading list</title>
+  <!-- Real backend: uncomment and set the base URL to turn the mock router off. -->
+  <!-- <meta name="od-backend" content="http://127.0.0.1:3000"> -->
+
+  <!-- Runtime: htmx, extensions, od-mock (after htmx), then Alpine (defer). -->
+  <script src="vendor/htmx.min.js"></script>
+  <script src="vendor/ext/response-targets.min.js"></script>
+  <script src="vendor/ext/loading-states.min.js"></script>
+  <script src="vendor/ext/idiomorph-ext.min.js"></script>
+  <script src="vendor/od-mock.js"></script>
+  <script defer src="vendor/alpine.min.js"></script>
+
+  <style>
+/* OD-LAYOUT-PRIMITIVES v1 — structure only: display, flex/grid, overflow, wrapping, ratio, geometry.
+   Put this @layer first; product CSS outside the layer wins ordinary layout rules.
+   Native hidden and closed-dialog states take precedence over component display rules. */
+@layer od-layout {
+  [hidden]:not([hidden="until-found" i]) { display: none !important; }
+  dialog:not([open]) { display: none !important; }
+
+  :where(.od-stack,.od-row,.od-row-top,.od-cluster,.od-grid,.od-field,.od-stat,.od-cell,.od-tile) > :where(*) { min-width: 0; }
+
+  /* containers */
+  .od-stack   { display: flex; flex-direction: column; gap: var(--od-gap, 8px); }
+  .od-row     { display: flex; align-items: center; gap: var(--od-gap, 8px); }
+  .od-row-top { display: flex; align-items: flex-start; gap: var(--od-gap, 8px); }
+  .od-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--od-gap, 8px); }
+  .od-fill    { flex: 1 1 0; min-width: 0; }
+  .od-fixed   { flex: none; }
+  .od-grid    { display: grid; gap: var(--od-gap, 12px); grid-template-columns: repeat(var(--od-cols, 3), minmax(0, 1fr)); }
+
+  /* stacked information: each piece is its own line — never sibling inline spans */
+  .od-stat, .od-field, .od-cell { display: grid; gap: var(--od-gap, 2px); }
+  :where(.od-stat,.od-field,.od-cell) > :where(*) { display: block; }
+  .od-tile { display: grid; grid-template-rows: auto 1fr; }
+  :where(.od-tile) > :where(*) { display: block; }
+
+  /* media keeps its intrinsic ratio by default; never a distorted or cropped
+     cover by accident. height:auto lets the ratio win over an <img height="…">
+     attribute. Cropping to a uniform box is an explicit opt-in: set --od-ratio
+     AND add .od-media-cover together (per the core rule, only where a crop is
+     deliberate — tile thumbs, decorative fills — never on full-frame content). */
+  .od-media { display: block; width: 100%; height: auto; aspect-ratio: var(--od-ratio, auto); }
+  .od-media-cover { object-fit: cover; }
+
+  /* functional inline SVG icons opt into bounded geometry; content SVGs keep their own */
+  .od-icon { display: inline-block; inline-size: var(--od-icon-size, 1em); block-size: var(--od-icon-size, 1em); flex: none; }
+
+  /* data text only — authored copy is rewritten to its budget instead */
+  .od-truncate { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .od-clamp-2, .od-clamp-3 { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .od-clamp-2 { -webkit-line-clamp: 2; }
+  .od-clamp-3 { -webkit-line-clamp: 3; }
+  .od-lines-2 { min-height: calc(2 * 1.4em); }   /* block-level reservation for a shared baseline */
+  .od-nowrap  { white-space: nowrap; }           /* 数字+单位 · 价格+起 · 日期+星期 */
+  .od-keep    { word-break: keep-all; overflow-wrap: anywhere; } /* CJK labels break at spaces / <wbr> first */
+
+  /* screen skeleton (optional): bars take their own space, the middle scrolls — no padding guessed for chrome */
+  .od-screen { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+  .od-scroll { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+
+  /* horizontal rail: the next item peeks at the edge; trailing room survives overflow */
+  .od-rail { display: flex; gap: var(--od-gap, 8px); overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none;
+             padding-inline: var(--od-rail-pad, 16px); scroll-padding-inline: var(--od-rail-pad, 16px); }
+  .od-rail::-webkit-scrollbar { display: none; }
+  :where(.od-rail) > :where(*) { flex: none; scroll-snap-align: start; }
+  :where(.od-rail) > :where(:last-child) { margin-inline-end: var(--od-rail-pad, 16px); }
+
+  .od-spacer { flex: none; visibility: hidden; pointer-events: none; }
+  .od-touch  { min-width: 44px; min-height: 44px; }
+}
+:root [hidden]:where(:not([hidden="until-found" i])) { display: none; }
+/* /OD-LAYOUT-PRIMITIVES v1 */
+
+    /* Role-named tokens. Editorial reading-journal direction: cool paper
+       ground, ink text, one deep ink-blue accent. */
+    :root {
+      --canvas: #f3f4f6;
+      --chrome: #e9ebef;
+      --surface: #ffffff;
+      --raised: #eef0f3;
+      --hover: #e2e5ea;
+      --text: #15171c;
+      --muted: #555b66;
+      --accent: #1f3f8f;
+      --accent-text: #ffffff;
+      --accent-soft: #e4e9f6;
+      --destructive: #a8231b;
+      --destructive-text: #ffffff;
+      --focus: #1f3f8f;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --radius: 10px;
+      --duration-fast: 150ms;
+      --duration-normal: 220ms;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-display: "Iowan Old Style", "Charter", "Palatino Linotype", Palatino, Georgia, serif;
+      --text-sm: 14px;
+      --text-base: 16px;
+      --text-lg: 19px;
+      --text-hero: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem);
+      --text-stat: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --canvas: #101216; --chrome: #15181d; --surface: #1a1d23; --raised: #23272f; --hover: #2c313b;
+        --text: #eceef2; --muted: #a6adba; --accent: #a4b8ff; --accent-text: #0b1330; --accent-soft: #232c45;
+        --destructive: #ff8f86; --destructive-text: #2a0705; --focus: #a4b8ff;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; font: var(--text-base)/1.55 var(--font); color: var(--text); background: var(--canvas); }
+    p, h1, h2 { margin: 0; }
+
+    .page { max-width: 760px; margin: 0 auto; padding: var(--space-12) var(--space-6) var(--space-12); display: grid; gap: var(--space-8); }
+
+    /* Masthead */
+    .masthead { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); flex-wrap: wrap; }
+    .eyebrow { font-size: var(--text-sm); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    h1 { font-family: var(--font-display); font-weight: 600; font-size: var(--text-hero); line-height: 1.05; letter-spacing: -0.01em; }
+    .lede { color: var(--muted); margin-top: var(--space-2); }
+    .count { text-align: right; }
+    .count .stat-num { font-family: var(--font-display); font-size: var(--text-stat); line-height: 1; font-weight: 600; font-variant-numeric: lining-nums tabular-nums; }
+    .count .stat-cap { color: var(--muted); font-size: var(--text-sm); }
+
+    /* Panels: flat, separated by background only */
+    .panel { background: var(--surface); border-radius: var(--radius); padding: var(--space-6); }
+    h2 { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; }
+
+    /* Controls */
+    button {
+      font: inherit; font-size: var(--text-sm); font-weight: 500; border: 0; border-radius: 8px;
+      min-height: 44px; padding: 0 var(--space-4); background: var(--raised); color: var(--text); cursor: pointer;
+      transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+    }
+    button.primary { background: var(--accent); color: var(--accent-text); }
+    button.danger { background: var(--destructive); color: var(--destructive-text); }
+    button.quiet { background: transparent; color: var(--text); }
+    @media (hover: hover) {
+      button:hover { background: var(--hover); }
+      button.primary:hover { background: color-mix(in srgb, var(--accent) 86%, var(--text)); }
+      button.danger:hover { background: color-mix(in srgb, var(--destructive) 86%, var(--text)); }
+      button.quiet:hover { background: var(--raised); }
+    }
+    button:active { transform: translateY(1px); }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    label { font-size: var(--text-sm); font-weight: 600; }
+    .optional { font-weight: 400; color: var(--muted); }
+    input[type="text"] {
+      font: inherit; border: 0; border-radius: 8px; min-height: 44px; padding: 0 var(--space-3);
+      background: var(--raised); color: var(--text); width: 100%;
+    }
+    input[aria-invalid="true"] { box-shadow: inset 0 0 0 2px var(--destructive); }
+    .field-error { color: var(--destructive); font-size: var(--text-sm); }
+    .field-error:empty, .status:empty { display: none; }
+
+    /* Add form */
+    .add-form { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
+    .add-fields { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) auto; gap: var(--space-3); align-items: end; }
+    .add-fields .od-field { --od-gap: 6px; }
+    .status { color: var(--accent); font-size: var(--text-sm); font-weight: 500; }
+
+    /* Filter */
+    .list-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-4); }
+    .segmented { display: inline-flex; gap: var(--space-1); padding: var(--space-1); background: var(--raised); border-radius: 10px; }
+    .segmented button { min-height: 36px; background: transparent; color: var(--muted); padding: 0 var(--space-3); }
+    .segmented button[aria-pressed="true"] { background: var(--surface); color: var(--text); }
+    @media (hover: hover) { .segmented button:hover { color: var(--text); background: var(--hover); } .segmented button[aria-pressed="true"]:hover { background: var(--surface); } }
+
+    /* List */
+    .books { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+    .book-row {
+      display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center;
+      gap: var(--space-3); padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+      background: var(--raised); border-radius: var(--radius);
+      animation: row-in var(--duration-normal) var(--ease-out);
+    }
+    @keyframes row-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .read-toggle { width: 44px; min-height: 44px; padding: 0; display: grid; place-items: center; background: transparent; border-radius: 50%; }
+    .read-toggle .ring { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 2px var(--muted); color: transparent; transition: background-color var(--duration-fast) var(--ease-out); }
+    .read-toggle .od-icon { --od-icon-size: 16px; }
+    @media (hover: hover) { .read-toggle:hover { background: var(--hover); } .read-toggle:hover .ring { color: var(--muted); } }
+    .is-read-true .read-toggle .ring { background: var(--accent); color: var(--accent-text); box-shadow: none; }
+
+    .book-text { --od-gap: 2px; }
+    .book-title { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.3; overflow-wrap: anywhere; }
+    .book-author { color: var(--muted); font-size: var(--text-sm); overflow-wrap: anywhere; }
+    .is-read-true .book-title { color: var(--muted); }
+
+    .tag { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px var(--space-2); border-radius: 999px; white-space: nowrap; }
+    .tag-read { background: var(--accent-soft); color: var(--accent); }
+    .tag-unread { color: var(--muted); }
+
+    .row-actions { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; justify-content: flex-end; }
+    .confirm { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
+    .confirm-text { font-size: var(--text-sm); font-weight: 600; }
+
+    /* Edit row */
+    .edit-row { grid-template-columns: minmax(0, 1fr); padding: var(--space-3); }
+    .edit-form { display: grid; gap: var(--space-2); }
+    .edit-line { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+    .edit-line input { flex: 1 1 220px; width: auto; }
+    .hint { color: var(--muted); font-size: var(--text-sm); }
+
+    /* Filtering is UI state: rows are hidden by the active filter. */
+    .books[data-filter="unread"] > .is-read-true,
+    .books[data-filter="read"] > .is-read-false { display: none; }
+
+    /* Empty states, derived from what the list actually shows. */
+    .empty-note { display: none; color: var(--muted); background: var(--raised); border-radius: var(--radius); padding: var(--space-6); text-align: center; }
+    .books[data-filter="all"]:not(:has(.book-row, .loading-row)) ~ .empty-note,
+    .books[data-filter="unread"]:not(:has(.is-read-false, .loading-row)) ~ .empty-note,
+    .books[data-filter="read"]:not(:has(.is-read-true, .loading-row)) ~ .empty-note { display: block; }
+    .empty-note strong { display: block; color: var(--text); font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; margin-bottom: var(--space-1); }
+
+    .loading-row { color: var(--muted); padding: var(--space-4) var(--space-3); }
+    .htmx-indicator { opacity: 0; transition: opacity var(--duration-normal) var(--ease-out); }
+    .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { opacity: 1; }
+    .loading-row.htmx-indicator { display: none; }
+    .htmx-request > .loading-row.htmx-indicator { display: block; }
+    [x-cloak] { display: none !important; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+    @media (max-width: 640px) {
+      .page { padding: var(--space-8) var(--space-4); gap: var(--space-6); }
+      .panel { padding: var(--space-4); }
+      .add-fields { grid-template-columns: minmax(0, 1fr); }
+      .add-fields button { width: 100%; }
+      .book-row { grid-template-columns: 44px minmax(0, 1fr) auto; }
+      .row-actions { grid-column: 2 / -1; justify-content: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .book-row { animation: none; }
+      * { transition-duration: 0ms !important; }
+    }
+  </style>
+</head>
+<body hx-ext="response-targets, loading-states">
+  <main class="page">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">Personal library</p>
+        <h1>Reading list</h1>
+        <p class="lede">Books you mean to get to, and the ones you finished.</p>
+      </div>
+      <p class="count od-stat" data-od-component="BookCount">
+        <span id="book-count" class="stat-num">4</span>
+        <span class="stat-cap">Books on your list</span>
+      </p>
+    </header>
+
+    <section class="panel" aria-labelledby="add-heading" data-od-component="BookForm">
+      <h2 id="add-heading">Add a book</h2>
+      <form class="add-form" id="add-form"
+            hx-post="/api/books" hx-target="#books" hx-swap="beforeend"
+            hx-target-422="#title-error"
+            hx-on:htmx:config-request="event.detail.parameters.title = (event.detail.parameters.title || '').trim(); event.detail.parameters.author = (event.detail.parameters.author || '').trim()"
+            hx-on::after-request="if (event.detail.successful) { this.reset(); document.getElementById('new-title').setAttribute('aria-invalid', 'false'); document.getElementById('new-title').focus(); } else if (event.detail.xhr.status === 422) { document.getElementById('new-title').setAttribute('aria-invalid', 'true'); document.getElementById('new-title').focus(); }">
+        <input type="hidden" name="read" value="false">
+        <div class="add-fields">
+          <div class="od-field">
+            <label for="new-title">Title <span class="optional">(required)</span></label>
+            <input id="new-title" type="text" name="title" autocomplete="off" aria-required="true" aria-invalid="false" aria-describedby="title-error">
+          </div>
+          <div class="od-field">
+            <label for="new-author">Author <span class="optional">(optional)</span></label>
+            <input id="new-author" type="text" name="author" autocomplete="off">
+          </div>
+          <button class="primary" type="submit">Add book <span class="htmx-indicator" aria-hidden="true">…</span></button>
+        </div>
+        <p id="title-error" class="field-error" role="alert"></p>
+        <p id="add-status" class="status" role="status"></p>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="list-heading" data-od-component="BookList" x-data="{ filter: 'all' }">
+      <div class="list-head">
+        <h2 id="list-heading">Your books</h2>
+        <div class="segmented" role="group" aria-label="Show books" data-od-component="BookFilter">
+          <button type="button" :aria-pressed="filter === 'all'" aria-pressed="true" @click="filter = 'all'">All</button>
+          <button type="button" :aria-pressed="filter === 'unread'" aria-pressed="false" @click="filter = 'unread'">Unread</button>
+          <button type="button" :aria-pressed="filter === 'read'" aria-pressed="false" @click="filter = 'read'">Read</button>
+        </div>
+      </div>
+
+      <ul class="books" id="books" data-filter="all" :data-filter="filter"
+          hx-get="/api/books" hx-trigger="load" hx-swap="innerHTML" aria-labelledby="list-heading">
+        <li class="loading-row htmx-indicator">Loading your books…</li>
+      </ul>
+      <p class="empty-note" role="status">
+        <span x-show="filter === 'all'"><strong>Your list is empty.</strong>Add a book above to start your reading list.</span>
+        <span x-show="filter === 'unread'" x-cloak><strong>Nothing left to read.</strong>Every book on your list is marked read. Add a new one above.</span>
+        <span x-show="filter === 'read'" x-cloak><strong>No finished books yet.</strong>Tick the circle beside a book when you finish it.</span>
+      </p>
+    </section>
+  </main>
+
+  <!-- Seed data for the mock router. -->
+  <script type="application/json" id="od-mock-data">
+    {"books": [
+      {"id": "1", "title": "Piranesi", "author": "Susanna Clarke", "read": false},
+      {"id": "2", "title": "The Left Hand of Darkness", "author": "Ursula K. Le Guin", "read": false},
+      {"id": "3", "title": "Thinking, Fast and Slow", "author": "Daniel Kahneman", "read": true},
+      {"id": "4", "title": "Braiding Sweetgrass", "author": "Robin Wall Kimmerer", "read": false}
+    ]}
+  </script>
+
+  <!-- List -->
+  <template data-od-route="GET /api/books" data-od-delay="250">
+    <li data-od-each="data.books" id="book-{{item.id}}" class="book-row is-read-{{item.read}}" data-od-component="BookRow">
+      <button id="toggle-{{item.id}}" class="read-toggle" type="button" aria-pressed="{{item.read}}" aria-label="Read: {{item.title}}" hx-post="/api/books/{{item.id}}/toggle" hx-target="#book-{{item.id}}" hx-swap="outerHTML"><span class="ring"><svg class="od-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+      <div class="book-text od-stack">
+        <p class="book-title">{{item.title}}</p>
+        <p class="book-author" data-od-if="item.author">{{item.author}}</p>
+        <p class="book-author" data-od-unless="item.author">Unknown author</p>
+      </div>
+      <span class="tag tag-read" data-od-if="item.read">Read</span>
+      <span class="tag tag-unread" data-od-unless="item.read">To read</span>
+      <div class="row-actions" x-data="{ confirming: false }" data-od-component="RowActions">
+        <button id="edit-{{item.id}}" class="quiet" type="button" x-show="!confirming" hx-get="/api/books/{{item.id}}/edit" hx-target="#book-{{item.id}}" hx-swap="outerHTML">Edit</button>
+        <button class="quiet" type="button" x-show="!confirming" @click="confirming = true; $nextTick(() => $refs.keep.focus())">Delete</button>
+        <span class="confirm" x-show="confirming" x-cloak>
+          <span class="confirm-text">Delete this book?</span>
+          <button class="danger" type="button" hx-delete="/api/books/{{item.id}}" hx-target="#book-{{item.id}}" hx-swap="outerHTML" hx-on::after-request="document.getElementById('new-title').focus()">Delete</button>
+          <button x-ref="keep" type="button" @click="confirming = false">Keep</button>
+        </span>
+      </div>
+    </li>
+    <span id="book-count" class="stat-num" hx-swap-oob="true">{{data.books.length}}</span>
+  </template>
+
+  <!-- Create: validation first (guarded), then the real create. -->
+  <template data-od-route="POST /api/books" data-od-status="422" data-od-when-not="form.title">
+    <span>Add a title to save this book. The author can stay blank.</span>
+    <p id="add-status" class="status" role="status" hx-swap-oob="true"></p>
+  </template>
+  <template data-od-route="POST /api/books" data-od-action="create:books" data-od-delay="200" data-od-headers='{"HX-Trigger":"book-added"}'>
+    <li id="book-{{item.id}}" class="book-row is-read-{{item.read}}" data-od-component="BookRow">
+      <button id="toggle-{{item.id}}" class="read-toggle" type="button" aria-pressed="{{item.read}}" aria-label="Read: {{item.title}}" hx-post="/api/books/{{item.id}}/toggle" hx-target="#book-{{item.id}}" hx-swap="outerHTML"><span class="ring"><svg class="od-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+      <div class="book-text od-stack">
+        <p class="book-title">{{item.title}}</p>
+        <p class="book-author" data-od-if="item.author">{{item.author}}</p>
+        <p class="book-author" data-od-unless="item.author">Unknown author</p>
+      </div>
+      <span class="tag tag-read" data-od-if="item.read">Read</span>
+      <span class="tag tag-unread" data-od-unless="item.read">To read</span>
+      <div class="row-actions" x-data="{ confirming: false }" data-od-component="RowActions">
+        <button id="edit-{{item.id}}" class="quiet" type="button" x-show="!confirming" hx-get="/api/books/{{item.id}}/edit" hx-target="#book-{{item.id}}" hx-swap="outerHTML">Edit</button>
+        <button class="quiet" type="button" x-show="!confirming" @click="confirming = true; $nextTick(() => $refs.keep.focus())">Delete</button>
+        <span class="confirm" x-show="confirming" x-cloak>
+          <span class="confirm-text">Delete this book?</span>
+          <button class="danger" type="button" hx-delete="/api/books/{{item.id}}" hx-target="#book-{{item.id}}" hx-swap="outerHTML" hx-on::after-request="document.getElementById('new-title').focus()">Delete</button>
+          <button x-ref="keep" type="button" @click="confirming = false">Keep</button>
+        </span>
+      </div>
+    </li>
+    <span id="book-count" class="stat-num" hx-swap-oob="true">{{data.books.length}}</span>
+    <p id="title-error" class="field-error" role="alert" hx-swap-oob="true"></p>
+    <p id="add-status" class="status" role="status" hx-swap-oob="true">Added “{{item.title}}” to your list.</p>
+  </template>
+
+  <!-- Toggle read / unread -->
+  <template data-od-route="POST /api/books/:id/toggle" data-od-action="toggle:books:read">
+    <li id="book-{{item.id}}" class="book-row is-read-{{item.read}}" data-od-component="BookRow">
+      <button id="toggle-{{item.id}}" class="read-toggle" type="button" aria-pressed="{{item.read}}" aria-label="Read: {{item.title}}" hx-post="/api/books/{{item.id}}/toggle" hx-target="#book-{{item.id}}" hx-swap="outerHTML" autofocus><span class="ring"><svg class="od-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+      <div class="book-text od-stack">
+        <p class="book-title">{{item.title}}</p>
+        <p class="book-author" data-od-if="item.author">{{item.author}}</p>
+        <p class="book-author" data-od-unless="item.author">Unknown author</p>
+      </div>
+      <span class="tag tag-read" data-od-if="item.read">Read</span>
+      <span class="tag tag-unread" data-od-unless="item.read">To read</span>
+      <div class="row-actions" x-data="{ confirming: false }" data-od-component="RowActions">
+        <button id="edit-{{item.id}}" class="quiet" type="button" x-show="!confirming" hx-get="/api/books/{{item.id}}/edit" hx-target="#book-{{item.id}}" hx-swap="outerHTML">Edit</button>
+        <button class="quiet" type="button" x-show="!confirming" @click="confirming = true; $nextTick(() => $refs.keep.focus())">Delete</button>
+        <span class="confirm" x-show="confirming" x-cloak>
+          <span class="confirm-text">Delete this book?</span>
+          <button class="danger" type="button" hx-delete="/api/books/{{item.id}}" hx-target="#book-{{item.id}}" hx-swap="outerHTML" hx-on::after-request="document.getElementById('new-title').focus()">Delete</button>
+          <button x-ref="keep" type="button" @click="confirming = false">Keep</button>
+        </span>
+      </div>
+    </li>
+  </template>
+
+  <!-- Edit title in place: form, validation, save, cancel -->
+  <template data-od-route="GET /api/books/:id/edit" data-od-item="books">
+    <li id="book-{{item.id}}" class="book-row edit-row is-read-{{item.read}}" data-od-component="BookEditRow">
+      <form class="edit-form" hx-put="/api/books/{{item.id}}" hx-target="#book-{{item.id}}" hx-swap="outerHTML"
+            hx-target-422="#edit-error-{{item.id}}"
+            hx-on:htmx:config-request="event.detail.parameters.title = (event.detail.parameters.title || '').trim()"
+            hx-on::after-request="if (event.detail.xhr.status === 422) { const field = document.getElementById('edit-title-{{item.id}}'); if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); } }">
+        <label for="edit-title-{{item.id}}">Edit title</label>
+        <div class="edit-line">
+          <input id="edit-title-{{item.id}}" type="text" name="title" value="{{item.title}}" autocomplete="off" aria-required="true" aria-invalid="false" aria-describedby="edit-error-{{item.id}} edit-hint-{{item.id}}" autofocus>
+          <button class="primary" type="submit">Save</button>
+          <button type="button" hx-get="/api/books/{{item.id}}" hx-target="#book-{{item.id}}" hx-swap="outerHTML" hx-trigger="click, keydown[key=='Escape'] from:closest form">Cancel</button>
+        </div>
+        <p id="edit-error-{{item.id}}" class="field-error" role="alert"></p>
+        <p id="edit-hint-{{item.id}}" class="hint">Enter saves, Escape cancels.</p>
+      </form>
+    </li>
+  </template>
+  <template data-od-route="PUT /api/books/:id" data-od-status="422" data-od-when-not="form.title">
+    <span>A book needs a title. Type one, or press Cancel to keep the old title.</span>
+  </template>
+  <template data-od-route="PUT /api/books/:id" data-od-action="update:books">
+    <li id="book-{{item.id}}" class="book-row is-read-{{item.read}}" data-od-component="BookRow">
+      <button id="toggle-{{item.id}}" class="read-toggle" type="button" aria-pressed="{{item.read}}" aria-label="Read: {{item.title}}" hx-post="/api/books/{{item.id}}/toggle" hx-target="#book-{{item.id}}" hx-swap="outerHTML"><span class="ring"><svg class="od-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+      <div class="book-text od-stack">
+        <p class="book-title">{{item.title}}</p>
+        <p class="book-author" data-od-if="item.author">{{item.author}}</p>
+        <p class="book-author" data-od-unless="item.author">Unknown author</p>
+      </div>
+      <span class="tag tag-read" data-od-if="item.read">Read</span>
+      <span class="tag tag-unread" data-od-unless="item.read">To read</span>
+      <div class="row-actions" x-data="{ confirming: false }" data-od-component="RowActions">
+        <button id="edit-{{item.id}}" class="quiet" type="button" x-show="!confirming" hx-get="/api/books/{{item.id}}/edit" hx-target="#book-{{item.id}}" hx-swap="outerHTML" autofocus>Edit</button>
+        <button class="quiet" type="button" x-show="!confirming" @click="confirming = true; $nextTick(() => $refs.keep.focus())">Delete</button>
+        <span class="confirm" x-show="confirming" x-cloak>
+          <span class="confirm-text">Delete this book?</span>
+          <button class="danger" type="button" hx-delete="/api/books/{{item.id}}" hx-target="#book-{{item.id}}" hx-swap="outerHTML" hx-on::after-request="document.getElementById('new-title').focus()">Delete</button>
+          <button x-ref="keep" type="button" @click="confirming = false">Keep</button>
+        </span>
+      </div>
+    </li>
+  </template>
+  <template data-od-route="GET /api/books/:id" data-od-item="books">
+    <li id="book-{{item.id}}" class="book-row is-read-{{item.read}}" data-od-component="BookRow">
+      <button id="toggle-{{item.id}}" class="read-toggle" type="button" aria-pressed="{{item.read}}" aria-label="Read: {{item.title}}" hx-post="/api/books/{{item.id}}/toggle" hx-target="#book-{{item.id}}" hx-swap="outerHTML"><span class="ring"><svg class="od-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg></span></button>
+      <div class="book-text od-stack">
+        <p class="book-title">{{item.title}}</p>
+        <p class="book-author" data-od-if="item.author">{{item.author}}</p>
+        <p class="book-author" data-od-unless="item.author">Unknown author</p>
+      </div>
+      <span class="tag tag-read" data-od-if="item.read">Read</span>
+      <span class="tag tag-unread" data-od-unless="item.read">To read</span>
+      <div class="row-actions" x-data="{ confirming: false }" data-od-component="RowActions">
+        <button id="edit-{{item.id}}" class="quiet" type="button" x-show="!confirming" hx-get="/api/books/{{item.id}}/edit" hx-target="#book-{{item.id}}" hx-swap="outerHTML" autofocus>Edit</button>
+        <button class="quiet" type="button" x-show="!confirming" @click="confirming = true; $nextTick(() => $refs.keep.focus())">Delete</button>
+        <span class="confirm" x-show="confirming" x-cloak>
+          <span class="confirm-text">Delete this book?</span>
+          <button class="danger" type="button" hx-delete="/api/books/{{item.id}}" hx-target="#book-{{item.id}}" hx-swap="outerHTML" hx-on::after-request="document.getElementById('new-title').focus()">Delete</button>
+          <button x-ref="keep" type="button" @click="confirming = false">Keep</button>
+        </span>
+      </div>
+    </li>
+  </template>
+
+  <!-- Delete -->
+  <template data-od-route="DELETE /api/books/:id" data-od-action="delete:books">
+    <span id="book-count" class="stat-num" hx-swap-oob="true">{{data.books.length}}</span>
+    <p id="add-status" class="status" role="status" hx-swap-oob="true">Removed “{{item.title}}” from your list.</p>
+  </template>
+</body>
+</html>

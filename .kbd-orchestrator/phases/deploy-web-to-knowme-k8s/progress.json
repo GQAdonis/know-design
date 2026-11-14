@@ -2,17 +2,17 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 382,
-  "derivedRevision": 382,
+  "sourceRevision": 384,
+  "derivedRevision": 384,
   "frontier": {
     "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
-    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 37
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 39
   },
   "conflictCount": 0,
   "phase": "deploy-web-to-knowme-k8s",
   "phaseId": "deploy-web-to-knowme-k8s",
   "parentPhase": null,
-  "last_updated": "2026-10-19T09:38:28.275372Z",
+  "last_updated": "2026-11-14T14:08:50.969139Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 1,
   "changes_completed": 0,

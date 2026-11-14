@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 476,
+  "derivedRevision": 476,
+  "frontier": {
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 131
+  },
+  "conflictCount": 0,
+  "phase": "htmx-prototypes-and-ipfs-deploy",
+  "phaseId": "htmx-prototypes-and-ipfs-deploy",
+  "parentPhase": null,
+  "last_updated": "2026-11-14T18:31:03.981930Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 6,
+  "changes_completed": 6,
+  "implementation_total": 6,
+  "implementation_completed": 6,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 6,
+      "total": 6,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 19,
+      "total": 65,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "ipfs-deploy-provider",
+      "title": "Deploy designs to the operator's IPFS node",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "i18n: add keys to `apps/web/src/i18n/types.ts` first, then all 19 locales; `pnpm --filter @open-design/web typecheck`; r",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "htmx-runtime-kit",
+      "title": "Vendored HTMX + Alpine runtime with an in-page mock router",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Guard: add a `residualAllowedPathPatterns` entry scoped to `design-templates/htmx-alpine-prototype/assets/vendor/`; `pnp",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "htmx-prototype-template",
+      "title": "HTMX + Alpine prototype design template and craft rule",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Author `craft/htmx-alpine-runtime.md`; `pnpm lint:craft` passes.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "prototype-manifest",
+      "title": "od-prototype.json conversion contract",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Update the template's SKILL.md, conventions and example so every generation writes `od-prototype.json` with all five sec",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "axum-export",
+      "title": "Export a prototype as a Rust Axum fragment server",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Export the TPL-1 generated project; `cargo build` and `cargo run`; exercise the CRUD flow against the server.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "react-flutter-conversion-specs",
+      "title": "React and Flutter conversion specs from od-prototype.json",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "hybrid-mobile-architecture: manifest → `mini-app-module` and `tokens.toml` mapping; PR to hybrid-mobile-architecture-src",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

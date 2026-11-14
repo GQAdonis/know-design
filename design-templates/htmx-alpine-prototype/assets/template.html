@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prototype</title>
+  <!-- Real backend: uncomment and set the base URL to turn the mock router off. -->
+  <!-- <meta name="od-backend" content="http://127.0.0.1:3000"> -->
+
+  <!-- Runtime: htmx, extensions, od-mock (after htmx), then Alpine (defer). -->
+  <script src="vendor/htmx.min.js"></script>
+  <script src="vendor/ext/response-targets.min.js"></script>
+  <script src="vendor/ext/loading-states.min.js"></script>
+  <script src="vendor/ext/idiomorph-ext.min.js"></script>
+  <script src="vendor/od-mock.js"></script>
+  <script defer src="vendor/alpine.min.js"></script>
+
+  <style>
+    /* Role-named tokens (same names as hybrid-design-tokens). Map them to the
+       active design system's values; never hardcode colors below :root. */
+    :root {
+      --canvas: #f6f5f2;
+      --chrome: #efede8;
+      --surface: #ffffff;
+      --raised: #faf9f7;
+      --hover: #ebe9e3;
+      --text: #1d1c1a;
+      --muted: #6b6862;
+      --accent: #2f5bea;
+      --accent-text: #ffffff;
+      --destructive: #c4342d;
+      --focus: #2f5bea;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius: 10px;
+      --duration-fast: 140ms;
+      --duration-normal: 200ms;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --canvas: #141413; --chrome: #1b1b19; --surface: #22221f; --raised: #2a2a26;
+        --hover: #32322d; --text: #f1efe9; --muted: #a3a097; --accent: #7d9bff;
+        --accent-text: #0e1220; --destructive: #ff7a70; --focus: #7d9bff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 var(--font); color: var(--text); background: var(--canvas); }
+    /* Flat 2.0: regions are separated by background colour, not borders or shadows. */
+    .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+    .app-nav { background: var(--chrome); padding: var(--space-6) var(--space-4); }
+    .app-main { padding: var(--space-8); }
+    .panel { background: var(--surface); border-radius: var(--radius); padding: var(--space-6); }
+    button, .button {
+      font: inherit; border: 0; border-radius: calc(var(--radius) - 2px); padding: var(--space-2) var(--space-4);
+      background: var(--raised); color: var(--text); cursor: pointer;
+      transition: background-color var(--duration-fast) var(--ease-out);
+    }
+    button:hover { background: var(--hover); }
+    button.primary { background: var(--accent); color: var(--accent-text); }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    input, select, textarea { font: inherit; border: 0; border-radius: calc(var(--radius) - 2px); padding: var(--space-2) var(--space-3); background: var(--raised); color: var(--text); }
+    .htmx-indicator { opacity: 0; transition: opacity var(--duration-normal) var(--ease-out); }
+    .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { opacity: 1; }
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<!-- hx-ext on <body>: extensions run for the swap target, not only the requester. -->
+<body hx-ext="response-targets, loading-states">
+  <div class="app">
+    <nav class="app-nav" aria-label="Main navigation" data-od-component="AppNav">
+      <strong>Prototype</strong>
+    </nav>
+    <main class="app-main">
+      <section class="panel" data-od-component="ItemList" aria-labelledby="items-heading">
+        <h1 id="items-heading">Items</h1>
+        <ul id="items" hx-get="/api/items" hx-trigger="load" hx-target="this">
+          <li class="htmx-indicator">Loading…</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- Seed data for the mock router. -->
+  <script type="application/json" id="od-mock-data">
+    {"items": [{"id": "1", "title": "First item"}]}
+  </script>
+
+  <!-- Routes: one template per server interaction. -->
+  <template data-od-route="GET /api/items">
+    <li data-od-each="data.items" id="item-{{item.id}}">{{item.title}}</li>
+    <li data-od-unless="data.items">Nothing here yet.</li>
+  </template>
+</body>
+</html>

@@ -8,6 +8,7 @@ import {
   readDeployConfig,
 } from '../deploy.js';
 import { listDeployments } from '../db.js';
+import { IPFS_KUBO_PROVIDER_ID, publicIpfsDeploymentInfo } from './ipfs.js';
 
 type JsonObject = Record<string, unknown>;
 
@@ -68,8 +69,10 @@ export function publicDeployment<T extends DeploymentLike>(deployment: T): Omit<
 export function publicDeployment<T>(deployment: T): T;
 export function publicDeployment(deployment: unknown): unknown {
   if (!deployment || typeof deployment !== 'object') return deployment;
-  const { providerMetadata: _providerMetadata, ...publicShape } = deployment as DeploymentLike;
-  return publicShape;
+  const { providerMetadata, ...publicShape } = deployment as DeploymentLike;
+  // KnowDesign: IPFS deployments expose CID/IPNS from their stored metadata.
+  const ipfs = publicShape.providerId === IPFS_KUBO_PROVIDER_ID ? publicIpfsDeploymentInfo(providerMetadata) : undefined;
+  return ipfs ? { ...publicShape, ipfs } : publicShape;
 }
 
 export function publicDeployments<T extends DeploymentLike>(deployments: readonly T[] | null | undefined): Array<Omit<T, 'providerMetadata'>> {
