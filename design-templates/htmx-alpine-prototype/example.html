@@ -91,7 +91,7 @@
       </section>
 
       <!-- UI-only state lives in Alpine; nothing here is saved. -->
-      <div x-data="{ showTips: false }" class="tips-wrap">
+      <div x-data="{ showTips: false }" class="tips-wrap" data-od-component="TipsPanel">
         <button type="button" @click="showTips = !showTips" x-text="showTips ? 'Hide tips' : 'Show tips'">Show tips</button>
         <p class="tips" x-show="showTips" x-cloak>Click a task's circle to complete it, Edit to rename it, and Delete to remove it. Everything works without a server: requests are answered by the page's mock router.</p>
       </div>

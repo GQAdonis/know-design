@@ -68,7 +68,19 @@ Only when the agent has no filesystem access (API mode), load the same versions 
 
 `od-mock.js` has no CDN copy; inline the contents of `assets/vendor/od-mock.js` in a `<script>` after htmx. Take each `integrity` value from `assets/vendor/MANIFEST.json` (`sha256` → base64) when adding SRI.
 
-## 7. Conversion map (for reference)
+## 7. The manifest: `od-prototype.json`
+
+Write it next to the entry page. Schema: `references/od-prototype.schema.json`; example: `od-prototype.json` beside `example.html`. It has five required sections:
+
+- `routes`: one entry per method + path in the page (guarded templates on the same route share one entry). Each has `entity`, `kind` (`list`, `detail`, `create`, `update`, `delete`, `toggle`, `form`, `action`), `params`, `fields`, and `responses` (status, `when` guard, the component the fragment renders, `triggers`, `oob` ids).
+- `components`: every `data-od-component` name, with the entity it shows, whether it `repeats` per record, and the routes it calls.
+- `state`: every Alpine `x-data` scope as `{ component, fields: { name: "boolean" | "string" | "number" } }`.
+- `entities`: every list in `od-mock-data`, with an `id` and typed fields (`string`, `number`, `boolean`, `date`, `datetime`, `text`, `url`, `email`).
+- `tokens`: `source` (where the values live) and the `roles` used, without the leading `--`.
+
+Run `scripts/validate-manifest.ts` on the project folder until it reports `ok`. Deploy preflight also warns when the manifest and page drift apart.
+
+## 8. Conversion map (for reference)
 
 | Prototype | Axum | React | Flutter |
 |---|---|---|---|

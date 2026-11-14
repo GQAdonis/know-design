@@ -11,6 +11,7 @@ import type { EntryIndexConflict, EntryIndexConflictDetails, EntryIndexConflictR
 import { findRealTagOffset, HTML_TAG_PATTERNS } from '@open-design/contracts/runtime/html-injection-points';
 // KnowDesign: IPFS (Kubo) provider lives in its own module; see docs/knowdesign-upstream-sync.md.
 import { IPFS_KUBO_PROVIDER_ID, publicIpfsConfig, readIpfsConfig, writeIpfsConfig, type IpfsDeployConfig } from './deploy/ipfs.js';
+import { prototypeManifestWarnings } from './deploy/prototype-manifest.js';
 
 export const VERCEL_PROVIDER_ID = 'vercel-self';
 export const CLOUDFLARE_PAGES_PROVIDER_ID = 'cloudflare-pages';
@@ -1806,6 +1807,8 @@ function formatMib(bytes: number) {
 export async function prepareDeployPreflight(projectsRoot: string, projectId: string, entryName: string, options: DeployOptions = {}) {
   const plan = await buildDeployFilePlan(projectsRoot, projectId, entryName, options);
   const { warnings, totalBytes, totalFiles } = analyzeDeployPlan(plan);
+  // KnowDesign: warn when an htmx prototype's od-prototype.json no longer matches the page.
+  warnings.push(...prototypeManifestWarnings(plan.files, plan.entryPath, plan.html));
   return {
     providerId: options.providerId || VERCEL_PROVIDER_ID,
     entry: plan.entryPath,

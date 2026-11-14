@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "entry": "example.html",
+  "title": "Task tracker",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/tasks",
+      "entity": "tasks",
+      "kind": "list",
+      "target": "#tasks",
+      "swap": "innerHTML",
+      "responses": [
+        {
+          "status": 200,
+          "component": "TaskRow",
+          "oob": [
+            "empty-state"
+          ]
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks",
+      "entity": "tasks",
+      "kind": "create",
+      "fields": [
+        "title"
+      ],
+      "target": "#tasks",
+      "swap": "beforeend",
+      "responses": [
+        {
+          "status": 422,
+          "when": "!form.title"
+        },
+        {
+          "status": 200,
+          "component": "TaskRow",
+          "triggers": [
+            "task-saved"
+          ],
+          "oob": [
+            "task-count",
+            "form-errors",
+            "empty-state"
+          ]
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/:id/toggle",
+      "entity": "tasks",
+      "kind": "toggle",
+      "params": [
+        "id"
+      ],
+      "target": "#task-{id}",
+      "swap": "outerHTML",
+      "responses": [
+        {
+          "status": 200,
+          "component": "TaskRow"
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/:id/edit",
+      "entity": "tasks",
+      "kind": "form",
+      "params": [
+        "id"
+      ],
+      "target": "#task-{id}",
+      "swap": "outerHTML",
+      "responses": [
+        {
+          "status": 200,
+          "component": "TaskEditRow"
+        }
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tasks/:id",
+      "entity": "tasks",
+      "kind": "update",
+      "params": [
+        "id"
+      ],
+      "fields": [
+        "title"
+      ],
+      "target": "#task-{id}",
+      "swap": "outerHTML",
+      "responses": [
+        {
+          "status": 200,
+          "component": "TaskRow"
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/:id",
+      "entity": "tasks",
+      "kind": "detail",
+      "params": [
+        "id"
+      ],
+      "target": "#task-{id}",
+      "swap": "outerHTML",
+      "responses": [
+        {
+          "status": 200,
+          "component": "TaskRow"
+        }
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tasks/:id",
+      "entity": "tasks",
+      "kind": "delete",
+      "params": [
+        "id"
+      ],
+      "target": "#task-{id}",
+      "swap": "outerHTML",
+      "responses": [
+        {
+          "status": 200,
+          "oob": [
+            "task-count",
+            "empty-state"
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "AppNav",
+      "description": "Primary navigation"
+    },
+    {
+      "name": "TaskList",
+      "entity": "tasks",
+      "routes": [
+        "GET /api/tasks"
+      ]
+    },
+    {
+      "name": "TaskForm",
+      "entity": "tasks",
+      "routes": [
+        "POST /api/tasks"
+      ]
+    },
+    {
+      "name": "TaskRow",
+      "entity": "tasks",
+      "repeats": true,
+      "routes": [
+        "POST /api/tasks/:id/toggle",
+        "GET /api/tasks/:id/edit",
+        "DELETE /api/tasks/:id"
+      ]
+    },
+    {
+      "name": "TaskEditRow",
+      "entity": "tasks",
+      "routes": [
+        "PUT /api/tasks/:id",
+        "GET /api/tasks/:id"
+      ]
+    },
+    {
+      "name": "TipsPanel",
+      "description": "UI-only help panel"
+    }
+  ],
+  "state": [
+    {
+      "component": "TipsPanel",
+      "fields": {
+        "showTips": "boolean"
+      }
+    }
+  ],
+  "entities": [
+    {
+      "name": "tasks",
+      "fields": {
+        "id": "string",
+        "title": "string",
+        "done": "boolean"
+      }
+    }
+  ],
+  "tokens": {
+    "source": "example.html :root",
+    "roles": [
+      "canvas",
+      "chrome",
+      "surface",
+      "raised",
+      "hover",
+      "text",
+      "muted",
+      "accent",
+      "accent-text",
+      "destructive",
+      "focus",
+      "space-1",
+      "space-2",
+      "space-3",
+      "space-4",
+      "space-6",
+      "space-8",
+      "radius",
+      "duration-fast",
+      "duration-normal",
+      "ease-out",
+      "font"
+    ]
+  }
+}
