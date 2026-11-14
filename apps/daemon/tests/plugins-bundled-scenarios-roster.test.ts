@@ -48,6 +48,8 @@ const SIBLINGS = new Map<string, { taskKind: string }>([
   ['od-react-export',     { taskKind: 'tune-collab' }],
   ['od-nextjs-export',    { taskKind: 'tune-collab' }],
   ['od-vue-export',       { taskKind: 'tune-collab' }],
+  // KnowDesign: htmx-alpine-prototype → Axum fragment server (docs/knowdesign-upstream-sync.md).
+  ['od-axum-export',      { taskKind: 'tune-collab' }],
 ]);
 
 const INTERNAL = new Map<string, { taskKind: string }>([

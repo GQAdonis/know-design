@@ -1,0 +1,89 @@
+{
+  "$schema": "https://open-design.ai/schemas/plugin.v1.json",
+  "specVersion": "1.0.0",
+  "name": "od-axum-export",
+  "title": "Export to Axum",
+  "title_i18n": {
+    "en": "Export to Axum",
+    "zh-CN": "导出到 Axum",
+    "zh-TW": "匯出到 Axum",
+    "ja": "Axum へエクスポート",
+    "ko": "Axum으로 내보내기",
+    "de": "Nach Axum exportieren",
+    "fr": "Exporter vers Axum",
+    "ru": "Экспорт в Axum",
+    "es": "Exportar a Axum",
+    "pt-BR": "Exportar para Axum",
+    "it": "Esporta in Axum",
+    "pl": "Eksport do Axum",
+    "id": "Ekspor ke Axum",
+    "ar": "تصدير إلى Axum",
+    "tr": "Axum'a dışa aktar",
+    "uk": "Експорт в Axum"
+  },
+  "version": "0.1.0",
+  "publishedAt": "2026-11-14T00:00:00Z",
+  "description": "Turns a working htmx + Alpine prototype (htmx-alpine-prototype template) into a runnable Rust Axum fragment server that answers the same routes with the same fragments.",
+  "description_i18n": {
+    "en": "Turns a working htmx + Alpine prototype (htmx-alpine-prototype template) into a runnable Rust Axum fragment server that answers the same routes with the same fragments.",
+    "zh-CN": "把可运行的 htmx + Alpine 原型（htmx-alpine-prototype 模板）转换为可运行的 Rust Axum 片段服务器，以相同的片段响应相同的路由。"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "KnowDesign"
+  },
+  "tags": [
+    "scenario",
+    "export",
+    "downstream",
+    "handoff",
+    "htmx",
+    "alpine",
+    "rust",
+    "axum"
+  ],
+  "compat": {
+    "agentSkills": [
+      {
+        "path": "./SKILL.md"
+      }
+    ]
+  },
+  "od": {
+    "kind": "scenario",
+    "taskKind": "tune-collab",
+    "scenario": "downstream-export",
+    "mode": "export",
+    "pipeline": {
+      "stages": [
+        {
+          "id": "handoff",
+          "atoms": [
+            "handoff"
+          ]
+        }
+      ]
+    },
+    "capabilities": [
+      "prompt:inject",
+      "fs:read",
+      "fs:write"
+    ],
+    "useCase": {
+      "query": {
+        "en": "Export this htmx + Alpine prototype to a Rust Axum server: run the exporter, build and run the crate, and confirm every flow works against the real server.",
+        "zh-CN": "把这个 htmx + Alpine 原型导出为 Rust Axum 服务器：运行导出脚本，构建并运行 crate，确认所有流程在真实服务器上都能工作。"
+      },
+      "exampleOutputs": []
+    },
+    "inputs": [
+      {
+        "name": "port",
+        "type": "string",
+        "required": false,
+        "label": "Server port",
+        "placeholder": "3000"
+      }
+    ]
+  }
+}

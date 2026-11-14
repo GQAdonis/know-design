@@ -75,3 +75,4 @@ Provider logic lives in new files (`apps/daemon/src/deploy/ipfs.ts`, `apps/web/s
 - `apps/web/src/components/FileViewer.tsx`: option entry, provider-option key unions, tracking map, config-save skip for IPFS, settings branch in the deploy modal, share-menu icon, `IpfsDeploymentDetails` in the result block.
 - `apps/web/src/i18n/types.ts` + 19 locales: 17 `fileViewer.ipfs*` keys appended after `fileViewer.cloudflarePagesProvider`.
 - `apps/daemon/src/deploy.ts`: one-line `prototypeManifestWarnings` call in `prepareDeployPreflight` (logic in new `apps/daemon/src/deploy/prototype-manifest.ts`).
+- `plugins/_official/scenarios/od-axum-export/` is a new KnowDesign scenario folder; `apps/daemon/tests/plugins-bundled-scenarios-roster.test.ts` registers it as a `tune-collab` sibling (one line).
