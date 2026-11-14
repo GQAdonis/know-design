@@ -30,6 +30,16 @@ export const LOCALE_LABEL: Record<Locale, string> = {
 // flat (not deeply nested) so missing-key TS errors point straight at the
 // offending string instead of a generic object mismatch.
 export interface Dict {
+  "referral.notice.label": string;
+  "referral.notice.registered": string;
+  "referral.notice.pending": string;
+  "referral.notice.pendingAt": string;
+  "referral.notice.exhausted": string;
+  "referral.notice.remaining": string;
+  "referral.notice.invite": string;
+  "referral.notice.subscribe": string;
+  "referral.notice.dismiss": string;
+  "referral.notice.openFailed": string;
   'workspaceQuota.unavailable': string;
   'workspaceQuota.designPlanAllowance': string;
   'workspaceQuota.subscribeToUse': string;
@@ -148,6 +158,7 @@ export interface Dict {
   'workspaceInvite.errorNoWorkspace': string;
   'workspaceInvite.errorUnreachable': string;
   // Common
+  'account.openFailed': string;
   'common.cancel': string;
   'chat.selectFromLibrary': string;
   'chat.importFigma': string;
@@ -1306,6 +1317,7 @@ export interface Dict {
   // can never sign the user out without an explicit confirm.
   'signOut.confirmTitle': string;
   'signOut.confirmMessage': string;
+  'signOut.confirmAccountMessage': string;
   'signOut.confirmAction': string;
   'entry.navRecents': string;
   'entry.navDashboard': string;
@@ -2962,6 +2974,8 @@ export interface Dict {
   'chat.amrConcurrencyGate.message': string;
   'chat.amrConcurrencyGate.teamTitle': string;
   'chat.amrConcurrencyGate.teamMessage': string;
+  'chat.amrConcurrencyGate.maxTitle': string;
+  'chat.amrConcurrencyGate.maxMessage': string;
   'chat.amrConcurrencyCard.available': string;
   'chat.amrConcurrencyCard.full': string;
   'chat.amrConcurrencyGate.benefit1': string;
@@ -3115,7 +3129,6 @@ export interface Dict {
   'chat.comments.attached': string;
   'chat.comments.emptyAttached': string;
   'chat.comments.saved': string;
-  'fileViewer.shareFinishEditing': string;
   'chat.comments.loadFailed': string;
   'chat.comments.emptySaved': string;
   'chat.comments.add': string;

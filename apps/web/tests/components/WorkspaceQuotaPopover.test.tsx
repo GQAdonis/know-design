@@ -9,6 +9,11 @@ import { quotaPopoverConsoleUrl } from '../../src/runtime/workspace-quota-links'
 import { I18nProvider } from '../../src/i18n';
 import { workspaceContextFixture } from '../helpers/workspace-context';
 
+vi.mock('../../src/providers/registry', async () => {
+  const actual = await vi.importActual<typeof import('../../src/providers/registry')>('../../src/providers/registry');
+  return { ...actual, openExternalUrl: async (url: string) => { window.open(url, '_blank', 'noopener,noreferrer'); return true; } };
+});
+
 const context = workspaceContextFixture({ workspaceId: 'workspace-a', workspaceMemberId: 'member-a', role: 'owner' });
 function view(tier: WorkspaceQuotaTier, balanceUsd = '24', remainingPercent = 75, resetsAt: string | null = '2026-10-22T06:00:00Z'): WorkspaceQuotaView {
   return {
@@ -93,6 +98,36 @@ describe.each(['zh-CN', 'en'] as const)('K6 C-01 reset rows (U001/UI-002) — %s
     expect(plan.getAllByText(locale === 'en' ? 'Resets in 6 hours' : '6 小时后重置')).toHaveLength(2);
     expect(plan.getAllByRole('progressbar')).toHaveLength(2);
     vi.useRealTimers();
+  });
+
+  describe.each([true, false])('reset precision with sharedBilling=%s', sharedBilling => {
+    const now = Date.parse('2026-10-22T00:00:00Z');
+    it.each([
+      [(4 * 1_440 + 3 * 60 + 17) * 60_000, '4 天 3 小时 17 分钟后重置', 'Resets in 4 days 3 hours 17 minutes'],
+      [(1_440 + 11) * 60_000, '1 天 11 分钟后重置', 'Resets in 1 days 11 minutes'],
+      [1_440 * 60_000, '1 天后重置', 'Resets in 1 days'],
+      [77 * 60_000, '1 小时 17 分钟后重置', 'Resets in 1 hours 17 minutes'],
+      [11 * 60_000, '11 分钟后重置', 'Resets in 11 minutes'],
+      [8_000, '1 分钟后重置', 'Resets in 1 minutes'],
+    ] as const)('shows minute precision with %i ms remaining', (remaining, zh, en) => {
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+      const plan = renderQuota({ ...view('plus', '24', 75, new Date(now + remaining).toISOString()), sharedBilling });
+      expect(plan.getByText(locale === 'en' ? en : zh)).toBeTruthy();
+    });
+
+    it('keeps Go 5-hour and 7-day reset times independent', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+      const value = { ...view('go'), sharedBilling };
+      value.windows = value.windows!.map(window => ({
+        ...window,
+        resetsAt: new Date(now + (window.durationSeconds === 18_000 ? 2 * 60 + 18 : 4 * 1_440 + 3 * 60 + 17) * 60_000).toISOString(),
+      }));
+      const plan = renderQuota(value);
+      expect(plan.getByText(locale === 'en' ? 'Resets in 2 hours 18 minutes' : '2 小时 18 分钟后重置')).toBeTruthy();
+      expect(plan.getByText(locale === 'en' ? 'Resets in 4 days 3 hours 17 minutes' : '4 天 3 小时 17 分钟后重置')).toBeTruthy();
+    });
   });
 });
 

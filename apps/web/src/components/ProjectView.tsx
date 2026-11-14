@@ -1,4 +1,5 @@
 import { brandTextNow } from '../brand/brand-text';
+import { openExternalUrl } from "../providers/registry";
 import { homeAutoSendIdentity, stableIdentityDigest, type HomeRequestConcurrencyRejection } from '../runtime/home-auto-send-identity';
 import { withLiveArtifactDeliveries } from '../runtime/live-artifact-delivery';
 import { readAmrRequestConcurrency } from '../runtime/amr-request-concurrency';
@@ -125,6 +126,7 @@ import type {
   TrackingRunRecoveryActionType,
 } from '@open-design/contracts/analytics';
 import { useAnalytics } from '../analytics/provider';
+import { useWorkspaceContentView } from '../analytics/use-workspace-content-view';
 import { savedCommentIds } from '@open-design/contracts/analytics';
 import { observeAnalytics } from '../analytics/observe';
 import {
@@ -520,6 +522,8 @@ type ProjectChatSendMeta = ChatSendMeta & {
   composerOwnedDraft?: true;
   /** Only Home auto-send owns the original Home input and initial request. */
   initialHomeSend?: true;
+  /** Continue the visible placeholder's clock on the first send only. Not queued. */
+  homeHandoffStartedAt?: number;
   /** Stable task lineage for retries, resumes and clarification answers. */
   taskAnalytics?: ChatTaskExecutionAnalytics;
   /** Explicit daemon-issued OD Next continuation handle. */
@@ -2512,6 +2516,13 @@ export function ProjectView({
     projectVisibility: projectWorkspaceVisibility(projectWorkspaceScopeState.scope),
     presenceFilePath: project?.metadata?.entryFile ?? null,
   });
+  useWorkspaceContentView({
+    context: projectRunWorkspaceContext?.workspaceId === project.workspaceId ? projectRunWorkspaceContext : null,
+    pageName: 'project',
+    active: !projectReadsHeld && !projectCollab.materializationPending,
+    ready: !workspaceContextState.loading && !workspaceContextState.identityChangePending
+      && !workspaceContextState.failure && !projectWorkspaceScopeState.loading,
+  });
   // A Team-bound placeholder is safe to render and comment around, but its
   // empty tree is never a writer authority. Reuse the established viewer-only
   // gates for content/run/project mutations until the daemon's own status poll
@@ -3326,11 +3337,8 @@ export function ProjectView({
       resolvedDeviceId: getResolvedDeviceId(),
       installationId: config.installationId,
     });
-    window.open(
-      attributedAmrUrl(url, attribution, deviceId),
-      '_blank',
-      'noopener,noreferrer',
-    );
+    void openExternalUrl(
+      attributedAmrUrl(url, attribution, deviceId));
   }, [
     amrBalanceCardProfile,
     config.agentCliEnv?.amr?.OPEN_DESIGN_AMR_PROFILE,
@@ -9277,7 +9285,7 @@ export function ProjectView({
        * OPEND-2615 那个症状。两件事必须绑在一起。
        */
       setChatSeed(null);
-      const startedAt = Date.now();
+      const startedAt = (meta?.initialHomeSend ? meta.homeHandoffStartedAt : undefined) ?? Date.now();
       const previousConversation = conversationsRef.current.find(
         (conversation) => conversation.id === runConversationId,
       );
@@ -11768,7 +11776,7 @@ export function ProjectView({
     }
     if (!started) releaseCommentsOfSendWithoutRun(item);
     return started;
-  }, [handleSend, releaseCommentsOfSendWithoutRun, project.id, projectRunWorkspaceContext]);
+  }, [handleSend, releaseCommentsOfSendWithoutRun]);
   // An awaited preflight may outlive the active run. Dispatch through the
   // current render so handleSend sees its settled busy state, after the
   // explicit item's scope/account/model guards have been checked again.
@@ -14376,6 +14384,7 @@ export function ProjectView({
     selectedAssistantIdentity,
     creationHandoffMessageIds,
   );
+  const homeHandoffStartedAt = creationHandoffMessages.find((message) => message.role === 'assistant')?.startedAt;
   const creationHandoffTurnShown = optimisticFirstTurn !== null && messages.length === 0;
   const chatPaneConversationKey =
     activeConversationId
@@ -14542,6 +14551,7 @@ export function ProjectView({
         ...(context ? { context } : {}),
         ...homeAutoSendIdentity(project.id),
         initialHomeSend: true,
+        homeHandoffStartedAt,
         acceptDurableQueue: true,
         // Only reuse Home's decision for the exact persisted project scope.
         // A workspace/member mismatch falls through to handleSend's normal gate.
@@ -14589,6 +14599,7 @@ export function ProjectView({
     projectRunHasBillableAmrPrincipal,
     projectRunBillingContext,
     projectRunPreflightContext,
+    homeHandoffStartedAt,
     handleSend,
   ]);
 
@@ -15328,6 +15339,8 @@ export function ProjectView({
       {amrBalanceGateBlock?.dialog === 'upgrade' ? (
         <AmrBalanceDialog
           reason={amrBalanceGateBlock.reason}
+          projectId={project.id}
+          conversationId={amrBalanceGateBlock.conversationId}
           stage={amrBalanceGateBlock.stage}
           manualSendOnRecovery={amrBalanceGateBlock.reason === 'insufficient'}
           modelId={amrBalanceGateBlock.modelId}
@@ -15853,6 +15866,7 @@ function stripQueueOnlyFromMeta(
     // 草稿,而队列里那条反而被扔掉。见 `composerOwnedDraft` 的说明。
     composerOwnedDraft: _composerOwnedDraft,
     initialHomeSend: _initialHomeSend,
+    homeHandoffStartedAt: _homeHandoffStartedAt,
     ...rest
   } = meta as ProjectChatSendMeta;
   return Object.keys(rest).length > 0 ? rest : undefined;

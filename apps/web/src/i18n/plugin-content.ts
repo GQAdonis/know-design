@@ -1,5 +1,5 @@
 import { brandTextNow } from '../brand/brand-text';
-import type { InputFieldSpec } from '@open-design/contracts';
+import { resolveLocalizedText, type InputFieldSpec } from '@open-design/contracts';
 import type { Locale } from './types';
 
 type PluginChromeKey =
@@ -296,6 +296,8 @@ const ZH_PLACEHOLDERS: Record<string, string> = {
 };
 
 export function localizePluginInputLabel(locale: Locale, field: InputFieldSpec): string {
+  const translated = resolveLocalizedText(field.label_i18n, locale);
+  if (translated) return translated;
   const label = field.label ?? field.name;
   return locale === 'zh-CN' ? ZH_INPUT_LABELS[label] ?? label : label;
 }

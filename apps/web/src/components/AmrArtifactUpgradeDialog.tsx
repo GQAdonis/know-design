@@ -1,3 +1,4 @@
+import { openExternalUrl } from "../providers/registry";
 import { lockWebModalScroll } from './modal-scroll-lock';
 import { useEffect, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -80,6 +81,8 @@ export function AmrArtifactUpgradeDialog({
   const descriptionId = useId();
   const [offerCountdown, setOfferCountdown] = useState<OfferCountdown | null>(null);
 
+  useEffect(() => lockWebModalScroll(), []);
+
   useEffect(() => {
     const updateCountdown = () => setOfferCountdown(recurringOfferCountdown(Date.now()));
     updateCountdown();
@@ -89,10 +92,6 @@ export function AmrArtifactUpgradeDialog({
       window.clearInterval(timer);
       document.removeEventListener('visibilitychange', updateCountdown);
     };
-  }, []);
-
-  useEffect(() => {
-    return lockWebModalScroll();
   }, []);
 
   const openPlans = () => {
@@ -107,11 +106,8 @@ export function AmrArtifactUpgradeDialog({
       resolvedDeviceId: getResolvedDeviceId(),
       installationId,
     });
-    window.open(
-      attributedAmrUrl(amrPlansUrlForProfile(profile, workspaceId), attribution, deviceId),
-      '_blank',
-      'noopener,noreferrer',
-    );
+    void openExternalUrl(
+      attributedAmrUrl(amrPlansUrlForProfile(profile, workspaceId), attribution, deviceId));
     onClose();
   };
 

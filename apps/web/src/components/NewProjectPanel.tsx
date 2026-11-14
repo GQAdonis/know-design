@@ -1,4 +1,3 @@
-import { brandTextNow } from '../brand/brand-text';
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Dialog, DialogDescription, DialogFooter, DialogTitle } from '@open-design/components';
@@ -67,6 +66,7 @@ import { Skeleton } from './Loading';
 import { Toast } from './Toast';
 import { useOpenFolderImport } from './useOpenFolderImport';
 import { getWebBuildProfile, useWebBuildProfile } from '../collab/build-profile';
+import { hostFolderPickerErrorMessage } from './host-folder-picker-error';
 
 // Snapshot of a curated prompt template, captured at New Project time and
 // folded into ProjectMetadata.promptTemplate. The user may have edited the
@@ -812,7 +812,7 @@ export function NewProjectPanel({
         }
         if ('canceled' in result && result.canceled) return;
         setWorkingDirError({
-          message: `Couldn't open the folder picker (${'reason' in result ? result.reason : 'host unavailable'}). Please update ${brandTextNow('OpenDesign')} and try again.`,
+          message: hostFolderPickerErrorMessage(result),
         });
         return;
       }

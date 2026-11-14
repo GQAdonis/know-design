@@ -1,3 +1,4 @@
+import { ReferralEntryProvider } from './components/ReferralEntry';
 import { WorkspaceRemovalBoundary } from './components/WorkspaceRemovalBoundary';
 import { homeAutoSendIdentity, type HomeRequestConcurrencyRejection } from './runtime/home-auto-send-identity';
 import { AmrConcurrencyDialog } from './components/AmrConcurrencyDialog';
@@ -81,6 +82,7 @@ import { TooltipLayer } from './components/TooltipLayer';
 import { UpdateDialog } from './components/UpdateDialog';
 import { UpdaterPopup } from './components/UpdaterPopup';
 import {
+  clearSavedWorkspaceTabs,
   openWorkspaceTab,
   removeWorkspaceProjectTabs,
   WorkspaceTabsBar,
@@ -355,6 +357,7 @@ interface PendingProjectCreation {
   files: readonly File[];
 }
 
+const PREPARE_AMR_PROFILE_SWITCH_EVENT = 'open-design:prepare-amr-profile-switch';
 const APP_CONFIG_CHANGED_EVENT = 'open-design:app-config-changed';
 const AMR_AGENT_ID = 'amr';
 const AMR_PROFILE_ENV_KEY = 'OPEN_DESIGN_AMR_PROFILE';
@@ -485,13 +488,19 @@ function clearStaleAmrModelChoiceOnProfileChange(
  * the user to choose an execution path again.
  */
 export function resetExecutionConfigAfterSignOut(config: AppConfig): AppConfig {
+  const selectedAmrProfile = config.agentCliEnv?.[AMR_AGENT_ID]?.[AMR_PROFILE_ENV_KEY];
   return {
     ...config,
     onboardingCompleted: false,
     mode: DEFAULT_CONFIG.mode,
     agentId: null,
     agentModels: {},
-    agentCliEnv: {},
+    // The selected backend is an app preference, while the other CLI env
+    // entries can contain account credentials. Keep the backend when signing
+    // out so the next account login starts in the same environment.
+    agentCliEnv: typeof selectedAmrProfile === 'string' && selectedAmrProfile.trim()
+      ? { [AMR_AGENT_ID]: { [AMR_PROFILE_ENV_KEY]: selectedAmrProfile } }
+      : {},
     agentCliEnvIntent: {},
   };
 }
@@ -996,6 +1005,8 @@ function AppInner() {
   // Re-render when the daemon's build profile is learned after first render.
   const knowdesignProfile = useWebBuildProfile();
   const { t, locale } = useI18n();
+  const [amrWebOpenFailed, setAmrWebOpenFailed] = useState(false);
+  useEffect(() => { const listener = () => setAmrWebOpenFailed(true); window.addEventListener('amr-web-intent-error', listener); return () => window.removeEventListener('amr-web-intent-error', listener); }, []);
   const iframeKeepAlivePool = useIframeKeepAlivePool();
   const clientType = useMemo(() => detectClientType(), []);
   const hostPlatform = useMemo(() => getOpenDesignHost()?.client.platform, []);
@@ -1578,6 +1589,7 @@ function AppInner() {
   // can't overwrite the saved state with `''` before hydration lands.
   const [composioConfigLoading, setComposioConfigLoading] = useState(true);
   const route = useRoute();
+  const [workspaceTabsReset, setWorkspaceTabsReset] = useState(0);
   useLayoutEffect(() => {
     navigationTiming.observeRoute(route);
   }, [route]);
@@ -1586,6 +1598,7 @@ function AppInner() {
     window.addEventListener('pagehide', onPageExit);
     return () => window.removeEventListener('pagehide', onPageExit);
   }, []);
+  const loginReturnRouteRef = useRef<Route | null>(null);
   const routeRef = useRef(route);
   routeRef.current = route;
   const settingsReturnTargetRef = useRef<SettingsReturnTarget | null>(null);
@@ -2311,21 +2324,20 @@ function AppInner() {
       if (
         cancelled ||
         amrPollGenerationRef.current !== pollGeneration ||
-        amrCatalogScopeRef.current.identity !== issuedIdentity ||
-        !result
+        amrCatalogScopeRef.current.identity !== issuedIdentity
       ) {
         return;
       }
       // A forced refresh first yields the generic preset while the scoped
       // remote list runs. Keep the last-good selected-scope catalog visible.
-      if (Array.isArray(result.models) && result.models.length > 0
+      if (result && Array.isArray(result.models) && result.models.length > 0
         && !(result.source === 'preset' && amrModelsRef.current?.source === 'remote')) {
         amrModelsRef.current = result;
         setAgents((current) => mergeAmrModelsIntoAgents(current, result, amrCatalogScopeRef.current.scoped));
       }
       const shouldPollRefresh =
-        result.refreshing &&
-        !result.remoteError &&
+        // Transport failures can recover without another login or scope change.
+        (!result || (result.refreshing && !result.remoteError)) &&
         refreshPolls < maxRefreshPolls;
       if (shouldPollRefresh) {
         refreshPolls += 1;
@@ -2416,6 +2428,7 @@ function AppInner() {
       && route.fileName === observedPublicShareLink.filePath) return;
     if (!cloudIdentityRejected) return;
     if (route.kind === 'home' && route.view === 'onboarding') return;
+    loginReturnRouteRef.current = route;
     navigate({ kind: 'home', view: 'onboarding' }, { replace: true });
   }, [
     amrLoginStatus,
@@ -3303,6 +3316,10 @@ function AppInner() {
 
   const refreshAgents = useCallback(
     async (options?: { throwOnError?: boolean; agentCliEnv?: AppConfig['agentCliEnv'] }) => {
+      // A native menu selection returns focus to the renderer while this
+      // explicit refresh is running. Count it toward the focus throttle so
+      // the same transition does not start a second agent scan.
+      agentFocusRefreshLastRunRef.current = Date.now();
       if (options && Object.prototype.hasOwnProperty.call(options, 'agentCliEnv')) {
         const current = latestPersistedConfigRef.current;
         const nextConfig = clearStaleAmrModelChoiceOnProfileChange(current, {
@@ -3310,7 +3327,20 @@ function AppInner() {
           agentCliEnv: options.agentCliEnv ?? {},
         });
         latestPersistedConfigRef.current = nextConfig;
-        amrModelsRef.current = null;
+        // Settings sends the current environment even for an unchanged rescan.
+        // Keep its verified catalog; real scoped identity changes also clear it
+        // during render and restart the corresponding model read.
+        const amrEnvironmentChanged = JSON.stringify(current.agentCliEnv?.amr ?? {})
+          !== JSON.stringify(nextConfig.agentCliEnv?.amr ?? {});
+        if (amrEnvironmentChanged) {
+          amrModelsRef.current = null;
+        } else if (amrCatalogScopeRef.current.scoped && (
+          amrModelsRef.current?.source !== 'remote' || amrModelsRef.current.models.length === 0
+        )) {
+          // Clear a prior remote error for this exact scope once, then follow
+          // its background refresh. Automatic agent probes omit agentCliEnv.
+          queueAmrModelRefresh(amrCatalogScopeRef.current.identity);
+        }
         saveConfig(nextConfig);
         setConfig(nextConfig);
         await syncConfigToDaemon(nextConfig);
@@ -3347,7 +3377,7 @@ function AppInner() {
         return [];
       }
     },
-    [beginAgentStreamRequest, isCurrentAgentStreamRequest],
+    [beginAgentStreamRequest, isCurrentAgentStreamRequest, queueAmrModelRefresh],
   );
 
   useEffect(() => {
@@ -3374,6 +3404,29 @@ function AppInner() {
   }, [agentsLoading, daemonLive, refreshAgents]);
 
   useEffect(() => {
+    const prepareProfileSwitch = (event: Event) => {
+      const complete = (event as CustomEvent<unknown>).detail;
+      if (typeof complete !== 'function') return;
+      event.preventDefault();
+      const currentRoute = routeRef.current;
+      if (currentRoute.kind === 'home' && (
+        currentRoute.view === 'home' || currentRoute.view === 'onboarding'
+      )) {
+        complete(true);
+        return;
+      }
+      // Settle edits while the daemon is still using the outgoing environment.
+      navigate({ kind: 'home', view: 'home' }, {
+        replace: true,
+        onCommit: () => complete(true),
+        onCancel: (reason) => complete(reason === 'same_route'),
+      });
+    };
+    window.addEventListener(PREPARE_AMR_PROFILE_SWITCH_EVENT, prepareProfileSwitch);
+    return () => window.removeEventListener(PREPARE_AMR_PROFILE_SWITCH_EVENT, prepareProfileSwitch);
+  }, []);
+
+  useEffect(() => {
     const handleAppConfigChanged = () => {
       void fetchDaemonConfig().then((daemonConfig) => {
         const previous = latestPersistedConfigRef.current;
@@ -3390,7 +3443,23 @@ function AppInner() {
         // context, directory and every account-scoped cache before refreshing
         // the new profile; otherwise prod workspace links remain mounted while
         // status/models/billing already point at feature-test.
-        if (amrProfileChanged) notifyWorkspaceContextRefresh();
+        if (amrProfileChanged) {
+          settingsReturnTargetRef.current = null;
+          clearAmrAuthRetryContinuation();
+          const resetTabs = () => {
+            clearSavedWorkspaceTabs();
+            setWorkspaceTabsReset((current) => current + 1);
+          };
+          const currentRoute = routeRef.current;
+          if (currentRoute.kind === 'home' && (
+            currentRoute.view === 'home' || currentRoute.view === 'onboarding'
+          )) {
+            resetTabs();
+          } else {
+            navigate({ kind: 'home', view: 'home' }, { replace: true, onCommit: resetTabs });
+          }
+          notifyWorkspaceContextRefresh();
+        }
         amrModelsRef.current = null;
         restartAmrPolling();
         void refreshAgents();
@@ -3398,7 +3467,7 @@ function AppInner() {
     };
     window.addEventListener(APP_CONFIG_CHANGED_EVENT, handleAppConfigChanged);
     return () => window.removeEventListener(APP_CONFIG_CHANGED_EVENT, handleAppConfigChanged);
-  }, [refreshAgents, restartAmrPolling]);
+  }, [clearAmrAuthRetryContinuation, refreshAgents, restartAmrPolling]);
 
   /**
    * Undo an optimistic hand-off that will not become a project: drop the
@@ -5483,12 +5552,20 @@ function AppInner() {
 
   const handleCompleteOnboarding = useCallback(() => {
     const current = latestPersistedConfigRef.current;
-    if (current.onboardingCompleted) return;
-    const next: AppConfig = { ...current, onboardingCompleted: true };
-    latestPersistedConfigRef.current = next;
-    saveConfig(next);
-    void syncConfigToDaemon(next);
-    setConfig(next);
+    if (!current.onboardingCompleted) {
+      const next: AppConfig = { ...current, onboardingCompleted: true };
+      latestPersistedConfigRef.current = next;
+      saveConfig(next);
+      void syncConfigToDaemon(next);
+      setConfig(next);
+    }
+    const target = loginReturnRouteRef.current;
+    loginReturnRouteRef.current = null;
+    if (!target || !isAmrSessionAuthenticated(amrLoginStatusRef.current)) return false;
+    // Restore the location only. ProjectView re-resolves Workspace access
+    // before exposing its data; returning never submits the previous action.
+    navigate(target, { replace: true });
+    return true;
   }, []);
 
   // Cmd+, (mac) / Ctrl+, (win/linux) opens Settings. Capture phase so we
@@ -5656,6 +5733,7 @@ function AppInner() {
   }, []);
 
   const handleActiveCloudSignOut = useCallback(async () => {
+    loginReturnRouteRef.current = null;
     const next = resetExecutionConfigAfterSignOut(latestPersistedConfigRef.current);
     latestPersistedConfigRef.current = next;
     saveConfig(next);
@@ -6176,13 +6254,14 @@ function AppInner() {
     );
   }
   return (
-    <>
+    <ReferralEntryProvider accountId={isAmrSessionAuthenticated(amrLoginStatus) ? amrLoginStatus?.user?.id ?? amrLoginStatus?.credentialRevision ?? null : null} profile={amrLoginStatus?.profile ?? null}>
       <div
         className={`workspace-shell workspace-shell--${clientType}`}
         data-client-type={clientType}
         data-host-platform={hostPlatform}
       >
         <WorkspaceTabsBar
+          key={workspaceTabsReset}
           route={route}
           // The ambient list may still be loading (or belong to a different
           // selected Workspace) while a deep-linked project is already open.
@@ -6327,6 +6406,7 @@ function AppInner() {
         })}
       />
       <DeletedShareNotices state={deletedShares} />
+      {amrWebOpenFailed ? <Toast message={t('account.openFailed')} role="alert" tone="error" onDismiss={()=>setAmrWebOpenFailed(false)} /> : null}
       {workingDirError ? (
         <Toast
           message={workingDirError}
@@ -6397,7 +6477,7 @@ function AppInner() {
       </motion.div>
       ) : null}
       </AnimatePresence>
-    </>
+    </ReferralEntryProvider>
   );
 }
 

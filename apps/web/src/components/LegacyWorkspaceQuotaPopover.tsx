@@ -1,3 +1,4 @@
+import { openExternalUrl } from '../providers/registry';
 // Preserve the integration quota card until shared billing is explicitly proved.
 import type { WorkspaceQuotaPopoverProps } from './WorkspaceQuotaPopover';
 import { isWorkspaceLifecycleReadable } from '@open-design/contracts';
@@ -34,7 +35,7 @@ export function LegacyWorkspaceQuotaPopover({ view, context, profile, consoleOri
     const hours = Math.floor((minutes % 1_440) / 60);
     const rest = minutes % 60;
     const time = days
-      ? `${t('billing.codingPlanPeriodDays', { count: days })}${hours ? ` ${t('billing.codingPlanPeriodHours', { count: hours })}` : ''}`
+      ? `${t('billing.codingPlanPeriodDays', { count: days })}${hours ? ` ${t('billing.codingPlanPeriodHours', { count: hours })}` : ''}${rest ? ` ${t('workspaceQuota.periodMinutes', { count: rest })}` : ''}`
       : hours
         ? `${t('billing.codingPlanPeriodHours', { count: hours })}${rest ? ` ${t('workspaceQuota.periodMinutes', { count: rest })}` : ''}`
         : t('workspaceQuota.periodMinutes', { count: rest });
@@ -42,7 +43,7 @@ export function LegacyWorkspaceQuotaPopover({ view, context, profile, consoleOri
   }
   function navigate(url: string, action: 'upgrade' | 'credits') {
     onNavigate?.(action);
-    window.open(url, '_blank', 'noopener,noreferrer');
+    void openExternalUrl(url);
   }
   function help(kind: 'plan' | 'metered') {
     const label = kind === 'plan'

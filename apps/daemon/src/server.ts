@@ -157,6 +157,7 @@ import {
 // mid-turn steering frame are encoded by the same writer.
 import { encodeStreamJsonUserMessage } from './runtimes/run-steering.js';
 import { getBuildProfile } from './runtimes/build-profile.js';
+import { openCodeSystemTempDirectories } from './runtimes/opencode-permissions.js';
 import { assertOdNextSemanticRequestFactProducerCoverage } from './runtimes/od-next-exact-input.js';
 import {
   normalizeRunContextSelection,
@@ -1077,6 +1078,7 @@ import { createShareAliasReservations } from './collab/share-alias-reservation.j
 import { createSharePublicationCompletion } from './collab/share-publication-completion.js';
 import { resolvePublicShareLink } from './collab/public-share-viewer-url.js';
 import { ensurePublicShareProject } from './collab/public-share-project-bootstrap.js';
+import { createLocalPublicShareOwnership } from './collab/local-public-share-ownership.js';
 import { createVelaProjectShareState } from './collab/vela-project-share-state.js';
 import { registerPublicFileStopRetryRoutes } from './routes/public-file-stop-retry.js';
 import { runPinnedVelaCommand } from './collab/vela-pinned-command.js';
@@ -3487,8 +3489,9 @@ export async function startServer({
 
   // Routes that serve content to sandboxed iframes (Origin: null) for
   // read-only purposes.  All other /api routes reject Origin: null.
+  // The plugin asset handler further requires a declared, bundled asset.
   const _NULL_ORIGIN_SAFE_GET_RE =
-    /^\/projects\/[^/]+\/(?:raw|preview)\/|^\/codex-pets\/[^/]+\/spritesheet$|^\/asset-cache$/;
+    /^\/projects\/[^/]+\/(?:raw|preview)\/|^\/codex-pets\/[^/]+\/spritesheet$|^\/plugins\/[^/]+\/asset\/|^\/asset-cache$/;
   const _POWERED_PREVIEW_SAFE_RE = /^\/projects\/[^/]+\/powered\/.+$/u;
 
   // Reserve project preview hosts before API exceptions and static serving.
@@ -5607,13 +5610,8 @@ export async function startServer({
   const recordPublicFilePublication = createPublicFilePublicationRecorder(
     db, publicFilePublicationStore, enqueuePublishedFileComments,
   );
-  const resolveLocalProjectOwner = (projectId: string, workspaceId: string): string | null => {
-    const binding = getWorkspaceProjectByProjectId(db, projectId);
-    if (!binding || binding.workspaceId !== workspaceId || binding.resourceState !== 'active'
-      || binding.cloudTombstonedAt != null || !getProject(db, projectId)
-      || projectIsUnmaterializedSharedPlaceholder(projectId)) return null;
-    return typeof binding.createdByWorkspaceMemberId === 'string' ? binding.createdByWorkspaceMemberId : null;
-  };
+  const localPublicShareOwnership = createLocalPublicShareOwnership(db, projectId =>
+    revokedTeamProjectMirrors.has(projectId) || (ownedContentSync?.isApplying(projectId) ?? false));
   const collabSyncRoutes = registerCollabSyncRoutes(app, {
     collab,
     publicFilePublicationStore,
@@ -5627,7 +5625,7 @@ export async function startServer({
     // (slug + revision token read back after the write), so a half-written
     // publication cannot enqueue work that later resolves against nothing.
     recordPublicFilePublication,
-    resolveLocalPublicShareOwner: resolveLocalProjectOwner,
+    ...localPublicShareOwnership,
     resolvePublicShareLink: (projectId, slug, amr) => resolvePublicShareLink(projectId, slug, amr, process.env, configuredAmrEnv()),
     sharePublishing: {
       sourceFileId: (scope, project) => localCommentFiles.identity(scope.projectId, scope.filePath, project?.metadata?._commentFiles),
@@ -8362,6 +8360,7 @@ export async function startServer({
   let automaticDiagnostics: AutomaticDiagnostics | null = null;
   const telemetry = registerTelemetryRoutes(app, {
     dataDir: RUNTIME_DATA_DIR,
+    db,
     namespace: runtime?.namespace,
     readAppConfig,
     writeAppConfig,
@@ -14213,50 +14212,7 @@ export async function startServer({
     // are enabled — overwriting with `{}` would wipe the user's saved
     // mcp section for this single invocation, which is exactly the kind
     // of surprise the previous silent-failure UX taught us to avoid.
-    let opencodeConfigContent: string | null = null;
     const isMiMoContent = def.externalMcpInjection === 'mimo-env-content';
-    if (isOpenCodeContent || isMiMoContent) {
-      try {
-        let readOnlyDirectories: string[] = [];
-        let readOnlyEditBaseDirs: string[] = [];
-        if (isOpenCodeContent && strategyTaskAssets.taskProfileRoot) {
-          try {
-            const editBase = await resolveOpenCodeEditBaseDirs(effectiveCwd);
-            readOnlyEditBaseDirs = editBase.dirs;
-            readOnlyDirectories = [strategyTaskAssets.taskProfileRoot];
-            if (editBase.gitProbe === 'failed') {
-              console.warn(`[opencode-resource-permissions] git probe failed; denying resource edits against every candidate worktree ${JSON.stringify({
-                reason: editBase.gitProbeError, candidates: editBase.dirs,
-              })}`);
-            }
-          } catch (err) {
-            // Withhold only this resource grant; MCP, provider and ordinary
-            // project permissions must still reach the child process.
-            console.warn(`[opencode-resource-permissions] grant skipped: edit base unconfirmed ${JSON.stringify({
-              reason: err instanceof Error ? err.message : String(err),
-            })}`);
-          }
-        }
-        opencodeConfigContent = buildOpenCodeMcpConfigContent(
-          enabledExternalMcp,
-          oauthTokensForSpawn,
-          {
-            allowedDirectories: [effectiveCwd, ...extraAllowedDirs],
-            // Only the verified loader result may authorize rule cards.
-            readOnlyDirectories,
-            readOnlyEditBaseDirs,
-            ...(byokOpenCodeProvider
-              ? { extraConfig: byokOpenCodeProvider.config }
-              : {}),
-          },
-        );
-      } catch (err) {
-        console.warn(
-          '[mcp-config] failed to build OPENCODE_CONFIG_CONTENT:',
-          err && err.message ? err.message : err,
-        );
-      }
-    }
 
     // Pre-flight the composed prompt against any argv-byte budget the
     // adapter declared (only DeepSeek TUI today — its CLI doesn't accept
@@ -15355,19 +15311,6 @@ export async function startServer({
             });
           },
         }),
-        // OpenCode external-MCP injection (issue #2142). Layered AFTER
-        // spawnEnvForAgent / odMediaEnv / configuredAgentEnv so the
-        // daemon-built MCP config wins over a stale value the user
-        // might have exported in their shell — that would let an
-        // outdated content string suppress the user's freshly-saved
-        // MCP servers, which is exactly the bug we are fixing.
-        // `opencodeConfigContent === null` means "no enabled servers";
-        // we deliberately leave the env unset in that case so the
-        // user's saved `~/.config/opencode/opencode.json` continues
-        // to apply as-is.
-        ...(opencodeConfigContent
-          ? { [isMiMoContent ? 'MIMOCODE_CONFIG_CONTENT' : 'OPENCODE_CONFIG_CONTENT']: opencodeConfigContent }
-          : {}),
         // Daemon-owned resolver for task-input: references. Keep this last so
         // configured/BYOK/runtime env cannot redirect the Agent from the
         // verified Run projection back to mutable or canonical bytes.
@@ -15375,6 +15318,54 @@ export async function startServer({
           ? { OD_TASK_INPUT_DIR: odNextTaskInputSnapshot.projectionDir }
           : {}),
       }, agentLaunch), effectiveCwd, def.id);
+      // Build permissions after configured env expansion and launch overrides,
+      // so the granted temp root matches the environment the child receives.
+      if (isOpenCodeContent || isMiMoContent) {
+        try {
+          let readOnlyDirectories: string[] = [];
+          let readOnlyEditBaseDirs: string[] = [];
+          if (isOpenCodeContent && strategyTaskAssets.taskProfileRoot) {
+            try {
+              const editBase = await resolveOpenCodeEditBaseDirs(effectiveCwd);
+              readOnlyEditBaseDirs = editBase.dirs;
+              readOnlyDirectories = [strategyTaskAssets.taskProfileRoot];
+              if (editBase.gitProbe === 'failed') {
+                console.warn(`[opencode-resource-permissions] git probe failed; denying resource edits against every candidate worktree ${JSON.stringify({
+                  reason: editBase.gitProbeError, candidates: editBase.dirs,
+                })}`);
+              }
+            } catch (err) {
+              // Withhold only this resource grant; MCP, provider and ordinary
+              // project permissions must still reach the child process.
+              console.warn(`[opencode-resource-permissions] grant skipped: edit base unconfirmed ${JSON.stringify({
+                reason: err instanceof Error ? err.message : String(err),
+              })}`);
+            }
+          }
+          const opencodeConfigContent = buildOpenCodeMcpConfigContent(
+            enabledExternalMcp,
+            oauthTokensForSpawn,
+            {
+              allowedDirectories: [effectiveCwd, ...extraAllowedDirs, ...openCodeSystemTempDirectories(env)],
+              // Only the verified loader result may authorize rule cards.
+              readOnlyDirectories,
+              readOnlyEditBaseDirs,
+              ...(byokOpenCodeProvider
+                ? { extraConfig: byokOpenCodeProvider.config }
+                : {}),
+            },
+          );
+          if (opencodeConfigContent) {
+            env[isMiMoContent ? 'MIMOCODE_CONFIG_CONTENT' : 'OPENCODE_CONFIG_CONTENT'] = opencodeConfigContent;
+          }
+        } catch (err) {
+          console.warn(
+            '[mcp-config] failed to build OPENCODE_CONFIG_CONTENT:',
+            err && err.message ? err.message : err,
+          );
+        }
+      }
+
       if (def.id === 'opencode' || def.id === 'byok-opencode') {
         try {
           const versions = await ensureDetectedRuntimeVersions('opencode', configuredAgentEnv);
