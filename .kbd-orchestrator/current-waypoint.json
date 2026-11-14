@@ -2,40 +2,41 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 274,
-  "derivedRevision": 274,
+  "sourceRevision": 383,
+  "derivedRevision": 383,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 274
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 38
   },
   "conflictCount": 0,
   "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
   "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
   "path": [
     "deploy-web-to-knowme-k8s",
-    "knowdesign-brand"
+    "hosted-publish-and-review"
   ],
   "phaseIds": [
     "deploy-web-to-knowme-k8s",
-    "knowdesign-brand"
+    "deploy-web-to-knowme-k8s::hosted-publish-and-review"
   ],
-  "activePhaseId": "knowdesign-brand",
-  "activePhase": "knowdesign-brand",
+  "activePhaseId": "deploy-web-to-knowme-k8s::hosted-publish-and-review",
+  "activePhase": "hosted-publish-and-review",
   "phase": "deploy-web-to-knowme-k8s",
   "parentPhase": "deploy-web-to-knowme-k8s",
-  "childPointer": "knowdesign-brand",
-  "change": "knowdesign-tokens-icons-and-app-identity",
+  "childPointer": "hosted-publish-and-review",
+  "change": "hub-core-service",
   "currentTask": null,
   "status": "ready",
   "lifecycle": "ready",
   "stageId": "execute",
   "stageStatus": "IN_PROGRESS",
   "completionMetric": "implementation",
-  "implementationCompleted": 8,
-  "implementationTotal": 47,
-  "planRevision": 1,
-  "revision": 274,
-  "exactNextCommand": "/kbd-assess knowdesign-brand",
-  "nextChange": "knowdesign-tokens-icons-and-app-identity",
+  "implementationCompleted": 13,
+  "implementationTotal": 59,
+  "planRevision": 6,
+  "revision": 383,
+  "exactNextCommand": "Changes 02 hub-core-service (Rust, hub repo) and 06 daemon-publish-client (this repo) can run in parallel",
+  "nextChange": "hub-core-service",
   "nextTask": null,
-  "updatedAt": "2026-10-06T09:39:05.836275Z"
+  "updatedAt": "2026-10-19T09:38:29.207235Z"
 }

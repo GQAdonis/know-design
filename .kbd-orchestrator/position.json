@@ -2,26 +2,27 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 274,
-  "derivedRevision": 274,
+  "sourceRevision": 383,
+  "derivedRevision": 383,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 274
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 38
   },
   "conflictCount": 0,
-  "updatedAt": "2026-10-06T09:39:05.836275Z",
+  "updatedAt": "2026-10-19T09:38:29.207235Z",
   "cursor": [
     "deploy-web-to-knowme-k8s",
-    "knowdesign-brand",
+    "hosted-publish-and-review",
     "execute",
-    "knowdesign-tokens-icons-and-app-identity"
+    "hub-core-service"
   ],
   "root": {
     "type": "phase",
     "id": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
     "status": "ready",
     "progress": {
-      "done": 8,
-      "total": 47
+      "done": 13,
+      "total": 59
     },
     "children": [
       {
@@ -361,6 +362,127 @@
           },
           {
             "type": "phase",
+            "id": "hosted-publish-and-review",
+            "canonicalId": "deploy-web-to-knowme-k8s::hosted-publish-and-review",
+            "status": "IN_PROGRESS",
+            "progress": {
+              "done": 2,
+              "total": 12
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "spike-guest-member-relay",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "hub-contract",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "hub-core-service",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "hub-database",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "hub-collab-cloud-endpoints",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "reviewer-page-and-guest-flow",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "daemon-publish-client",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "cli-and-ui-parity",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "comment-return-path",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "deploy-hub",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "e2e-and-security-gate",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "docs-runbook-kbd",
+                "status": "PENDING",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              }
+            ],
+            "annotations": []
+          },
+          {
+            "type": "phase",
             "id": "identity-and-collaboration",
             "canonicalId": "identity-and-collaboration",
             "status": "PENDING",
@@ -466,12 +588,24 @@
             "type": "phase",
             "id": "knowdesign-brand",
             "canonicalId": "knowdesign-brand",
-            "status": "PENDING",
+            "status": "COMPLETE",
             "progress": {
-              "done": 1,
+              "done": 4,
               "total": 4
             },
             "children": [
+              {
+                "type": "phase",
+                "id": "hosted-publish-and-review",
+                "canonicalId": "knowdesign-brand::hosted-publish-and-review",
+                "status": "SKIPPED",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                },
+                "children": [],
+                "annotations": []
+              },
               {
                 "type": "change",
                 "id": "brand-seam-and-rename-codemod",
@@ -484,7 +618,7 @@
               {
                 "type": "change",
                 "id": "knowdesign-tokens-icons-and-app-identity",
-                "status": "PENDING",
+                "status": "COMPLETE",
                 "progress": {
                   "done": 0,
                   "total": 0
@@ -493,7 +627,7 @@
               {
                 "type": "change",
                 "id": "knowdesign-docs-locales-ci-and-repo-name",
-                "status": "PENDING",
+                "status": "COMPLETE",
                 "progress": {
                   "done": 0,
                   "total": 0
@@ -502,7 +636,7 @@
               {
                 "type": "change",
                 "id": "merge-rehearsal-and-runbook",
-                "status": "PENDING",
+                "status": "COMPLETE",
                 "progress": {
                   "done": 0,
                   "total": 0

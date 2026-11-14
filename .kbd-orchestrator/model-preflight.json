@@ -1,13 +1,13 @@
 {
-  "status": "ok",
+  "status": "degraded",
   "gateway": "http://localhost:4000/v1",
   "roles": {
     "judge": {
-      "alias": "gpt-6.1-sol",
+      "alias": "MiniMax-M3",
       "identity": {
-        "providerConnectionId": "openai-proxy-8181",
-        "providerId": "openai",
-        "modelId": "gpt-6.1-sol"
+        "providerConnectionId": "minimax-direct",
+        "providerId": "minimax",
+        "modelId": "MiniMax-M3"
       },
       "source": "/Users/gqadonis/.prometheus/kbd/models.toml"
     },
@@ -34,6 +34,7 @@
     "openai",
     "gemini",
     "groq",
+    "mistral",
     "fireworks",
     "openrouter"
   ],
@@ -42,9 +43,9 @@
     "medium",
     "frontier"
   ],
-  "distinct_models": 2,
+  "distinct_models": 1,
   "config_path": "/Users/gqadonis/.config/liter-llm/liter-llm-proxy.toml",
   "config_exists": true,
   "config_defects": [],
-  "checked_at": "2026-10-05T05:25:54Z"
+  "checked_at": "2026-10-17T16:36:27Z"
 }

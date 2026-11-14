@@ -1,0 +1,33 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "tools/pack/resources/brands/knowdesign/README.md",
+      "line": 6,
+      "claim": "The new brand-resource README introduces a Tauri desktop reference despite the project rule that desktop is Electron, not Tauri.",
+      "evidence": "Constraint: \"Desktop is **Electron** (`apps/desktop` + `apps/packaged`), not Tauri.\" Hunk adds: \"Source: the KnowMe \\\"K\\\" mark ... tauri icons `desktop/src-tauri/icons/icon.{icns,ico,png}`\".",
+      "suggested_fix": "Remove the Tauri-specific wording/path from the README or describe the icon source without referencing a Tauri desktop layout."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

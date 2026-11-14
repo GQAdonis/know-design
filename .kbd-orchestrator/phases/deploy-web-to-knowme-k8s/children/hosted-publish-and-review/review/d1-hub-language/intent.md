@@ -1,0 +1,1 @@
+Intent: choose the implementation language/home for the KnowDesign review hub so that it is safe to expose to the internet, cheap for one operator to maintain, and low-friction against upstream merges. The outcome gates a multi-week build, so a wrong call is expensive to reverse after change 02.

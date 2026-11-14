@@ -1,0 +1,57 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "packages/release/src/brand.ts",
+      "line": 83,
+      "claim": "A KnowDesign packaged launch without OD_BUILD_PROFILE still resolves to the Open Design brand, so the required baked KnowDesign identity is not satisfied.",
+      "evidence": "Acceptance criteria D-020 require the profile to be baked so \"a launch with no environment variable is knowdesign\", but `resolveBrand(env = process.env)` returns `KNOWDESIGN_BRAND` only when `OD_BUILD_PROFILE` is exactly `knowdesign`, otherwise `OPEN_DESIGN_BRAND`.",
+      "suggested_fix": "Thread the baked packaged brand/config into brand resolution for packaged runtime paths, or generate/package a brand config that makes KnowDesign the default without relying on OD_BUILD_PROFILE."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/web/src/brand/brand-text.ts",
+      "line": 1,
+      "claim": "The web brand runtime is not driven from the mandated single brand descriptor in packages/release/src/brand.ts.",
+      "evidence": "Acceptance criteria require observable identity to be driven from ONE brand descriptor in `packages/release/src/brand.ts`, but this file imports `KNOWDESIGN_BRAND`, `OPEN_DESIGN_BRAND`, `BrandDescriptor`, and `BuildProfile` from `@open-design/contracts` instead of the new release descriptor.",
+      "suggested_fix": "Expose/reuse the `packages/release/src/brand.ts` descriptor for web code or generate the web-facing descriptor from that single source of truth."
+    },
+    {
+      "severity": "WARNING",
+      "file": "packages/sidecar/src/json-ipc.ts",
+      "line": 372,
+      "claim": "A request with an already-exited peer still opens a socket before rejecting, so it can touch a stale or wrong IPC endpoint despite the peer having already failed.",
+      "evidence": "`requestJsonIpc` calls `const socket = createConnection(socketPath)` before checking `if (peer.exitCode != null || peer.signalCode != null)` later in the same function; D-021 requires IPC requests to end on observed peer exit.",
+      "suggested_fix": "Check `peer.exitCode`/`peer.signalCode` before creating the connection and reject immediately when the peer has already exited."
+    },
+    {
+      "severity": "WARNING",
+      "file": "packages/launcher-proto/src/startup-events.ts",
+      "line": 55,
+      "claim": "Startup events are globally sorted by per-process sequence number, which can misorder a JSONL log containing events from multiple writer processes.",
+      "evidence": "`StartupEvent.seq` is documented as \"1-based order in which the writing process passed its phases\", but `parseStartupEvents` returns `events.sort((a, b) => a.seq - b.seq)` and `lastStartupEvent` then treats the sorted array's last element as latest.",
+      "suggested_fix": "Preserve file order for cross-process JSONL ordering, or sort by a globally monotonic field; if `seq` is only per-pid, do not use it to determine the latest event across pids."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 350,
+  "derivedRevision": 350,
+  "frontier": {
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 5
+  },
+  "conflictCount": 0,
+  "phase": "hosted-publish-and-review",
+  "phaseId": "knowdesign-brand::hosted-publish-and-review",
+  "parentPhase": "knowdesign-brand",
+  "last_updated": "2026-10-17T16:25:31.202246Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 0,
+  "changes_completed": 0,
+  "implementation_total": 0,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 0,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 11,
+      "total": 47,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [],
+  "children": {},
+  "migrationStatus": null
+}

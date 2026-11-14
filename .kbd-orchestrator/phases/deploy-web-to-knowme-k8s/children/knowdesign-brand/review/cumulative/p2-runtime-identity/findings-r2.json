@@ -1,0 +1,41 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/mcp.ts",
+      "line": 67,
+      "claim": "The MCP server name is still resolved at module import time, not at call time.",
+      "evidence": "The acceptance criteria explicitly require runtime identity values to be \"resolved at call time not import time\" and Round 2 says \"MCP server name now resolved at call time (apps/daemon/src/mcp.ts)\", but the hunk defines `const SERVER_NAME = defaultMcpServerName();` at top level.",
+      "suggested_fix": "Replace the top-level constant with a function or resolve `defaultMcpServerName()` inside the MCP server creation/start path after the build profile is guaranteed to be applied."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/package.json",
+      "line": 9,
+      "claim": "The Open Design daemon package now unconditionally installs a `knowdesign` CLI alias even when the profile is off.",
+      "evidence": "The acceptance criteria require \"Open Design stays the default\" and focus on distinct CLI names, but the hunk changes the static package bin map from only `\"od\": \"./bin/od.mjs\"` to also include `\"knowdesign\": \"./bin/od.mjs\"` with no profile gating.",
+      "suggested_fix": "Generate or patch the bin map only for KnowDesign packaging, or use separate package metadata for the KnowDesign build so the default Open Design package does not claim the `knowdesign` command."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

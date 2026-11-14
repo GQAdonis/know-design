@@ -1,0 +1,106 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "decision document \u2014 Falsifier / reversibility",
+      "line": 0,
+      "claim": "The decision is treated as a reversible two-way door, but the original intent states 'a wrong call is expensive to reverse after change 02' \u2014 once `apps/hub` is built and wired through the monorepo, reversing to RS means rewriting the service from scratch.",
+      "evidence": "Falsifier reads 'I should reverse this and choose RS if any of the following turns out true' \u2014 but two of the four triggers ('rollout failures', 'maintainer practice over time') can only fire after launch, when reversal is most expensive. The cheap-to-check triggers (dependency count, type-generation cost) are listed as if they were unknown when they are checkable today in a day.",
+      "suggested_fix": "Decide now, before writing `apps/hub` code, by (a) listing the non-trivial runtime deps the TS hub actually needs and (b) spiking a schema\u2192Rust+TS type generation step. If either falsifier trigger is hit, you reverse before the sunk cost exists."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "decision document \u2014 Assumption 4",
+      "line": 0,
+      "claim": "Assumption 4 ('A Node service can serve untrusted HTML safely if the origin is isolated and the sandbox CSP is set; the language does not change that') is the load-bearing safety claim and it is wrong in the exact way that matters for this service.",
+      "evidence": "The service 'must serve attacker-controlled HTML/JS' AND 'accept guest comments from anonymous reviewers'. Node's known failure modes for this profile are ReDoS in JSON parsers, prototype pollution in request bodies, and dependency-chain CVEs in the npm registry. Rust's ownership/types eliminate whole classes of these at compile time. Saying 'the language does not change that' dismisses the strongest pro-RS argument without engaging it. The original intent explicitly lists 'safe to expose to the internet' as a primary criterion; this assumption contradicts that criterion.",
+      "suggested_fix": "Replace with a concrete threat enumeration: name the specific CVE classes, runtime bugs, and dep-chain risks the sandbox CSP does NOT mitigate. For each, state whether Rust actually defends better, or retract the claim."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "decision document \u2014 Assumption 3",
+      "line": 0,
+      "claim": "Assumption 3 ('the operator is as fluent in Rust as in TypeScript') is asserted with no evidence and contradicts the facts listed in the same document.",
+      "evidence": "The 'Facts about the situation' section states the operator's platform services (flint-gate, flint-forge, flint-realtime-fabric, sso-broker) are Rust, and 'so is most of the operator's other code'. That is evidence of where the maintenance muscle lives, not of parity. The decision later calls this 'a convention, not a requirement' \u2014 but a single-author ecosystem of five+ Rust services is a much stronger signal than a 'convention'. The fluency claim is load-bearing and unverified.",
+      "suggested_fix": "Replace with a verifiable fluency claim \u2014 e.g., 'operator has shipped N non-trivial Rust services and M non-trivial TypeScript services in the last 12 months, and time-to-fix on bugs is comparable'. If you cannot produce this, the assumption is unsupported and the leaning should flip."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision document \u2014 Falsifier thresholds",
+      "line": 0,
+      "claim": "The falsifier's threshold 'more than three non-trivial third-party runtime dependencies' has no stated source and no measurement plan; it is a number chosen to look rigorous.",
+      "evidence": "Why three? Why not two, or five? The number is presented in the falsifier but the actual dep list for an Express/Fastify hub serving untrusted content (cookie signing, multipart parsing, rate limiting, CSP/Helmet-equivalent, ETag/304, SSE) is almost certainly above three already. The falsifier does not say how the count will be measured, by whom, or before what date.",
+      "suggested_fix": "Either (a) enumerate the concrete deps the TS hub would need and apply the threshold now, or (b) replace the threshold with a falsifier that does not require picking an arbitrary number."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision document \u2014 Falsifier trigger 2",
+      "line": 0,
+      "claim": "Falsifier trigger 2 ('Generating Rust wire types from a single schema is cheap enough... in under a day') is the cheapest of the four triggers to check and is the one that would invalidate Assumption 1 (the only pro-TS technical argument), yet it is not checked.",
+      "evidence": "The author writes 'a working generate-and-check step covers all hub DTOs in under a day' \u2014 admitting the test takes a day \u2014 and then does not run it. Assumption 1 ('Sharing TypeScript types between daemon and hub removes a class of contract-drift bugs that a generated-types approach reduces but does not eliminate') is the central technical pro-TS argument; if a 1-day spike shows generated types are equally drift-safe, the argument collapses.",
+      "suggested_fix": "Before committing to the leaning, spend the day on the spike. If it succeeds, Assumption 1 is false and the decision should flip to RS (or to TS with generated types)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision document \u2014 missing alternatives",
+      "line": 0,
+      "claim": "The decision is presented as a binary choice between TS-in-monorepo and RS-in-own-repo; no third option is named or engaged with.",
+      "evidence": "The author explicitly invites the reviewer to ask 'anything that makes this a false choice' but the decision document itself considers only two options. Plausible alternatives not addressed: (a) TS service in its own repo (gets deployment/CI consistency with platform Rust services, loses monorepo type-sharing \u2014 but generated types close that gap); (b) extending the existing daemon with a hub module rather than a new service; (c) an edge platform (Cloudflare Workers / Deno Deploy) in front of a minimal origin that serves only the dynamic API; (d) deferring language choice by stubbing the contract behind an OpenAPI schema and prototyping both implementations in parallel.",
+      "suggested_fix": "Add a section explicitly listing alternatives not considered and a one-paragraph dismissal or engagement for each. The original intent's 'low-friction against upstream merges' criterion argues strongly for option (a) and is not addressed."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision document \u2014 'low-friction against upstream merges'",
+      "line": 0,
+      "claim": "The original intent lists 'low-friction against upstream merges' as a primary criterion; the TS-in-monorepo option almost certainly violates it and the decision does not address this.",
+      "evidence": "The repo is a fork that 'merges from nexu-io/open-design regularly'. Adding `apps/hub` to the monorepo creates recurring merge surface in: pnpm-workspace.yaml, root package.json, root tsconfig, CI workflows, pnpm-lock.yaml (which the constraints say requires Nix hash refresh), and possibly packages/contracts. The decision notes a separate repo 'adds none either' to merge surface \u2014 implicitly conceding the monorepo option does add friction, then moving on.",
+      "suggested_fix": "Quantify the upstream merge surface for `apps/hub` in the monorepo (which files would have to be merged on every upstream sync?) and compare to a separate-repo option. This criterion alone may decide the choice."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision document \u2014 single-replica operational reality",
+      "line": 0,
+      "claim": "The hub is described as 'single replica on a shared k8s cluster' serving 'attacker-controlled HTML/JS' with anonymous commenting \u2014 an explicit denial-of-service and abuse target \u2014 yet the decision does not address operational resilience, horizontal scaling, or anti-abuse.",
+      "evidence": "Anonymous comment posting + public snapshot URLs + untrusted HTML = guaranteed bot/abuse traffic. Single replica means any incident is a full outage. The language choice interacts with this: a Rust service scales cheaper per replica, which matters for sizing the anti-abuse layer. The decision silently treats this as 'low traffic' (Assumption 2) without separating human reviewer traffic from automated abuse traffic.",
+      "suggested_fix": "Split Assumption 2 into human traffic and abuse traffic. State the abuse profile assumed (bots, scrapers, spammers). For each, say how TS or RS handles it better and at what cost."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "decision document \u2014 Cost of being wrong",
+      "line": 0,
+      "claim": "The cost of choosing TS and being wrong is never stated, even though the original intent says reversal is expensive.",
+      "evidence": "If TS turns out wrong: rebuild the service in Rust in a separate repo, dual-maintain contracts for ~N weeks, lose the monorepo type-sharing advantage (which was the central argument). If RS turns out wrong: scrap a separate repo and rebuild in monorepo. These costs are asymmetric and the asymmetry is not discussed.",
+      "suggested_fix": "Add a 'cost of being wrong' subsection naming each failure mode and its estimated cost in operator-weeks."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "decision document \u2014 npm supply-chain under-scoping",
+      "line": 0,
+      "claim": "Assumption 5 treats npm supply-chain risk as bounded by dep count and a lockfile, but the actual attack surface also includes transitive deps, postinstall hooks, and registry trust \u2014 none addressed.",
+      "evidence": "Constraint `No new .js/.mjs/.cjs without an explicit generated/vendor/compat reason that passes pnpm guard` and `Treat every pnpm-lock.yaml change as requiring a Nix pnpm deps hash refresh check` are evidence the project takes supply chain seriously. A public-facing hub serving untrusted HTML should be evaluated against the same standard as the Rust platform services, which presumably do not have this exposure class.",
+      "suggested_fix": "Either drop the assumption or strengthen it: name the transitive deps the hub will pull, count postinstall hooks, and state whether any of them run with network access."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "minimax-direct",
+    "providerId": "minimax",
+    "modelId": "MiniMax-M3"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-harness",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "checked_classes": [],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

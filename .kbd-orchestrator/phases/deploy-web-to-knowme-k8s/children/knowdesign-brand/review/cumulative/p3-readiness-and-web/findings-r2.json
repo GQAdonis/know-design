@@ -1,0 +1,49 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "packages/sidecar/src/json-ipc.ts",
+      "line": 398,
+      "claim": "requestJsonIpc leaves an observed peer exit listener registered when the TCP/Unix socket emits an error, leaking listeners and allowing a later peer exit to destroy an already-failed request's socket.",
+      "evidence": "The new peer listener is registered with `peer.once(\"exit\", onPeerExit)` and removed only inside `settle`, but the existing `socket.on(\"error\", (error) => { ... rejectRequest(error); })` path was not changed to call `settle`; acceptance criteria explicitly asks to look for missed cleanup/listeners in IPC request liveness.",
+      "suggested_fix": "Route the socket error path through `settle(() => rejectRequest(error))` (or a typed `SidecarIpcError`) so timeout and peer listeners are always cleared on every terminal path."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "packages/sidecar/src/json-ipc.ts",
+      "line": 478,
+      "claim": "A remote error response rejects without settling the IPC request, so the timeout remains armed and any peer exit listener remains registered after the promise is already rejected.",
+      "evidence": "In the `response.ok === false` branch the code calls `rejectRequest(new SidecarIpcError(...))` and returns, unlike timeout/close/peer-exit paths that call `settle`; this violates the focus requirement to check for listener/timer cleanup and changes behaviour for peer users.",
+      "suggested_fix": "Wrap the remote-error rejection in `settle(() => rejectRequest(new SidecarIpcError(...)))`."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "packages/sidecar/src/operations.ts",
+      "line": 284,
+      "claim": "convergeSidecarLaunch lets exceptions thrown by `onProgress` abort launch convergence despite the API comment saying the callback must not throw.",
+      "evidence": "The type comment added above `onProgress` says `Called on every pass of the wait; callers decide what changed. Must not throw.`, but the implementation calls `options.onProgress?.({ attempts, launcherPid: launcher.pid, phase: lastPhase });` without a try/catch; acceptance criteria requires looking for error-handling gaps in event-driven convergence.",
+      "suggested_fix": "Catch and ignore or trace exceptions from `onProgress` so observer bugs cannot terminate convergence."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

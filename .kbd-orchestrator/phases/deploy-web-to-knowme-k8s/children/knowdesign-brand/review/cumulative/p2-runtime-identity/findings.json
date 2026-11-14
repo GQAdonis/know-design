@@ -1,0 +1,57 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-6.1-sol",
+  "producer_model": "claude-sonnet-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "apps/packaged/src/paths.ts",
+      "line": 67,
+      "claim": "The change introduces concrete daemon/package data directory examples, violating the repository rule forbidding concrete daemon data path examples.",
+      "evidence": "Constraint: \"Daemon data paths derive from `RUNTIME_DATA_DIR`. Do not introduce concrete filesystem examples for the daemon data directory...\"; hunk adds `Set OD_DATA_DIR to an absolute path (for example, C:\\\\Users\\\\You\\\\${compactName} on Windows or /Users/you/${compactName} on macOS/Linux) ...`.",
+      "suggested_fix": "Remove the concrete filesystem examples from the OD_DATA_DIR error text and describe the requirement generically."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/daemon/src/mcp.ts",
+      "line": 67,
+      "claim": "The MCP server name is resolved at module import time instead of call/runtime time, so a profile applied after import can leave KnowDesign advertising `open-design`.",
+      "evidence": "Acceptance criteria require brand values be \"resolved at call time not import time\"; the hunk defines `const SERVER_NAME = defaultMcpServerName();` at top level.",
+      "suggested_fix": "Resolve the server name inside the MCP server creation/start path, or expose a function that calls `defaultMcpServerName()` when the server is instantiated."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "apps/packaged/src/headless.ts",
+      "line": 103,
+      "claim": "The headless packaged entry resolves brand identity from `process.env` without applying the baked build profile, so a no-environment KnowDesign launch can still use Open Design identity.",
+      "evidence": "Acceptance criteria: \"the knowdesign brand follows OD_BUILD_PROFILE=knowdesign and is also BAKED into the packaged config so a launch with no environment variable is knowdesign\" and \"D-020: profile baked by construction\"; the only new baked-profile application is in `apps/packaged/src/config.ts` inside `readPackagedConfig()`, while `apps/packaged/src/headless.ts` uses `resolveBrand(process.env).slug` in the catch path and `resolveHeadlessNamespaceBaseRoot()` uses `resolveBrand(env).slug` without any baked-profile application in the headless entry.",
+      "suggested_fix": "Ensure the headless entry reads the packaged config and calls `applyBakedBuildProfile(raw.buildProfile)` before any `resolveBrand(...)` or brand-derived path/name is used."
+    },
+    {
+      "severity": "WARNING",
+      "file": "apps/packaged/src/paths.ts",
+      "line": 56,
+      "claim": "Brand-derived OD_DATA_DIR error text ignores the function's `env` parameter and reads `process.env`, producing the wrong brand when callers pass an explicit environment.",
+      "evidence": "The hunk is inside `resolvePackagedDataRoot(..., env)` but uses `const productName = resolveBrand(process.env).productName;` instead of `resolveBrand(env)`.",
+      "suggested_fix": "Use `resolveBrand(env)` consistently in `resolvePackagedDataRoot`."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "openai-proxy-8181",
+    "providerId": "openai",
+    "modelId": "gpt-6.1-sol"
+  },
+  "producer_identity": {
+    "providerConnectionId": "claude-code-session",
+    "providerId": "anthropic",
+    "modelId": "claude-sonnet-5-5"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

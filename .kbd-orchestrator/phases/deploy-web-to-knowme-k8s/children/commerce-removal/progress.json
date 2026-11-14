@@ -2,16 +2,16 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 262,
-  "derivedRevision": 262,
+  "sourceRevision": 338,
+  "derivedRevision": 338,
   "frontier": {
-    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 262
+    "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 338
   },
   "conflictCount": 0,
   "phase": "commerce-removal",
   "phaseId": "commerce-removal",
   "parentPhase": "deploy-web-to-knowme-k8s",
-  "last_updated": "2026-10-06T08:57:23.435719Z",
+  "last_updated": "2026-10-06T16:53:03.618792Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 6,
   "changes_completed": 6,
@@ -49,7 +49,7 @@
     "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 7,
+      "completed": 11,
       "total": 47,
       "status": "IN_PROGRESS"
     },

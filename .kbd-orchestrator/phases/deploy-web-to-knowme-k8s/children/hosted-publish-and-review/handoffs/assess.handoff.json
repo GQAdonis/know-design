@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-10-17T16:30:34Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Correction to the starting hypothesis: OD_RESOURCE_HUB_URL is not a seam. Publish shells out to the closed vela CLI, which is dead under the knowdesign profile, so the work is replace-the-transport plus a new hub service and a reviewer page. The collab-cloud HTTP client already exists for the comment return path. Overlaps identity-and-collaboration changes 05 and 06 (re-scoping needs approval). Biggest risk: authored HTML served from our domain (isolate the origin). Unverified: Quarry live prerequisites, DNS in git, guest member re-homing in the relay receiver.",
+  "skipped": false,
+  "skipReason": null
+}

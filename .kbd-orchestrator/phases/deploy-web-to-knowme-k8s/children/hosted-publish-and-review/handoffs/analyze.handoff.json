@@ -1,0 +1,9 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-17T16:30:59Z",
+  "outputs": [],
+  "nextStage": "spec",
+  "summaryForNext": "skipped: Assessment found no existing publish/snapshot/comment service on the cluster or in the org repos to adopt; the remaining build-vs-adopt choices (HTTP framework, storage backend) are plan decisions D1/D2, not a landscape survey.",
+  "skipped": true,
+  "skipReason": "Assessment found no existing publish/snapshot/comment service on the cluster or in the org repos to adopt; the remaining build-vs-adopt choices (HTTP framework, storage backend) are plan decisions D1/D2, not a landscape survey."
+}
