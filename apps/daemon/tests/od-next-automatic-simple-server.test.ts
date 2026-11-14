@@ -210,7 +210,8 @@ describe('OD Next automatic production through the real server', () => {
     const hostLog = path.join(hostRoot, 'host-probes.jsonl');
     const selectedLog = path.join(hostRoot, 'selected-probes.jsonl');
     const previous = { PATH: process.env.PATH, OD_AGENT_HOME: process.env.OD_AGENT_HOME,
-      AIDER_BIN: process.env.AIDER_BIN };
+      AIDER_BIN: process.env.AIDER_BIN, CODEX_API_KEY: process.env.CODEX_API_KEY,
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY };
     await mkdir(hostBinDir);
     await mkdir(hostHome);
     await writeFile(hostLog, '');
@@ -228,6 +229,12 @@ console.log('aider 0.86.0');
     process.env.PATH = [hostBinDir, '/usr/bin', '/bin', '/usr/sbin', '/sbin'].join(path.delimiter);
     process.env.OD_AGENT_HOME = hostHome;
     process.env.AIDER_BIN = sentinel;
+    // A developer shell's exported key would satisfy Codex auth from the env
+    // and skip the login-status probe asserted below. The empty agentCliEnv
+    // entries cannot fence it: app-config normalization drops API-key entries
+    // saved without a base URL or explicit override intent.
+    delete process.env.CODEX_API_KEY;
+    delete process.env.OPENAI_API_KEY;
     try {
       const fixture = await createFixture('repair', { probeLogPath: selectedLog });
       const selectedBin = path.join(path.dirname(fixture.logPath), 'codex-repair');

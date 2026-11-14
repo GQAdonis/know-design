@@ -47,11 +47,16 @@ describe("packaged launch timing wiring", () => {
     const mark = vi.fn();
     const setReporter = vi.fn();
     const reportPackagedLaunch = vi.fn();
+    // Each phase is also appended to startup-events.jsonl by the recorder.
+    const record = vi.fn();
     const onPhase = evaluate(`const options = { ${method} }; options.onPhase;`, {
       packagedStartupTiming: { mark, setReporter }, reportPackagedLaunch, setSplashStage: vi.fn(), splash: null,
+      startup: { record },
     }) as (phase: string) => void;
-    for (const phase of ["daemon-spawning", "daemon-ready", "web-spawning", "web-ready"]) onPhase(phase);
+    const phases = ["daemon-spawning", "daemon-ready", "web-spawning", "web-ready"];
+    for (const phase of phases) onPhase(phase);
     expect(mark.mock.calls.flat()).toEqual(["daemon_spawning", "daemon_ready", "web_spawning", "web_ready"]);
+    expect(record.mock.calls.flat()).toEqual(phases);
     // The direct packaged reporter would send client_launch_attempt before a
     // fresh install has an installation identity, silently dropping it.
     expect(setReporter).not.toHaveBeenCalled();
