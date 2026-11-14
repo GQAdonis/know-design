@@ -6,7 +6,7 @@
     "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
     "phaseId": "htmx-prototypes-and-ipfs-deploy",
     "planRevision": 6,
-    "contractDigest": "f0197e0e46b4b8bdf6e7042c1ceb1c83bcab2e12c08a5cdec1de5dfbdbe88c95"
+    "contractDigest": "a9b38a10eefa752fb33d8e96c05bbfbf83c3fee758d307d4832791d40f9a6b32"
   },
   "digestNormalization": {
     "algorithm": "sha256",
@@ -187,7 +187,15 @@
     "noProgressLimit": 3,
     "tokenBudget": "UNKNOWN",
     "tokenFallback": "Checkpoint and report after each change; stop when toolCalls is exhausted.",
-    "exhaustion": "checkpoint + BLOCKED; never silent PASS; docs/state may be saved without running product tests."
+    "exhaustion": "checkpoint + BLOCKED; never silent PASS; docs/state may be saved without running product tests.",
+    "extensions": [
+      {
+        "repairAttempts": 1,
+        "date": "2026-11-14",
+        "reason": "MOCK-1 found a real defect (od-mock did not absolutize request paths in blob: preview documents); the fix is the fourth repair attempt",
+        "authorizedBy": "operator instruction in chat: Extend to 4"
+      }
+    ]
   },
   "evidenceInvalidation": "Evidence is keyed by contract digest, main HEAD at the boundary, vendored file sha256s and the Kubo RPC host. Only evidence whose key changed is invalidated; history is preserved; no blanket re-review.",
   "workerRoutes": {

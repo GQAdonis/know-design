@@ -2,7 +2,7 @@
   "phase": "htmx-prototypes-and-ipfs-deploy",
   "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
   "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
-  "contractDigest": "f0197e0e46b4b8bdf6e7042c1ceb1c83bcab2e12c08a5cdec1de5dfbdbe88c95",
+  "contractDigest": "a9b38a10eefa752fb33d8e96c05bbfbf83c3fee758d307d4832791d40f9a6b32",
   "scenarios": [
     {
       "id": "IPFS-1",
@@ -94,12 +94,16 @@
       "noProgress": {
         "class": "measured",
         "value": 0
+      },
+      "noProgressLimit": {
+        "class": "measured",
+        "value": 0
       }
     }
   },
   "sourceDigests": {
     ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/review/boundary-2026-11-14/README.md": "0cbbdd3be95b44164f527bcbfc93ac060b5ddf985c9073ba326944e1397fd89c",
-    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/adopted-contract.json": "15f2692d4e8a5bd7be9016302d6b4ed5bde71d702c4c6175ce2e611813222619",
+    ".kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/adopted-contract.json": "8d75255866bb7d636c158d4e1758d331ccc014a271088704d13f47d639ea80b2",
     "apps/daemon/src/deploy/ipfs.ts": "c2b06ca4f22c0410ea8f2cb1d9c29f21e60e79b4bfb59d4047f8d7ce7b06d0ee",
     "apps/daemon/src/deploy/prototype-manifest.ts": "b78b1d12ea94ad80048db528e4634d697e7f4b4ff0c722ed2574024e80188377",
     "design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js": "4003c55f25ac555e0d17473fefca7959dda73031bd033a2051c889e38a0de8a9",

@@ -12,3 +12,17 @@
 - Exact next work: /kbd-execute commerce-removal
 - Verification:
   - none recorded
+
+<!-- karpathy-progress-event:kpm-33a20ab521f826d7a2d2e1cc530f2062 -->
+## Progress boundary — 2026-11-14T19:03:14.095569Z
+
+- Event: `kpm-33a20ab521f826d7a2d2e1cc530f2062`
+- Boundary: `phase` / `complete`
+- Position: `htmx-prototypes-and-ipfs-deploy` / `-` / `-`
+- Class and elapsed time: `product` / `0.0` hours
+- Commit: `622bf856eae1e55b0666858a776b4ac9dccd1435`
+- Files: `.kbd-orchestrator/current-waypoint.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/adopted-contract.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/adopted/a9b38a10eefa752fb33d8e96c05bbfbf83c3fee758d307d4832791d40f9a6b32.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/authority/amend-contract-repair-budget.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/authority/amend-contract-repair-budget.json.sig`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/authority/sign-command.txt`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/boundary-results.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/hooks-status.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/hooks.log.jsonl`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/method-context.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/method-context.md`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/progress.json`, `.kbd-orchestrator/phases/htmx-prototypes-and-ipfs-deploy/tasks.md`, `.kbd-orchestrator/position-reminder.txt`, `.kbd-orchestrator/position.json`, `.prometheus/knowledge/.prompt-snapshots/project/current`, `.prometheus/knowledge/.prompt-snapshots/project/generations/32e0299c21891fb5d71ed668199d39def6612366b591ec3a7b977658087cd7c2.json`, `.prometheus/knowledge/.prompt-snapshots/project/generations/468dab71c7e2a6d1003a9a5a54b0ce49725c83d882aa8667f69da2b3cfb848fe.json`, `.prometheus/knowledge/.prompt-snapshots/project/generations/4f484928d75d8583bf9a39c2be6204842a84ca868c2506c8d76da4047f423f44.json`, `.prometheus/knowledge/.prompt-snapshots/project/generations/5ccb91caa5494e6b1a8ab75b003afdbf03dbe3ebd397ca8dddbe4e8ce83fc956.json`, `.prometheus/knowledge/.prompt-snapshots/project/generations/69a4d8f25bf68b58e3e5771834640024061dd805c309b4043f3ecb137c85402a.json`, `.prometheus/knowledge/.prompt-snapshots/project/generations/8c7402b23bb0c9f702129d4af9a6b8ed0178f5d5b75eff31076fb85c05cb4361.json`, `.prometheus/knowledge/.prompt-snapshots/project/generations/b353006f3da6e0676939b2e1f61859ff7840049fb1703ae5a13f72261b39c75c.json`, `.prometheus/knowledge/.prompt-snapshots/project/generations/d56b7b3ca061d9d981edd849dfb3be8138400b002a81f94a4ad77ef5a33a4523.json`, `.prometheus/knowledge/wiki/index.md`, `.prometheus/knowledge/wiki/karpathy-session-066486a73bc0cbeb.md`, `.prometheus/knowledge/wiki/karpathy-session-09775ca37fdd5a64.md`, `.prometheus/knowledge/wiki/karpathy-session-30156a5acb8e20c9.md`, `.prometheus/knowledge/wiki/karpathy-session-3423126365f88996.md`, `.prometheus/knowledge/wiki/karpathy-session-5a93e6bec4148e8a.md`, `.prometheus/knowledge/wiki/karpathy-session-8ec3b0458c73beba.md`, `.prometheus/knowledge/wiki/karpathy-session-8ff083b66a9d22c7.md`, `.prometheus/knowledge/wiki/karpathy-session-dbd04eb985ecd3cc.md`, `.prometheus/knowledge/wiki/log.md`
+- Blocker: none
+- Exact next work: /kbd-assess htmx-prototypes-and-ipfs-deploy
+- Verification:
+  - none recorded
