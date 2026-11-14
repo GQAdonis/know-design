@@ -1,0 +1,19 @@
+{
+  "project": {
+    "id": "995baaec-dea9-47a1-8a13-55cebacc4a84",
+    "name": "HTMX boundary example",
+    "skillId": null,
+    "designSystemId": null,
+    "metadata": {
+      "kind": "prototype",
+      "baseDir": "/private/tmp/claude-501/-Users-gqadonis--claude-spares-spare-lOVUJR/5acda4f9-cfd5-4403-9e0e-2693531a3f4a/scratchpad/proto-project",
+      "importedFrom": "folder",
+      "entryFile": "index.html"
+    },
+    "createdAt": 1794676392376,
+    "updatedAt": 1794676392376,
+    "lastUserQueryAt": null
+  },
+  "conversationId": "5adaec4a-f40e-4f56-adee-20c2124a9f79",
+  "entryFile": "index.html"
+}
