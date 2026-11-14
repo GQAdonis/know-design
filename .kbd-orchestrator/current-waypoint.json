@@ -2,11 +2,11 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 420,
-  "derivedRevision": 420,
+  "sourceRevision": 473,
+  "derivedRevision": 473,
   "frontier": {
     "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
-    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 75
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 128
   },
   "conflictCount": 0,
   "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
@@ -22,19 +22,19 @@
   "phase": "htmx-prototypes-and-ipfs-deploy",
   "parentPhase": null,
   "childPointer": null,
-  "change": "ipfs-deploy-provider",
-  "currentTask": "1",
+  "change": null,
+  "currentTask": null,
   "status": "ready",
   "lifecycle": "ready",
-  "stageId": "plan",
-  "stageStatus": "COMPLETE",
+  "stageId": "reflect",
+  "stageStatus": "IN_PROGRESS",
   "completionMetric": "implementation",
-  "implementationCompleted": 13,
+  "implementationCompleted": 19,
   "implementationTotal": 65,
   "planRevision": 6,
-  "revision": 420,
+  "revision": 473,
   "exactNextCommand": "/kbd-assess htmx-prototypes-and-ipfs-deploy",
-  "nextChange": "ipfs-deploy-provider",
-  "nextTask": "1",
-  "updatedAt": "2026-11-14T14:53:34.704603Z"
+  "nextChange": null,
+  "nextTask": null,
+  "updatedAt": "2026-11-14T17:41:57.302376Z"
 }
