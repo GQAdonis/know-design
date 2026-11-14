@@ -2,19 +2,19 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 383,
-  "derivedRevision": 383,
+  "sourceRevision": 420,
+  "derivedRevision": 420,
   "frontier": {
     "43032be1-f4c6-4bf6-b786-1e3079cd91bd": 345,
-    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 38
+    "97a8431f-a78f-4c30-8ca5-78f4c4caa996": 75
   },
   "conflictCount": 0,
-  "updatedAt": "2026-10-19T09:38:29.207235Z",
+  "updatedAt": "2026-11-14T14:53:34.704603Z",
   "cursor": [
-    "deploy-web-to-knowme-k8s",
-    "hosted-publish-and-review",
-    "execute",
-    "hub-core-service"
+    "htmx-prototypes-and-ipfs-deploy",
+    "plan",
+    "ipfs-deploy-provider",
+    "1"
   ],
   "root": {
     "type": "phase",
@@ -22,7 +22,7 @@
     "status": "ready",
     "progress": {
       "done": 13,
-      "total": 59
+      "total": 65
     },
     "children": [
       {
@@ -692,6 +692,73 @@
             "progress": {
               "done": 0,
               "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "htmx-prototypes-and-ipfs-deploy",
+        "canonicalId": "htmx-prototypes-and-ipfs-deploy",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 0,
+          "total": 6
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "ipfs-deploy-provider",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "htmx-runtime-kit",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "htmx-prototype-template",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "prototype-manifest",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "axum-export",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "react-flutter-conversion-specs",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 3
             }
           }
         ],

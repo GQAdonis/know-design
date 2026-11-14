@@ -1,13 +1,13 @@
 {
-  "status": "degraded",
+  "status": "ok",
   "gateway": "http://localhost:4000/v1",
   "roles": {
     "judge": {
-      "alias": "MiniMax-M3",
+      "alias": "k3.1-pro",
       "identity": {
-        "providerConnectionId": "minimax-direct",
-        "providerId": "minimax",
-        "modelId": "MiniMax-M3"
+        "providerConnectionId": "kimi-coding-plan",
+        "providerId": "moonshot",
+        "modelId": "k3.1-pro"
       },
       "source": "/Users/gqadonis/.prometheus/kbd/models.toml"
     },
@@ -35,6 +35,7 @@
     "gemini",
     "groq",
     "mistral",
+    "cohere",
     "fireworks",
     "openrouter"
   ],
@@ -43,9 +44,9 @@
     "medium",
     "frontier"
   ],
-  "distinct_models": 1,
+  "distinct_models": 2,
   "config_path": "/Users/gqadonis/.config/liter-llm/liter-llm-proxy.toml",
   "config_exists": true,
   "config_defects": [],
-  "checked_at": "2026-10-17T16:36:27Z"
+  "checked_at": "2026-11-14T14:12:54Z"
 }

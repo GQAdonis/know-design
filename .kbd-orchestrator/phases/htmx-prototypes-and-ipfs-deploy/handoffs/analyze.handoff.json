@@ -1,0 +1,9 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-11-14T14:37:30Z",
+  "outputs": [],
+  "nextStage": "spec",
+  "summaryForNext": "skipped: No external service or library to adopt; reuse points (deploy system, design-template/craft hooks, operator skills, locus IPFS script) were inventoried in assessment G1-G3.",
+  "skipped": true,
+  "skipReason": "No external service or library to adopt; reuse points (deploy system, design-template/craft hooks, operator skills, locus IPFS script) were inventoried in assessment G1-G3."
+}

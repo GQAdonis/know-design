@@ -1,0 +1,18 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-11-14T14:53:33Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "6 OpenSpec changes and 20 tasks in 4 rounds: {ipfs-deploy-provider, htmx-runtime-kit} → htmx-prototype-template → prototype-manifest → {axum-export, react-flutter-conversion-specs}. First change: ipfs-deploy-provider. Task model assignments are in plan.md (all native Claude Code, claude-opus-5-5). Contract adopted (f0197e0e) with 10 scenarios and one boundary packet. Approvals for the live IPFS publish, commits and the packaged build are collected at dispatch. WARNINGS: round-1 plan findings were resolved but round 2 never ran (k3.1-pro upstream 524); assess round-2 review never ran either.",
+  "skipped": false,
+  "skipReason": null,
+  "identity": {
+    "projectId": "a8c368f8-482a-4e04-80fc-3bca9a14e864",
+    "runId": "deploy-web-to-knowme-k8s-20260914T102437Z",
+    "phaseId": "htmx-prototypes-and-ipfs-deploy",
+    "planRevision": 6,
+    "contractDigest": "f0197e0e46b4b8bdf6e7042c1ceb1c83bcab2e12c08a5cdec1de5dfbdbe88c95"
+  }
+}

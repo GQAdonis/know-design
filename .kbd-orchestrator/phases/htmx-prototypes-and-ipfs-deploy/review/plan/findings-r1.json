@@ -1,0 +1,43 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3.1-pro",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "No change makes prototype generation emit `od-prototype.json`, even though the manifest is the input to both downstream export workstreams.",
+      "evidence": "The goal requires a manifest containing \"routes, components, state, entities, tokens\" and \"emitted with each prototype\". The only prototype-manifest tasks are \"schema + validator\" and \"preflight warning code + daemon check + test\", and the coverage mapping assigns MAN-1 only to those tasks. The earlier template tasks cover staging verification, SKILL/template/example files, and craft linting, but none adds manifest-emission instructions or an example manifest. The prototype-manifest criteria also mention only \"types, entities and components\", omitting state and tokens.",
+      "suggested_fix": "Add an explicit task that updates the template's SKILL/conventions and CRUD example to emit a manifest containing all five required sections. Acceptance must validate the manifest produced for the generated example and have axum-export and the conversion specs consume that actual output."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The IPFS work omits the constraint-required `types.ts` i18n update.",
+      "evidence": "The constraints require: \"New i18n keys must be added to `types.ts` first and defined in all 19 locale files\". Change ipfs-deploy-provider task 6 schedules only \"i18n keys in 19 locales + upstream-sync doc\"; neither its details nor any other task mentions `types.ts`.",
+      "suggested_fix": "Change task 6 to add the new keys to `types.ts` before updating all 19 locale files, and include the corresponding i18n/typecheck validation."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The acceptance plan does not exercise the required combination of an htmx/Alpine prototype running from IPFS.",
+      "evidence": "The goal requires prototypes to be \"near-functional in the preview iframe and on IPFS without a backend\". Scenario coverage assigns IPFS-1..4 exclusively to ipfs-deploy-provider T1\u2013T6 and MOCK-1..2 to htmx-runtime-kit and htmx-prototype-template; no scenario, task, or criterion loads the prototype through an IPFS gateway and exercises `od-mock`. The live boundary is described only as \"one live deploy\", without identifying its payload or browser assertions.",
+      "suggested_fix": "Add a boundary integration scenario, dependent on both ipfs-deploy-provider and htmx-prototype-template, that deploys the CRUD prototype, opens its gateway URL, and exercises mocked reads/writes and fragment swaps without a backend."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The CDN fallback contradicts the plan's outbound-host acceptance scope and introduces an unrecorded runtime network dependency.",
+      "evidence": "The plan states: \"The only outbound hosts this phase adds are the configured Kubo RPC host and gateway host\". It later specifies both \"a CDN-with-SRI fallback instruction\" and \"API/BYOK mode gets a degraded CDN fallback, not vendored files\", but records no CDN host in acceptance.",
+      "suggested_fix": "Either stage the vendored assets for API/BYOK mode or explicitly record and approve the exact CDN host, add its runtime fallback to acceptance, and revise the only-outbound-hosts statement."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "kimi-coding-plan",
+    "providerId": "moonshot",
+    "modelId": "k3.1-pro"
+  }
+}
