@@ -1,0 +1,97 @@
+{
+  "generatedAt": "2026-11-14",
+  "note": "Vendored, unmodified browser builds. Re-verify sha256 before upgrading. od-mock.js is built from ../../src/od-mock.ts.",
+  "files": [
+    {
+      "path": "htmx.min.js",
+      "package": "htmx.org",
+      "version": "2.0.8",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/htmx.org/-/htmx.org-2.0.8.tgz#package/dist/htmx.min.js",
+      "sha256": "22283ef68cb7545914f0a88a1bdedc7256a703d1d580c1d255217d0a50d31313",
+      "bytes": 51250
+    },
+    {
+      "path": "alpine.min.js",
+      "package": "alpinejs",
+      "version": "3.17.5",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/alpinejs/-/alpinejs-3.17.5.tgz#package/dist/cdn.min.js",
+      "sha256": "b4036e9e9ac22fa6f6ae1ba292e015e1f3e9c85d0d79e73e4c8eb9bb139b522e",
+      "bytes": 55935
+    },
+    {
+      "path": "ext/head-support.min.js",
+      "package": "htmx-ext-head-support",
+      "version": "2.0.5",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/htmx-ext-head-support/-/htmx-ext-head-support-2.0.5.tgz#package/dist/head-support.min.js",
+      "sha256": "86e59ae1048bf02fb31a5842b4b559a1058b4c3ff190c258530ecb94f9fa6d56",
+      "bytes": 1852
+    },
+    {
+      "path": "ext/preload.min.js",
+      "package": "htmx-ext-preload",
+      "version": "2.1.2",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/htmx-ext-preload/-/htmx-ext-preload-2.1.2.tgz#package/dist/preload.min.js",
+      "sha256": "2ac8ccf77deee4f8e87366d6b606085eed755b02513746ead7573395e717d26e",
+      "bytes": 4051
+    },
+    {
+      "path": "ext/response-targets.min.js",
+      "package": "htmx-ext-response-targets",
+      "version": "2.0.4",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/htmx-ext-response-targets/-/htmx-ext-response-targets-2.0.4.tgz#package/dist/response-targets.min.js",
+      "sha256": "bde3061dd9b0c7a0b3c7bae63784312bbb7a3a798411b750fe1a5c07a286e63a",
+      "bytes": 1692
+    },
+    {
+      "path": "ext/loading-states.min.js",
+      "package": "htmx-ext-loading-states",
+      "version": "2.0.2",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/htmx-ext-loading-states/-/htmx-ext-loading-states-2.0.2.tgz#package/dist/loading-states.min.js",
+      "sha256": "199e800b4c63f61f3ff853f5817b7cb3bcc9d769eb106a92cbe3e12f7b5b19c2",
+      "bytes": 2176
+    },
+    {
+      "path": "ext/class-tools.min.js",
+      "package": "htmx-ext-class-tools",
+      "version": "2.0.3",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/htmx-ext-class-tools/-/htmx-ext-class-tools-2.0.3.tgz#package/dist/class-tools.min.js",
+      "sha256": "dacde35f4a95f28f157f1de8506ace8f300aca73193013e66c15fe0f5cdec68b",
+      "bytes": 1284
+    },
+    {
+      "path": "ext/sse.min.js",
+      "package": "htmx-ext-sse",
+      "version": "2.2.4",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/htmx-ext-sse/-/htmx-ext-sse-2.2.4.tgz#package/dist/sse.min.js",
+      "sha256": "98a46496de0c3605fbffdce9167ba427bdd9553184f83f149c261891a92c0136",
+      "bytes": 2853
+    },
+    {
+      "path": "ext/idiomorph-ext.min.js",
+      "package": "idiomorph",
+      "version": "0.8.0",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/idiomorph/-/idiomorph-0.8.0.tgz#package/dist/idiomorph-ext.min.js",
+      "sha256": "5811b9a7eda14878b7dab4378bf60432e1bb6f11fcfb970cc26540642650181e",
+      "bytes": 11037
+    },
+    {
+      "path": "od-mock.js",
+      "package": "od-mock (this template)",
+      "version": "1.0.0",
+      "license": "Apache-2.0 (repository license)",
+      "source": "src/od-mock.ts",
+      "build": "pnpm --filter @open-design/tools-pack exec esbuild \"$PWD/design-templates/htmx-alpine-prototype/src/od-mock.ts\" --bundle --format=iife --target=es2019 --legal-comments=none --outfile=\"$PWD/design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js\"",
+      "sha256": "43aa54faf41546b9a7b8e6274692ac6cd7e9356e0f25832ffacff63cc00b2695",
+      "bytes": 16773
+    }
+  ]
+}
