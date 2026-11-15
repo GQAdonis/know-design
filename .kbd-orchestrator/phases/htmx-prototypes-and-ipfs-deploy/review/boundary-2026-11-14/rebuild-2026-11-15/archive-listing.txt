@@ -1,0 +1,32 @@
+Archive:  /private/tmp/claude-501/-Users-gqadonis--claude-spares-spare-lOVUJR/5acda4f9-cfd5-4403-9e0e-2693531a3f4a/scratchpad/rebuild-verify/tpl1.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+    31533  11-14-2026 17:54   index.html
+     4636  11-14-2026 17:54   od-prototype.json
+        0  11-15-2026 20:37   vendor/
+     4043  11-14-2026 17:52   vendor/MANIFEST.json
+    55935  11-14-2026 17:52   vendor/alpine.min.js
+        0  11-15-2026 20:37   vendor/ext/
+     1284  11-14-2026 17:52   vendor/ext/class-tools.min.js
+     1852  11-14-2026 17:52   vendor/ext/head-support.min.js
+    11037  11-14-2026 17:52   vendor/ext/idiomorph-ext.min.js
+     2176  11-14-2026 17:52   vendor/ext/loading-states.min.js
+     4051  11-14-2026 17:52   vendor/ext/preload.min.js
+     1692  11-14-2026 17:52   vendor/ext/response-targets.min.js
+     2853  11-14-2026 17:52   vendor/ext/sse.min.js
+    51250  11-14-2026 17:52   vendor/htmx.min.js
+        0  11-15-2026 20:37   vendor/licenses/
+     1241  11-14-2026 17:52   vendor/licenses/alpinejs.LICENSE
+      670  11-14-2026 17:52   vendor/licenses/htmx-ext-class-tools.LICENSE
+      187  11-14-2026 17:52   vendor/licenses/htmx-ext-head-support.LICENSE
+      670  11-14-2026 17:52   vendor/licenses/htmx-ext-loading-states.LICENSE
+      689  11-14-2026 17:52   vendor/licenses/htmx-ext-preload.LICENSE
+      670  11-14-2026 17:52   vendor/licenses/htmx-ext-response-targets.LICENSE
+      670  11-14-2026 17:52   vendor/licenses/htmx-ext-sse.LICENSE
+      642  11-14-2026 17:52   vendor/licenses/htmx.org.LICENSE
+      642  11-14-2026 17:52   vendor/licenses/idiomorph.LICENSE
+    17606  11-14-2026 18:23   vendor/od-mock.js
+     7647  01-01-2098 00:00   DESIGN-HANDOFF.md
+     7090  01-01-2098 00:00   DESIGN-MANIFEST.json
+---------                     -------
+   210766                     27 files

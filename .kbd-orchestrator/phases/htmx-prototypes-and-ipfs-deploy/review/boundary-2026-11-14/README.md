@@ -32,3 +32,12 @@ Runtime: daemon/web started with `tools-dev` in namespace `htmx-boundary`, with 
 ## Finding: local scripts do not load in the sandboxed srcdoc preview (this browser)
 
 In the built-in Chromium, an iframe with `sandbox="allow-scripts allow-downloads"` (KnowDesign's preview flags, opaque origin) fails to load **any** script from a loopback address: the daemon/web origin (root-relative, absolute and base-relative URLs all fail) and another local port. The same frame loads htmx from `cdn.jsdelivr.net`. The URLs answer 200 to curl with cross-site headers and no COEP/CORP/CSP is set. Consistent with Chromium's Local Network Access treating opaque origins as public. Effect: any project with local `<script src>` files is non-interactive in the srcdoc preview here. Not specific to od-mock (the page works top-level, over HTTP, and on IPFS). **Packaged app: not affected.** In the packaged KnowDesign renderer (origin `od://app`), the same sandboxed srcdoc probe loads `vendor/htmx.min.js` from the local daemon and htmx initializes; the app's Chromium runs with `LocalNetworkAccessChecks` disabled. A hosted web deployment serves scripts from its own public host, where Local Network Access does not apply. Affected surface: only the web UI opened in an external browser against a loopback daemon (e.g. `tools-dev`). Packaged-app note: folder import from outside the desktop is refused without the desktop auth token (expected); the project was created through `od project create` + `od files upload` instead.
+
+## Packaged rebuild, 2026-11-15 (`rebuild-2026-11-15/`)
+
+The packaged app was rebuilt from `59484e0ad9` (`tools-pack mac build --to app --namespace htmx-boundary-pack`, exit 0) and started against the same data directory.
+
+- The bundled template `vendor/od-mock.js` is byte-identical to the fixed build (sha256 `4003c55f…`). The bundled daemon contains the prototype-runtime `vendor/` rule.
+- TPL-1 project: `GET /api/projects/:id/files` returns 20 `vendor/` paths. In the app's Design Files panel, Folders shows `vendor` with 20 files (`file-panel-folders-vendor.jpg`).
+- `GET /api/projects/:id/archive` returns 200, and the zip contains the whole `vendor/` tree, including the fixed `od-mock.js` (`archive-listing.txt`).
+- Not re-run: a new agent generation from the template on this build. MOCK-1 was already verified on this project's patched `od-mock.js`.

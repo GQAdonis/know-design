@@ -1,0 +1,6 @@
+commit 59484e0ad92eaf99371bdbdad7c0d76c0cd1d7c4
+build: OD_BUILD_PROFILE=knowdesign pnpm tools-pack mac build --to app --namespace htmx-boundary-pack --json  (exit 0)
+4003c55f25ac555e0d17473fefca7959dda73031bd033a2051c889e38a0de8a9  .tmp/tools-pack/out/mac/namespaces/knowdesign-htmx-boundary-pack/builder/mac-arm64/KnowDesign.app/Contents/Resources/open-design/design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js
+4003c55f25ac555e0d17473fefca7959dda73031bd033a2051c889e38a0de8a9  design-templates/htmx-alpine-prototype/assets/vendor/od-mock.js
+daemon chunk with isPrototypeRuntimeDir: prebundled/daemon/chunks/chunk-FHR7IUWP.mjs
+archive GET status: 200; vendor/od-mock.js sha256 in zip: 4003c55f25ac555e0d17473fefca7959dda73031bd033a2051c889e38a0de8a9
